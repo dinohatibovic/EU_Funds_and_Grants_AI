@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-# Uvozimo tvoje popravljene module
+# Uvozimo tvoje popravljene module (koji sada rade!)
 from embeddings.embedding_client import EmbeddingClient
 from vector_db.chroma_client import ChromaDBClient
 
@@ -18,35 +18,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger("eu_grants_api")
 
-# --- 2. INICIJALIZACIJA SISTEMA ---
-# Ovo se pokreće samo jednom kad se server upali
-logger.info("🚀 Podižem EU Funds AI Sistem...")
-
-try:
-    # Inicijalizujemo klijente koje si popravio
-    embedding_client = EmbeddingClient()
-    chroma_client = ChromaDBClient()
-    logger.info("✅ Klijenti za AI i Bazu su spremni.")
-except Exception as e:
-    logger.critical(f"❌ Kritična greška pri startu: {e}")
-    # Ne dižemo exception ovdje da bi se server ipak upalio, ali logujemo grešku
+# --- 2. GLOBALNE VARIJABLE ---
+embedding_client = None
+chroma_client = None
 
 app = FastAPI(
-    title="EU Funds & Grants AI",
-    description="Napredni AI sistem za pretragu grantova u BiH koristeći Google Gemini 3072-dim embeddinge.",
-    version="2.1.0-enterprise"
+    title="FinAssistBH AI Platform API",
+    description="Enterprise-grade AI API za EU fondove u BiH (Gemini 3072-dim).",
+    version="v2.1.0-enterprise"
 )
 
 # CORS (Dozvole za Frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # U produkciji ovdje staviš svoj GitHub Pages URL
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- 3. DOMENSKI MODELI (Ono što si tražio iz JSON-a) ---
+# --- 3. DOMENSKI MODELI (Pydantic - Iz tvog JSON-a) ---
 
 class SearchRequest(BaseModel):
     """
@@ -55,35 +46,43 @@ class SearchRequest(BaseModel):
     query: str = Field(..., min_length=3, description="Korisnički upit, npr. 'startups in BiH'")
     n_results: int = Field(default=5, ge=1, le=20, description="Broj rezultata za vratiti")
 
-class GrantResult(BaseModel):
-    """
-    Struktura jednog rezultata pretrage.
-    """
-    text: str
-    metadata: Dict[str, Any]
-    score: Optional[float] = None
-
 class SearchResponse(BaseModel):
     """
     Format odgovora koji Frontend očekuje.
     """
-    results: List[str] # Zadržavamo jednostavnu listu stringova za kompatibilnost sa tvojim JS-om
-    documents: List[List[str]] # Raw dokumenti iz ChromaDB
-    metadatas: List[List[Dict[str, Any]]] # Metapodaci (Izvor, Godina)
+    results: List[str] # Jednostavna lista za prikaz na karticama
+    documents: List[List[str]] # Raw dokumenti iz ChromaDB (za debug)
+    metadatas: List[List[Dict[str, Any]]] # Metapodaci (Izvor, Godina, Kategorija)
     request_id: str
     processing_time: float
 
-# --- 4. API ENDPOINTI ---
+# --- 4. INICIJALIZACIJA PRI STARTU ---
+
+@app.on_event("startup")
+async def startup_event():
+    global embedding_client, chroma_client
+    logger.info("🚀 Podižem FinAssistBH AI Sistem...")
+    try:
+        # Inicijalizujemo klijente koje si popravio
+        embedding_client = EmbeddingClient()
+        chroma_client = ChromaDBClient()
+        logger.info("✅ Klijenti za Gemini AI i ChromaDB su spremni.")
+    except Exception as e:
+        logger.critical(f"❌ Kritična greška pri startu: {e}")
+
+# --- 5. API ENDPOINTI ---
 
 @app.get("/")
 def root():
-    return {"message": "EU Funds and Grants AI API je Online", "version": "2.1.0", "status": "running"}
+    return {
+        "message": "FinAssistBH AI Platform je Online", 
+        "version": "v2.1.0-enterprise", 
+        "status": "running"
+    }
 
 @app.get("/health")
 def health_check():
-    """
-    Provjerava da li su baza i embedding klijent živi.
-    """
+    """System Health Check za Render."""
     status = {
         "status": "healthy",
         "database": "connected" if chroma_client else "disconnected",
@@ -96,7 +95,7 @@ async def search_endpoint(request: SearchRequest):
     """
     Glavni endpoint za pretragu.
     1. Prima tekst.
-    2. Pretvara ga u vektor (Gemini).
+    2. Pretvara ga u vektor (Gemini 3072-dim).
     3. Traži u bazi (Chroma).
     4. Vraća rezultate.
     """
@@ -105,11 +104,10 @@ async def search_endpoint(request: SearchRequest):
     logger.info(f"🔍 [ID: {req_id}] Primljen upit: '{request.query}'")
 
     if not embedding_client or not chroma_client:
-        raise HTTPException(status_code=503, detail="Sistem nije u potpunosti inicijalizovan.")
+        raise HTTPException(status_code=503, detail="Sistem se još inicijalizuje, pokušajte za 10 sekundi.")
 
     try:
         # KORAK 1: Embedding Upita
-        # Koristimo tvoj embedding_client.py koji sada gađa 'models/gemini-embedding-001'
         query_vectors = embedding_client.generate_embeddings([request.query])
         
         if not query_vectors:
@@ -117,7 +115,6 @@ async def search_endpoint(request: SearchRequest):
             raise HTTPException(status_code=500, detail="Greška pri generisanju AI vektora.")
 
         # KORAK 2: Pretraga u Bazi
-        # Koristimo tvoj chroma_client.py
         search_results = chroma_client.query(
             query_embeddings=query_vectors,
             n_results=request.n_results
@@ -147,5 +144,4 @@ async def search_endpoint(request: SearchRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    # Ovo služi samo za lokalno testiranje
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
