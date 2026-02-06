@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Funds & Grants AI: Inženjerski Izvještaj</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome (Bez direktnih SVG, koriste se ikone) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config for Palette -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eu-blue': '#004494',      
+                        'eu-yellow': '#FFD617',    
+                        'tech-dark': '#1A202C',
+                        'tech-light': '#F7FAFC',
+                        'accent-green': '#00C853',
+                        'accent-red': '#D50000',
+                        'card-bg': '#FFFFFF'
+                    },
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .interactive-card {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        }
+        .active-step {
+            background-color: #004494;
+            color: white;
+            border-color: #004494;
+        }
+        
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+
+    <!-- Chosen Palette: EU Tech Vibrant -->
+    <!-- Application Structure Plan: Dashboard sa dodatim AI Centrom. Korisnik može navigirati kroz tehnički izvještaj, ali i koristiti interaktivne AI funkcije za analizu i generisanje upita. -->
+    <!-- Visualization & Content Choices: 
+         Dodat je AI panel sa dynamic text blokovima koji se ažuriraju putem Gemini API-ja. 
+         Zadržan Chart.js za poređenje dimenzija.
+         CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+</head>
+<body class="bg-tech-light text-tech-dark font-sans leading-relaxed">
+
+    <!-- Header / Navbar -->
+    <nav class="bg-eu-blue text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-network-wired text-eu-yellow text-2xl mr-3"></i>
+                    <span class="font-bold text-xl tracking-tight">EU Funds & Grants AI</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="hidden md:inline bg-eu-yellow text-eu-blue px-3 py-1 rounded-full text-sm font-bold">v2.1 Enterprise Ready</span>
+                    <a href="#ai-center" class="bg-white text-eu-blue px-4 py-1 rounded shadow hover:bg-eu-yellow transition font-bold text-sm">✨ AI Centar</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- SECTION 1: Introduction -->
+        <section class="animate-fade-in-up">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-eu-blue mb-4">Inženjerski Izvještaj: Od Terminala do Enterprise Arhitekture</h1>
+                <p class="text-lg text-gray-700 max-w-3xl mx-auto">
+                    Ažurirana verzija sa integrisanim **✨ Gemini LLM** funkcijama za realnu asistenciju pri pretrazi i analizi grantova.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-eu-blue flex items-center justify-between">
+                    <div><p class="text-sm text-gray-500 font-bold uppercase">Razvoj</p><p class="text-3xl font-bold">465+</p></div>
+                    <i class="fa-solid fa-code text-3xl text-eu-blue opacity-20"></i>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-eu-yellow flex items-center justify-between">
+                    <div><p class="text-sm text-gray-500 font-bold uppercase">AI Rezolucija</p><p class="text-3xl font-bold">3072</p></div>
+                    <i class="fa-solid fa-brain text-3xl text-eu-yellow opacity-80"></i>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-accent-green flex items-center justify-between">
+                    <div><p class="text-sm text-gray-500 font-bold uppercase">Backend</p><p class="text-3xl font-bold">FastAPI</p></div>
+                    <i class="fa-solid fa-bolt text-3xl text-accent-green opacity-20"></i>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500 flex items-center justify-between">
+                    <div><p class="text-sm text-gray-500 font-bold uppercase">Model</p><p class="text-3xl font-bold">Gemini 2.5</p></div>
+                    <i class="fa-solid fa-sparkles text-3xl text-purple-500 opacity-20"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: ✨ AI CENTER (Gemini Integration) -->
+        <section id="ai-center" class="bg-gradient-to-br from-eu-blue to-tech-dark text-white p-8 rounded-2xl shadow-2xl space-y-8 scroll-mt-20">
+            <div class="flex items-center gap-4">
+                <div class="bg-eu-yellow text-eu-blue p-3 rounded-xl"><i class="fa-solid fa-robot text-2xl"></i></div>
+                <div>
+                    <h2 class="text-3xl font-bold text-eu-yellow">✨ FinAssist AI Centar</h2>
+                    <p class="text-blue-100">Pokreće Gemini - Direktna pomoć za vaše projekte.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Tool 1: Query Generator -->
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 space-y-4">
+                    <h3 class="text-xl font-bold flex items-center gap-2 text-eu-yellow">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generator Upita
+                    </h3>
+                    <p class="text-sm text-blue-100">Opišite ukratko čime se bavi vaša firma i AI će kreirati optimalne ključne riječi za našu bazu.</p>
+                    <textarea id="projectDesc" rows="3" class="w-full bg-white/5 border border-white/30 rounded-lg p-3 text-white placeholder-blue-200/50 focus:border-eu-yellow outline-none transition" placeholder="Npr. Mi smo mala firma iz Tešnja koja se bavi digitalizacijom poljoprivrede..."></textarea>
+                    <button onclick="generateAIQueries()" id="queryBtn" class="w-full bg-eu-yellow text-eu-blue font-bold py-3 rounded-lg hover:bg-white transition flex items-center justify-center gap-2">
+                        <span>✨ Generiši upite</span>
+                    </button>
+                    <div id="queryResult" class="hidden bg-black/30 p-4 rounded-lg border border-white/10 text-sm italic"></div>
+                </div>
+
+                <!-- Tool 2: Eligibility Analyst -->
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 space-y-4">
+                    <h3 class="text-xl font-bold flex items-center gap-2 text-eu-yellow">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> Brza Analiza Granta
+                    </h3>
+                    <p class="text-sm text-blue-100">Zalijepite pasus iz uslova granta (npr. 'Eligibility Criteria') i AI će procijeniti šanse za BiH firme.</p>
+                    <textarea id="grantSnippet" rows="3" class="w-full bg-white/5 border border-white/30 rounded-lg p-3 text-white placeholder-blue-200/50 focus:border-eu-yellow outline-none transition" placeholder="Zalijepite tekst ovdje..."></textarea>
+                    <button onclick="analyzeGrant()" id="analyzeBtn" class="w-full border-2 border-eu-yellow text-eu-yellow font-bold py-3 rounded-lg hover:bg-eu-yellow hover:text-eu-blue transition flex items-center justify-center gap-2">
+                        <span>✨ Analiziraj podobnost</span>
+                    </button>
+                    <div id="analyzeResult" class="hidden bg-black/30 p-4 rounded-lg border border-white/10 text-sm whitespace-pre-wrap"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Dimensions Comparison -->
+        <section class="bg-white p-8 rounded-xl shadow-lg">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-eu-blue mb-4">Moć 3072 Dimenzije</h2>
+                    <p class="text-gray-600 mb-6">
+                        Kroz integraciju Gemini-ja, postigli smo rezoluciju koja je standard u Enterprise sistemima. Vaš AI vidi četiri puta više nijansi u tekstu u odnosu na standardne modele.
+                    </p>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <h4 class="font-bold text-eu-blue text-sm mb-1"><i class="fa-solid fa-lightbulb mr-2"></i>Semantička Sličnost</h4>
+                        <p class="text-sm text-gray-700">Ovaj nivo detalja omogućava da Gemini razumije čak i najkompleksnije birokratske termine.</p>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="chart-container"><canvas id="dimensionsChart"></canvas></div>
+                    <p class="text-center text-sm text-gray-500 mt-2">Poređenje rezolucije AI modela</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: System Architecture -->
+        <section>
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-eu-blue mb-2">Tehnička Arhitektura</h2>
+                <p class="text-gray-600">Arhitektura podržava asinkronu komunikaciju sa LLM servisima.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-4">
+                    <div onclick="updateArchDetails('frontend')" class="interactive-card bg-white p-4 rounded-lg border-l-8 border-blue-500 shadow-sm flex items-center gap-4">
+                        <div class="bg-blue-100 p-3 rounded-full text-blue-600"><i class="fa-brands fa-html5 fa-lg"></i></div>
+                        <div><h3 class="font-bold">Frontend</h3><p class="text-xs">GitHub Pages</p></div>
+                    </div>
+                    <div onclick="updateArchDetails('backend')" class="interactive-card bg-white p-4 rounded-lg border-l-8 border-green-500 shadow-sm flex items-center gap-4">
+                        <div class="bg-green-100 p-3 rounded-full text-green-600"><i class="fa-solid fa-server fa-lg"></i></div>
+                        <div><h3 class="font-bold">API Gateway</h3><p class="text-xs">FastAPI</p></div>
+                    </div>
+                    <div onclick="updateArchDetails('llm')" class="interactive-card bg-white p-4 rounded-lg border-l-8 border-purple-500 shadow-sm flex items-center gap-4">
+                        <div class="bg-purple-100 p-3 rounded-full text-purple-600"><i class="fa-solid fa-wand-sparkles fa-lg"></i></div>
+                        <div><h3 class="font-bold">LLM Engine</h3><p class="text-xs">✨ Gemini API</p></div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-tech-dark text-white rounded-xl p-8 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i id="detailIcon" class="fa-solid fa-network-wired text-9xl"></i></div>
+                    <h3 id="detailTitle" class="text-2xl font-bold mb-4 text-eu-yellow">Detalji Komponente</h3>
+                    <div id="detailContent" class="space-y-4 text-gray-300">
+                        <p>Odaberite komponentu za prikaz tehničkih detalja arhitekture.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Roadmap -->
+        <section class="bg-gradient-to-r from-eu-blue to-blue-800 text-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6"><i class="fa-solid fa-route mr-2"></i>FinAssistBH Enterprise Vizija</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white/10 p-4 rounded-lg border border-white/20">
+                    <h4 class="font-bold text-eu-yellow mb-2">1. Hibridna Pretraga</h4>
+                    <p class="text-sm">Kombinacija vektorske i ključne pretrage.</p>
+                </div>
+                <div class="bg-white/10 p-4 rounded-lg border border-white/20">
+                    <h4 class="font-bold text-eu-yellow mb-2">2. Autonomni Agenti</h4>
+                    <p class="text-sm">Agenti koji sami pretražuju PDF-ove bez ljudske pomoći.</p>
+                </div>
+                <div class="bg-white/10 p-4 rounded-lg border border-white/20">
+                    <h4 class="font-bold text-eu-yellow mb-2">3. ChatBot Interfejs</h4>
+                    <p class="text-sm">Puna integracija LLM-a u glavni interfejs za chat.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center border-t border-slate-800">
+        <p>&copy; 2026 Dino Hatibović. EU Funds & Grants AI Project.</p>
+        <p class="text-xs mt-2">Razvijeno u Tešnju, BiH. Pokreće ✨ Google Gemini API.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const apiKey = ""; // API ključ se automatski umeće u okruženju
+
+        // --- Helper: Gemini API Call with Exponential Backoff ---
+        async function fetchGemini(promptText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }]
+            };
+
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                    
+                    const result = await response.json();
+                    return result.candidates?.[0]?.content?.parts?.[0]?.text || "Nema odgovora od AI.";
+                } catch (error) {
+                    if (i === 4) return "Greška: Neuspješno povezivanje sa AI servisom nakon 5 pokušaja.";
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // --- Feature: Generate Queries ---
+        async function generateAIQueries() {
+            const desc = document.getElementById('projectDesc').value;
+            const resultDiv = document.getElementById('queryResult');
+            const btn = document.getElementById('queryBtn');
+
+            if (!desc) return;
+
+            btn.disabled = true;
+            btn.innerHTML = "<span>✨ Razmišljam...</span>";
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = "Analiziram vašu firmu...";
+            resultDiv.classList.add('loading-shimmer');
+
+            const prompt = `Djeluj kao konsultant za EU fondove u BiH. Na osnovu opisa firme: "${desc}", generiši tačno 3 kratka i precizna ključna upita na engleskom jeziku koji bi najbolje funkcionisali u vektorskoj bazi. Odgovori samo sa upitima u novim redovima.`;
+
+            const response = await fetchGemini(prompt);
+            
+            resultDiv.classList.remove('loading-shimmer');
+            resultDiv.innerHTML = `<strong>✨ Preporučeni upiti:</strong><br>${response.replace(/\n/g, '<br>')}`;
+            btn.disabled = false;
+            btn.innerHTML = "<span>✨ Generiši upite</span>";
+        }
+
+        // --- Feature: Analyze Grant ---
+        async function analyzeGrant() {
+            const snippet = document.getElementById('grantSnippet').value;
+            const resultDiv = document.getElementById('analyzeResult');
+            const btn = document.getElementById('analyzeBtn');
+
+            if (!snippet) return;
+
+            btn.disabled = true;
+            btn.innerHTML = "<span>✨ Analiziram...</span>";
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = "Čitam pasus i provjeravam uslove...";
+            resultDiv.classList.add('loading-shimmer');
+
+            const prompt = `Kao stručnjak za grantove, analiziraj sljedeći tekst i objasni na bosanskom jeziku (u 3 kratke tačke): 
+            1. Šta je glavni uslov? 
+            2. Mogu li firme iz Bosne i Hercegovine aplicirati prema ovome? 
+            3. Koji je najbitniji rok ili cifra?
+            Tekst: "${snippet}"`;
+
+            const response = await fetchGemini(prompt);
+            
+            resultDiv.classList.remove('loading-shimmer');
+            resultDiv.innerHTML = `<strong>✨ AI Analiza:</strong><br>${response}`;
+            btn.disabled = false;
+            btn.innerHTML = "<span>✨ Analiziraj podobnost</span>";
+        }
+
+        // --- UI: Architecture Detail Logic ---
+        const archData = {
+            'frontend': {
+                title: 'Frontend: Responzivni SPA',
+                icon: 'fa-html5',
+                color: 'text-blue-500',
+                desc: 'Izgrađen pomoću Tailwind CSS-a za maksimalnu brzinu. Sada uključuje ✨ AI Dashboard koji direktno komunicira sa LLM modelima.'
+            },
+            'backend': {
+                title: 'Backend: FastAPI & Cloud',
+                icon: 'fa-server',
+                color: 'text-green-500',
+                desc: 'Upravlja validacijom i sigurnošću. Povezuje lokalnu bazu podataka sa eksternim AI uslugama kroz standardizirane endpoint-e.'
+            },
+            'llm': {
+                title: 'LLM Engine: Gemini 2.5',
+                icon: 'fa-wand-sparkles',
+                color: 'text-purple-500',
+                desc: 'Koristi najnoviji "flash" model za brzo generisanje odgovora i semantičku analizu dokumenata u realnom vremenu.'
+            }
+        };
+
+        function updateArchDetails(key) {
+            const data = archData[key];
+            const titleEl = document.getElementById('detailTitle');
+            const contentEl = document.getElementById('detailContent');
+            const iconEl = document.getElementById('detailIcon');
+
+            contentEl.style.opacity = 0;
+            setTimeout(() => {
+                titleEl.innerHTML = `<span class="${data.color}">${data.title}</span>`;
+                iconEl.className = `fa-solid ${data.icon} ${data.color} opacity-20 absolute -right-4 -bottom-4 text-9xl transform rotate-12`;
+                contentEl.innerHTML = `<p class="text-lg">${data.desc}</p>`;
+                contentEl.style.opacity = 1;
+            }, 200);
+        }
+
+        // --- Chart initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('dimensionsChart').getContext('2d');
+            
+            // Label wrapping logic as per instructions
+            function wrapLabels(labels) {
+                return labels.map(label => {
+                    if (label.length <= 16) return label;
+                    const words = label.split(' ');
+                    let lines = [];
+                    let currentLine = "";
+                    words.forEach(word => {
+                        if ((currentLine + word).length > 16) {
+                            lines.push(currentLine.trim());
+                            currentLine = word + " ";
+                        } else {
+                            currentLine += word + " ";
+                        }
+                    });
+                    lines.push(currentLine.trim());
+                    return lines;
+                });
+            }
+
+            const rawLabels = ['OpenAI stari (ada-002)', 'Standardni (768)', 'FinAssist Gemini (3072)'];
+            const wrappedLabels = wrapLabels(rawLabels);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: wrappedLabels,
+                    datasets: [{
+                        label: 'Rezolucija',
+                        data: [1536, 768, 3072],
+                        backgroundColor: ['rgba(200,200,200,0.5)', 'rgba(200,200,200,0.5)', '#004494'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    return Array.isArray(label) ? label.join(' ') : label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
