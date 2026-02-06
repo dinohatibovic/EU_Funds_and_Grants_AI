@@ -1,0 +1,4 @@
+To use the fastapi command, please install "fastapi[standard]":
+
+	pip install "fastapi[standard]"
+
