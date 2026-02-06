@@ -1,121 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EU Funds & Grants AI</title>
+    <title>EU Funds & Grants AI | Dino Hatibović</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
-        h1 { color: #003399; margin-bottom: 0.5rem; } /* EU Blue */
-        p { color: #666; margin-bottom: 2rem; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: 0.3s; }
-        input:focus { border-color: #003399; outline: none; }
-        button { padding: 12px 24px; background-color: #003399; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #002266; }
-        #results { text-align: left; margin-top: 20px; }
-        .result-card { background: #f9f9f9; padding: 15px; border-left: 5px solid #ffcc00; /* EU Yellow */ margin-bottom: 10px; border-radius: 4px; animation: fadeIn 0.5s; }
-        .result-meta { font-size: 0.85em; color: #888; margin-bottom: 5px; }
-        .error { color: red; background: #ffe6e6; padding: 10px; border-radius: 8px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        :root {
+            --eu-blue: #003399;
+            --eu-yellow: #FFCC00;
+            --bg-light: #f8f9fa;
+            --text-dark: #1a1a1a;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--eu-blue) 0%, #001a4d 100%);
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        .header-content p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 1rem auto 0;
+        }
+
+        .main-container {
+            flex: 1;
+            width: 100%;
+            max-width: 800px;
+            margin: -2rem auto 3rem;
+            padding: 0 1rem;
+        }
+
+        .search-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .search-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid #eef0f2;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--eu-blue);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 51, 153, 0.1);
+        }
+
+        button {
+            padding: 16px 32px;
+            background-color: var(--eu-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover {
+            background-color: #002673;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #status-indicator {
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #666;
+        }
+
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        .dot-online { background-color: #28a745; box-shadow: 0 0 8px #28a745; }
+        .dot-offline { background-color: #dc3545; }
+
+        .results-grid {
+            margin-top: 2rem;
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grant-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 6px solid var(--eu-yellow);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            animation: slideUp 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grant-source {
+            font-weight: 700;
+            color: var(--eu-blue);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .grant-text {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .grant-footer {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 51, 153, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--eu-blue);
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🇪🇺 EU Funds & Grants AI</h1>
-        <p>Pretraži grantove i fondove u BiH i EU uz pomoć AI</p>
-        
-        <div class="search-box">
-            <input type="text" id="query" placeholder="Npr. grants for startups, agriculture...">
-            <button onclick="searchGrants()">Search</button>
+    <header>
+        <div class="header-content">
+            <h1>🇪🇺 EU Funds AI Search</h1>
+            <p>Napredna pretraga grantova i fondova u Bosni i Hercegovini pokretana vještačkom inteligencijom.</p>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="search-card">
+            <div class="search-group">
+                <input type="text" id="queryInput" placeholder="Npr. podrška za startup firme ili poljoprivredu..." autofocus>
+                <button onclick="handleSearch()">Traži</button>
+            </div>
+            <div id="status-indicator">
+                <span id="status-dot" class="dot"></span>
+                <span id="status-text">Provjera servera...</span>
+            </div>
         </div>
 
-        <div id="loading" style="display:none; color: #003399;">⏳ Pretražujem bazu...</div>
-        <div id="results"></div>
+        <div id="loader" class="loader">
+            <div class="spinner"></div>
+            <p style="color: var(--eu-blue); font-weight: 600;">Analiziram bazu podataka...</p>
+        </div>
+
+        <div id="resultsGrid" class="results-grid">
+            </div>
     </div>
 
+    <footer>
+        &copy; 2026 EU Funds & Grants Project | Razvio: Dino Hatibović [Tešanj, BiH]
+    </footer>
+
     <script>
-        // OVO JE KLJUČNO: Tvoja Render adresa
-        const API_URL = "https://eu-funds-and-grants-ai.onrender.com";
+        const API_BASE = "https://eu-funds-and-grants-ai.onrender.com";
 
-        async function searchGrants() {
-            const query = document.getElementById('query').value;
-            const resultsDiv = document.getElementById('results');
-            const loadingDiv = document.getElementById('loading');
-
-            if (!query) {
-                alert("Molim vas upišite pojam za pretragu!");
-                return;
-            }
-
-            // Očisti prethodne rezultate i prikaži loading
-            resultsDiv.innerHTML = "";
-            loadingDiv.style.display = "block";
-
+        // Provjera zdravlja servera čim se stranica učita
+        async function checkHealth() {
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
             try {
-                // Šaljemo POST zahtjev tačno onako kako Python backend očekuje
-                const response = await fetch(`${API_URL}/search`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        query: query,
-                        n_results: 3
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Greška servera: ${response.status}`);
+                const res = await fetch(`${API_BASE}/health`);
+                if (res.ok) {
+                    dot.className = "dot dot-online";
+                    txt.innerText = "Sistem je online i spreman";
                 }
-
-                const data = await response.json();
-                
-                // Sakrij loading
-                loadingDiv.style.display = "none";
-
-                // Provjera rezultata
-                if (data.results && data.results.length > 0) {
-                    // Prikaz rezultata
-                    data.results.forEach(item => {
-                        // Backend vraća listu listi, pa uzimamo prvi element ako je ugnježden
-                        const text = Array.isArray(item) ? item[0] : item; 
-                        
-                        const card = document.createElement('div');
-                        card.className = 'result-card';
-                        card.innerHTML = `
-                            <div class="result-meta">AI Rezultat</div>
-                            <div>${text}</div>
-                        `;
-                        resultsDiv.appendChild(card);
-                    });
-                } else if (data.documents && data.documents.length > 0) {
-                     // Alternativna struktura ako ChromaDB vrati 'documents'
-                     data.documents[0].forEach(doc => {
-                        const card = document.createElement('div');
-                        card.className = 'result-card';
-                        card.innerHTML = `<div>${doc}</div>`;
-                        resultsDiv.appendChild(card);
-                     });
-                } else {
-                    resultsDiv.innerHTML = "<p>Nema rezultata za ovaj upit. Pokušajte 'startups' ili 'agriculture'.</p>";
-                }
-
-            } catch (error) {
-                console.error("Greška:", error);
-                loadingDiv.style.display = "none";
-                resultsDiv.innerHTML = `<div class="error">❌ Došlo je do greške: ${error.message}<br>Provjeri Console (F12) za detalje.</div>`;
+            } catch (e) {
+                dot.className = "dot dot-offline";
+                txt.innerText = "Server se budi (sačekajte 30s)...";
             }
         }
-        
-        // Omogući Enter tipku za pretragu
-        document.getElementById("query").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                searchGrants();
+
+        async function handleSearch() {
+            const query = document.getElementById('queryInput').value;
+            const grid = document.getElementById('resultsGrid');
+            const loader = document.getElementById('loader');
+
+            if (!query.trim()) return;
+
+            // Reset UI
+            grid.innerHTML = "";
+            loader.style.display = "block";
+
+            try {
+                const response = await fetch(`${API_BASE}/search`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: query, n_results: 3 })
+                });
+
+                const data = await response.json();
+                loader.style.display = "none";
+
+                // Logika za prikaz rezultata na osnovu strukture ChromaDB-a
+                const docs = data.documents ? data.documents[0] : [];
+                const metas = data.metadatas ? data.metadatas[0] : [];
+
+                if (docs.length === 0) {
+                    grid.innerHTML = "<p style='text-align:center; color:#666;'>Nema pronađenih rezultata za ovaj upit.</p>";
+                    return;
+                }
+
+                docs.forEach((text, index) => {
+                    const meta = metas[index] || {};
+                    const card = document.createElement('div');
+                    card.className = 'grant-card';
+                    card.style.animationDelay = `${index * 0.1}s`;
+                    
+                    card.innerHTML = `
+                        <span class="grant-source">${meta.source || 'EU GRANT'}</span>
+                        <div class="grant-text">${text}</div>
+                        <div class="grant-footer">
+                            <span>📂 ${meta.category || 'Opšte'}</span>
+                            <span>📍 ${meta.country || 'BiH'}</span>
+                            <span>📅 ${meta.year || '2024/25'}</span>
+                        </div>
+                    `;
+                    grid.innerHTML += card.outerHTML;
+                });
+
+            } catch (error) {
+                loader.style.display = "none";
+                grid.innerHTML = `<div style="color:red; text-align:center;">Greška: Nije moguće kontaktirati server.</div>`;
             }
+        }
+
+        // Enter podrška
+        document.getElementById('queryInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
         });
+
+        // Pokreni provjeru health-a
+        checkHealth();
     </script>
 </body>
 </html>
