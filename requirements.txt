@@ -1,0 +1,9 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.12.5
+python-dotenv==1.2.1
+google-genai==1.62.0
+chromadb==1.4.1
+beautifulsoup4==4.12.2
+requests==2.32.5
+python-multipart==0.0.6
