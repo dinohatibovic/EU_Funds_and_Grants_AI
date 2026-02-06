@@ -7,3 +7,4 @@ chromadb
 beautifulsoup4
 requests
 python-multipart
+sentence-transformers
