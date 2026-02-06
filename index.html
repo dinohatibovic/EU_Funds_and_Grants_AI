@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Funds & Grants AI: Inženjerski Pregled</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome for Icons (No SVG Graphics used directly) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        eu: {
+                            blue: '#003399',
+                            yellow: '#FFCC00',
+                            dark: '#001a4d',
+                            light: '#f0f4f8'
+                        },
+                        tech: {
+                            slate: '#1e293b',
+                            green: '#10b981',
+                            red: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .arch-box {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .arch-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .active-tab {
+            border-bottom: 2px solid #003399;
+            color: #003399;
+            font-weight: 600;
+        }
+        .inactive-tab {
+            color: #64748b;
+        }
+        .inactive-tab:hover {
+            color: #003399;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+
+    <!-- Chosen Palette: EU Corporate (Professional Blue/Yellow with Clean Grays) -->
+    <!-- Application Structure Plan: 
+         1. Hero Section: High-level metrics and project status (465 days, Enterprise Ready).
+         2. Evolution Timeline: Interactive cards showing the journey from UserLAnd to Render.
+         3. Architecture Explorer: An interactive block diagram. Clicking a block (Backend, DB, AI) updates a detail panel with technical specs from the report.
+         4. Engineering Challenges: A "Problem/Solution" toggle section to deep dive into the specific bugs (404, Env, ChromaDB) solved.
+         5. Data Intelligence: Visual comparison (Chart.js) of Embedding dimensions to explain the "3072" advantage.
+         6. Roadmap: Kanban-style view of future Enterprise features.
+         
+         WHY: The report is technical and narrative. A dashboard structure allows users to jump between the "Story" (Evolution), the "Tech" (Architecture), and the "Math" (Embeddings) without scrolling through a wall of text.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Embedding Resolution (Bar Chart): Compares 768 dim vs 3072 dim to visualize precision.
+         2. Architecture Flow (CSS Grid + JS): Interactive diagram replacing static images for better exploration.
+         3. Project Stats (Counters): Immediate impact numbers.
+         Confirmation: NO SVG graphics used (only FontAwesome fonts). NO Mermaid JS used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+</head>
+<body class="text-slate-800">
+
+    <!-- Navigation / Header -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-eu-blue text-white rounded-lg flex items-center justify-center font-bold text-lg">
+                        EU
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-eu-blue tracking-tight">FinAssistBH</h1>
+                        <span class="text-xs text-gray-500 font-medium uppercase tracking-wide">Enterprise AI Dashboard</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                        <i class="fa-solid fa-circle-check mr-1"></i> System Online
+                    </span>
+                    <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+                        v2.1.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- 1. Hero / Metrics Section -->
+        <section class="animate-fade-in">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Pregled Projekta</h2>
+                <p class="text-slate-600 mt-2">
+                    Od lokalnog terminala na Androidu do Enterprise Cloud arhitekture. Ovaj dashboard vizualizira 465+ dana inženjerskog razvoja, 
+                    transformaciju koda i tehničke pobjede tima iz Tešnja.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Stat Card 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-eu-blue">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Razvoj</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">465+</h3>
+                            <p class="text-sm text-gray-500 mt-1">Dana učenja</p>
+                        </div>
+                        <div class="p-2 bg-blue-50 rounded-lg text-eu-blue">
+                            <i class="fa-solid fa-calendar-day"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stat Card 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-eu-yellow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">AI Preciznost</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">3072</h3>
+                            <p class="text-sm text-gray-500 mt-1">Dimenzije Vektora</p>
+                        </div>
+                        <div class="p-2 bg-yellow-50 rounded-lg text-yellow-600">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stat Card 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Status</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">Production</h3>
+                            <p class="text-sm text-gray-500 mt-1">Render + GitHub Pages</p>
+                        </div>
+                        <div class="p-2 bg-green-50 rounded-lg text-green-600">
+                            <i class="fa-solid fa-server"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stat Card 4 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Tehnologija</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">RAG</h3>
+                            <p class="text-sm text-gray-500 mt-1">Retrieval Augmented Gen.</p>
+                        </div>
+                        <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Interactive Architecture Explorer -->
+        <section>
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-network-wired text-eu-blue"></i> Tehnička Arhitektura Sistema
+                </h2>
+                <p class="text-slate-600 mt-2">
+                    Interaktivni prikaz modularne arhitekture. Kliknite na bilo koju komponentu dijagrama da biste vidjeli tehničke specifikacije iz izvještaja.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Diagram Visual (Left 2/3) -->
+                <div class="lg:col-span-2 bg-slate-900 rounded-2xl p-8 relative overflow-hidden text-white min-h-[400px] flex flex-col justify-center">
+                    <!-- Background Grid -->
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+                    <!-- Architecture Blocks -->
+                    <div class="relative z-10 grid grid-cols-3 gap-6 text-center">
+                        
+                        <!-- Client Layer -->
+                        <div class="col-span-1 space-y-4">
+                            <div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Frontend Layer</div>
+                            <div onclick="showArchDetails('frontend')" class="arch-box bg-blue-600 p-4 rounded-lg shadow-lg hover:bg-blue-500 transition border border-blue-400">
+                                <i class="fa-brands fa-html5 text-3xl mb-2"></i>
+                                <h4 class="font-bold">GitHub Pages</h4>
+                                <p class="text-xs text-blue-200">UI/UX Interface</p>
+                            </div>
+                        </div>
+
+                        <!-- Arrows -->
+                        <div class="col-span-1 flex flex-col items-center justify-center text-gray-500 space-y-12">
+                            <i class="fa-solid fa-arrow-right-arrow-left text-xl animate-pulse"></i>
+                            <div class="h-10"></div> <!-- Spacer -->
+                        </div>
+
+                        <!-- Backend Layer -->
+                        <div class="col-span-1 space-y-4">
+                            <div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Backend Layer</div>
+                            <div onclick="showArchDetails('backend')" class="arch-box bg-green-600 p-4 rounded-lg shadow-lg hover:bg-green-500 transition border border-green-400">
+                                <i class="fa-brands fa-python text-3xl mb-2"></i>
+                                <h4 class="font-bold">FastAPI Server</h4>
+                                <p class="text-xs text-green-200">Render Cloud</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Bottom Layer (Data & AI) -->
+                    <div class="relative z-10 grid grid-cols-2 gap-6 mt-12 text-center max-w-lg mx-auto w-full">
+                        <div onclick="showArchDetails('chroma')" class="arch-box bg-purple-600 p-4 rounded-lg shadow-lg hover:bg-purple-500 transition border border-purple-400">
+                            <i class="fa-solid fa-database text-2xl mb-2"></i>
+                            <h4 class="font-bold">ChromaDB</h4>
+                            <p class="text-xs text-purple-200">Vektorska Memorija</p>
+                        </div>
+                        <div onclick="showArchDetails('gemini')" class="arch-box bg-yellow-600 p-4 rounded-lg shadow-lg hover:bg-yellow-500 transition border border-yellow-400">
+                            <i class="fa-solid fa-brain text-2xl mb-2"></i>
+                            <h4 class="font-bold">Google Gemini</h4>
+                            <p class="text-xs text-yellow-100">Embedding & Reasoning</p>
+                        </div>
+                    </div>
+
+                    <!-- Connectors visual hack -->
+                    <div class="absolute top-1/2 left-1/2 w-0.5 h-12 bg-gray-600 -translate-x-1/2 -translate-y-16 -z-0"></div>
+                </div>
+
+                <!-- Info Panel (Right 1/3) -->
+                <div class="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col">
+                    <div class="border-b border-gray-100 pb-4 mb-4">
+                        <h3 id="detail-title" class="text-xl font-bold text-eu-blue">Odaberi komponentu</h3>
+                        <p id="detail-subtitle" class="text-sm text-gray-500">Klikni na dijagram za detalje</p>
+                    </div>
+                    <div id="detail-content" class="flex-1 text-sm text-gray-600 leading-relaxed overflow-y-auto">
+                        <div class="bg-blue-50 p-4 rounded-lg text-blue-800">
+                            <i class="fa-solid fa-circle-info mr-2"></i>
+                            Sistem je modularan. Svaki dio (Backend, Frontend, AI Mozak) može rasti nezavisno.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Engineering Challenges & Solutions -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">Retrospektiva: Rješavanje Problema</h2>
+                <p class="text-slate-600 mt-2">
+                    Inženjerska vrijednost se dokazuje u kriznim situacijama. Ovo su ključne prepreke koje smo savladali da bi sistem postao operativan.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Problem 1 -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition">
+                    <div class="bg-red-50 p-4 border-b border-red-100 flex items-center justify-between">
+                        <h3 class="font-bold text-red-800"><i class="fa-solid fa-bug mr-2"></i> Misterija 404 & API Versioning</h3>
+                        <span class="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Critical</span>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 text-sm mb-4">
+                            <strong>Problem:</strong> Pozivanje modela <code>text-embedding-004</code> je vraćalo grešku jer model nije bio dostupan pod tim imenom za specifični API ključ.
+                        </p>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <strong class="text-green-800 text-sm block mb-1">Rješenje:</strong>
+                            <p class="text-green-700 text-xs">
+                                Kreiran dijagnostički alat <code>list_models.py</code> koji je direktno ispitao Google servere. Identifikovan je i implementiran tačan model: <code>models/gemini-embedding-001</code>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problem 2 -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition">
+                    <div class="bg-orange-50 p-4 border-b border-orange-100 flex items-center justify-between">
+                        <h3 class="font-bold text-orange-800"><i class="fa-solid fa-memory mr-2"></i> Memory Limit & Crash</h3>
+                        <span class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">Performance</span>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 text-sm mb-4">
+                            <strong>Problem:</strong> Render Free Tier (512MB RAM) se rušio pri pokušaju učitavanja lokalnog <code>SentenceTransformer</code> modela i PyTorch biblioteke.
+                        </p>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <strong class="text-green-800 text-sm block mb-1">Rješenje:</strong>
+                            <p class="text-green-700 text-xs">
+                                Potpuni prelazak na Cloud Embedding (Gemini API). Server više ne "glumi mozak" već delegira teški posao Google-u, smanjujući potrošnju RAM-a na ~50MB.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problem 3 -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition">
+                    <div class="bg-purple-50 p-4 border-b border-purple-100 flex items-center justify-between">
+                        <h3 class="font-bold text-purple-800"><i class="fa-solid fa-key mr-2"></i> Environment Konflikti</h3>
+                        <span class="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded">Security</span>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 text-sm mb-4">
+                            <strong>Problem:</strong> Python je čitao stare API ključeve iz memorije terminala umjesto iz <code>.env</code> fajla, uzrokujući greške u autentifikaciji.
+                        </p>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <strong class="text-green-800 text-sm block mb-1">Rješenje:</strong>
+                            <p class="text-green-700 text-xs">
+                                Implementirana stroga higijena terminala (<code>unset</code>) i kreiran alat <code>check_key.py</code> za validaciju dužine (39 char) i formata ključa.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problem 4 -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition">
+                    <div class="bg-blue-50 p-4 border-b border-blue-100 flex items-center justify-between">
+                        <h3 class="font-bold text-blue-800"><i class="fa-solid fa-code-branch mr-2"></i> Git Ghosts & Ingestion</h3>
+                        <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">DevOps</span>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 text-sm mb-4">
+                            <strong>Problem:</strong> Pogrešne komande u terminalu kreirale su "duhove" fajlove (`=0.115.0`) i baza je bila prazna na serveru.
+                        </p>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <strong class="text-green-800 text-sm block mb-1">Rješenje:</strong>
+                            <p class="text-green-700 text-xs">
+                                Hirurško čišćenje Git historije, refaktoring <code>chroma_client.py</code> sa novom <code>add_documents</code> metodom i prisilni push binarne baze podataka.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Data Intelligence (Embeddings Visualization) -->
+        <section class="grid md:grid-cols-3 gap-8">
+            <div class="md:col-span-1">
+                <h2 class="text-2xl font-bold text-slate-800">Moć 3072 Dimenzije</h2>
+                <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                    Većina standardnih AI sistema koristi 768 dimenzija. Tvoj sistem koristi Google Gemini-jev napredni model sa 3072 dimenzije.
+                </p>
+                <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                    To znači da tvoj AI vidi <strong>4 puta više detalja</strong> u svakom grantu. Može razlikovati suptilne nijanse između "poticaja za inovacije" i "poticaja za istraživanje" koje bi manji modeli propustili.
+                </p>
+                
+                <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h4 class="font-bold text-yellow-800 text-sm">Šta je Embedding?</h4>
+                    <p class="text-xs text-yellow-700 mt-1">
+                        Proces pretvaranja teksta u niz brojeva (vektor). Računar ne razumije riječi, ali razumije matematiku. Slični koncepti su matematički blizu jedan drugom.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <div class="chart-container">
+                    <canvas id="embeddingChart"></canvas>
+                </div>
+                <p class="text-center text-xs text-gray-400 mt-4">Poređenje rezolucije semantičkog razumijevanja</p>
+            </div>
+        </section>
+
+        <!-- 5. Future Roadmap -->
+        <section class="mb-16">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">FinAssistBH: Enterprise Vizija</h2>
+                    <p class="text-slate-600 mt-2">Mapa puta za verziju 2.1.0 i dalje.</p>
+                </div>
+                <button class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-700 transition">
+                    Vidi OpenAPI Spec
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Step 1 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fa-solid fa-magnifying-glass text-6xl text-eu-blue"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">1. Hibridna Pretraga</h3>
+                    <p class="text-sm text-gray-500 mt-2">Trenutno: Vector Search</p>
+                    <p class="text-sm text-slate-600 mt-4">
+                        Spajanje vektorske pretrage sa klasičnom pretragom ključnih riječi (BM25). Ovo omogućava pronalaženje tačnih Call ID brojeva (npr. HORIZON-CL4-2024).
+                    </p>
+                    <div class="mt-4 w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-eu-blue h-full w-3/4"></div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fa-solid fa-user-check text-6xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">2. Eligibility Agent</h3>
+                    <p class="text-sm text-gray-500 mt-2">Status: Planirano</p>
+                    <p class="text-sm text-slate-600 mt-4">
+                        AI Agent koji čita profil firme (SME, NACE kodovi) i upoređuje ga sa 100 stranica dugim pravilnikom granta. Daje odgovor: "Da/Ne" uz obrazloženje.
+                    </p>
+                    <div class="mt-4 w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-purple-500 h-full w-1/4"></div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fa-solid fa-pen-nib text-6xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">3. Auto-Drafting</h3>
+                    <p class="text-sm text-gray-500 mt-2">Status: Koncept</p>
+                    <p class="text-sm text-slate-600 mt-4">
+                        Korištenje "Chain-of-Thought" metodologije za automatsko pisanje nacrta projektnih prijedloga na osnovu uspješnih primjera.
+                    </p>
+                    <div class="mt-4 w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-green-500 h-full w-1/12"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center border-t border-slate-800">
+        <p>&copy; 2026 Dino Hatibović. EU Funds & Grants AI Project.</p>
+        <p class="text-xs mt-2">Razvijeno u Tešnju, BiH. Powered by Google Gemini & ChromaDB.</p>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // --- Architecture Details Data ---
+        const archDetails = {
+            'frontend': {
+                title: 'Frontend: GitHub Pages',
+                content: `
+                    <ul class="list-disc pl-4 space-y-2">
+                        <li><strong>Tehnologija:</strong> HTML5, CSS3, JavaScript (Vanilla).</li>
+                        <li><strong>Hosting:</strong> GitHub Pages (Besplatno, SSL, CDN).</li>
+                        <li><strong>Funkcija:</strong> Prikazuje UI, šalje JSON zahtjeve na API, obrađuje greške.</li>
+                        <li><strong>UX:</strong> Dizajniran u bojama EU zastave, sa "Health Check" indikatorom statusa servera.</li>
+                    </ul>
+                `,
+                icon: 'fa-html5',
+                color: 'text-blue-600'
+            },
+            'backend': {
+                title: 'Backend: FastAPI (Render)',
+                content: `
+                    <ul class="list-disc pl-4 space-y-2">
+                        <li><strong>Tehnologija:</strong> Python FastAPI, Uvicorn.</li>
+                        <li><strong>Validacija:</strong> Pydantic modeli (Strict Typing).</li>
+                        <li><strong>Deployment:</strong> Render Cloud (Free Tier).</li>
+                        <li><strong>Optimizacija:</strong> Prilagođen za rad sa 512MB RAM-a izbjegavanjem teških lokalnih ML biblioteka.</li>
+                    </ul>
+                `,
+                icon: 'fa-python',
+                color: 'text-green-600'
+            },
+            'chroma': {
+                title: 'Database: ChromaDB',
+                content: `
+                    <ul class="list-disc pl-4 space-y-2">
+                        <li><strong>Tip:</strong> Vektorska Baza Podataka (Vector Store).</li>
+                        <li><strong>Algoritam:</strong> HNSW (Hierarchical Navigable Small World) za brzu pretragu.</li>
+                        <li><strong>Pohrana:</strong> Perzistentna (na disku), unutar <code>vector_db/chroma_db_data</code>.</li>
+                        <li><strong>Funkcija:</strong> Čuva matematičke reprezentacije grantova za semantičku pretragu.</li>
+                    </ul>
+                `,
+                icon: 'fa-database',
+                color: 'text-purple-600'
+            },
+            'gemini': {
+                title: 'AI Engine: Google Gemini',
+                content: `
+                    <ul class="list-disc pl-4 space-y-2">
+                        <li><strong>Model:</strong> <code>models/gemini-embedding-001</code>.</li>
+                        <li><strong>Dimenzije:</strong> 3072 (Ultra-High Resolution).</li>
+                        <li><strong>Uloga:</strong> Pretvara tekst korisnika i dokumenata u vektore.</li>
+                        <li><strong>Prednost:</strong> Cloud-based procesiranje, ne troši RAM servera.</li>
+                    </ul>
+                `,
+                icon: 'fa-brain',
+                color: 'text-yellow-600'
+            }
+        };
+
+        // --- Interaction Logic ---
+        function showArchDetails(key) {
+            const data = archDetails[key];
+            const titleEl = document.getElementById('detail-title');
+            const subEl = document.getElementById('detail-subtitle');
+            const contentEl = document.getElementById('detail-content');
+
+            // Update Content with Animation
+            contentEl.style.opacity = 0;
+            setTimeout(() => {
+                titleEl.innerHTML = `<i class="fa-brands ${data.icon} ${data.color} mr-2"></i> ${data.title}`;
+                subEl.innerText = "Tehničke specifikacije komponente";
+                contentEl.innerHTML = data.content;
+                contentEl.style.opacity = 1;
+            }, 150);
+        }
+
+        // --- Chart Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('embeddingChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Standardni AI (OpenAI ada-002)', 'Stari OpenSource (MiniLM)', 'Tvoj Sistem (Gemini-001)'],
+                    datasets: [{
+                        label: 'Broj Dimenzija Vektora (Rezolucija Znanja)',
+                        data: [1536, 384, 3072],
+                        backgroundColor: [
+                            'rgba(203, 213, 225, 0.6)',
+                            'rgba(203, 213, 225, 0.6)',
+                            'rgba(0, 51, 153, 0.8)' // EU Blue
+                        ],
+                        borderColor: [
+                            'rgba(203, 213, 225, 1)',
+                            'rgba(203, 213, 225, 1)',
+                            'rgba(0, 51, 153, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + ' dimenzija';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Broj Dimenzija'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
