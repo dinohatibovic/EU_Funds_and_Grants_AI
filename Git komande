@@ -1,0 +1,9 @@
+git clone https://github.com/dinohatibovic/EU_Funds_and_Grants_AI.git
+cd EU_Funds_and_Grants_AI
+
+# Extract deployment package
+unzip deployment_package.zip
+
+# Commit and push
+git add .
+git commit -m "Add complete deployment infrastructure and Python modules"
