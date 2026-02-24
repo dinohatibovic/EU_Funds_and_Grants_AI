@@ -21,3 +21,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+# Vector DB (ne commituj bazu podataka!)
+vector_db/chroma_db_data/
+*.sqlite3
+*.bin
