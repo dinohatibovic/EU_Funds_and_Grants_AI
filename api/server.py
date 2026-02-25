@@ -1,11 +1,11 @@
 """
 FASTAPI SERVER - EU Funds and Grants AI
 ========================================
+Sigurna verzija sa CORS lockdown, input validacijom i error handling-om
 """
-
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from rag.pipeline import RAGPipeline
 import logging
 
@@ -18,13 +18,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# ✅ DODAJ CORS MIDDLEWARE
+# ✅ CORS - samo dozvoljeni domeni
+# VAŽNO: Kada deployaš, dodaj svoj pravi URL ovdje
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8080", 
+    "http://127.0.0.1:3000",
+    "https://dinohatibovic.github.io",  # tvoj GitHub Pages
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,  # samo naši domeni, ne "*"
+    allow_credentials=False,         # ne trebamo credentials
+    allow_methods=["GET", "POST"],   # samo što koristimo
+    allow_headers=["Content-Type"],  # samo što koristimo
 )
 
 # Initialize RAG pipeline
@@ -35,10 +43,21 @@ except Exception as e:
     logger.error(f"❌ Error loading pipeline: {e}")
     pipeline = None
 
-# Models
+
+# ✅ Models sa validacijom
 class SearchRequest(BaseModel):
-    query: str
-    n_results: int = 5
+    # Field() dodaje ograničenja — query mora biti 1-500 karaktera
+    query: str = Field(..., min_length=1, max_length=500)
+    n_results: int = Field(default=5, ge=1, le=20)  # između 1 i 20
+
+    @field_validator('query')
+    @classmethod
+    def sanitize_query(cls, v):
+        # Ukloni višak razmaka i newline karaktere
+        # Ovo sprječava neke osnovne injection pokušaje
+        cleaned = ' '.join(v.split())
+        return cleaned
+
 
 class SearchResult(BaseModel):
     rank: int
@@ -47,6 +66,7 @@ class SearchResult(BaseModel):
     category: str
     text: str
     relevance: str
+
 
 # Routes
 @app.get("/")
@@ -58,12 +78,15 @@ async def root():
         "status": "running"
     }
 
+
 @app.post("/search")
 async def search(request: SearchRequest):
     """Search for grants."""
     if not pipeline:
-        raise HTTPException(status_code=500, detail="Pipeline not initialized")
-    
+        raise HTTPException(
+            status_code=503,  # 503 = Service Unavailable, tačnije od 500
+            detail="Service temporarily unavailable"  # ne otkrivamo zašto
+        )
     try:
         results = pipeline.search(request.query, request.n_results)
         return {
@@ -72,16 +95,25 @@ async def search(request: SearchRequest):
             "results": results
         }
     except Exception as e:
+        # Logujemo pravu grešku INTERNO (samo mi vidimo)
         logger.error(f"❌ Search error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Korisniku šaljemo generic poruku (ne otkrivamo detalje)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request"
+        )
+
 
 @app.get("/stats")
 async def stats():
     """Get pipeline statistics."""
     if not pipeline:
-        raise HTTPException(status_code=500, detail="Pipeline not initialized")
-    
+        raise HTTPException(
+            status_code=503,
+            detail="Service temporarily unavailable"
+        )
     return pipeline.get_stats()
+
 
 @app.get("/health")
 async def health():
@@ -91,6 +123,11 @@ async def health():
         "pipeline": "initialized" if pipeline else "not_initialized"
     }
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",  # samo lokalno, ne cijela mreža
+        port=8000
+    )
