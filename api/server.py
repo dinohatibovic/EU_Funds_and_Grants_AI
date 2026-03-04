@@ -122,7 +122,42 @@ async def health():
         "status": "healthy",
         "pipeline": "initialized" if pipeline else "not_initialized"
     }
+from pydantic import BaseModel
+from typing import Dict, Optional
+import uuid
 
+class IngestRequest(BaseModel):
+    """Model za dodavanje dokumenata"""
+    text: str
+    metadata: Optional[Dict[str, str]] = None
+
+@app.post("/ingest")
+async def ingest_document(request: IngestRequest):
+    """
+    Dodaj dokument u ChromaDB
+    """
+    try:
+        # Generiši ID
+        doc_id = str(uuid.uuid4())
+        
+        # Dodaj u ChromaDB
+        rag_pipeline.vector_db.collection.add(
+            documents=[request.text],
+            metadatas=[request.metadata] if request.metadata else [{}],
+            ids=[doc_id]
+        )
+        
+        return {
+            "status": "success",
+            "document_id": doc_id,
+            "text_preview": request.text[:100]
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 
 if __name__ == "__main__":
     import uvicorn
