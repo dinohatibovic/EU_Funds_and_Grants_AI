@@ -114,14 +114,6 @@ async def stats():
         )
     return pipeline.get_stats()
 
-
-@app.get("/health")
-async def health():
-    """Health check."""
-    return {
-        "status": "healthy",
-        "pipeline": "initialized" if pipeline else "not_initialized"
-    }
 from pydantic import BaseModel
 from typing import Dict, Optional
 import uuid
@@ -131,17 +123,21 @@ class IngestRequest(BaseModel):
     text: str
     metadata: Optional[Dict[str, str]] = None
 
-@app.post("/ingest")
-async def ingest_document(request: IngestRequest):
     """
     Dodaj dokument u ChromaDB
     """
+    if not pipeline:  # ← DODAJ OVU PROVJERU!
+        raise HTTPException(
+            status_code=503,
+            detail="Service temporarily unavailable"
+        )
+    
     try:
         # Generiši ID
         doc_id = str(uuid.uuid4())
         
-        # Dodaj u ChromaDB
-        rag_pipeline.vector_db.collection.add(
+        # Dodaj u ChromaDB - KORISTI "pipeline", NE "rag_pipeline"!
+        pipeline.vector_db.collection.add(  # ← ISPRAVKA OVDJE!
             documents=[request.text],
             metadatas=[request.metadata] if request.metadata else [{}],
             ids=[doc_id]
@@ -150,14 +146,24 @@ async def ingest_document(request: IngestRequest):
         return {
             "status": "success",
             "document_id": doc_id,
-            "text_preview": request.text[:100]
+            "text_preview": request.text[:100] + "..." if len(request.text) > 100 else request.text
         }
         
     except Exception as e:
+        logger.error(f"❌ Ingest error: {e}")
         return {
             "status": "error",
             "message": str(e)
         }
+        
+@app.get("/health")
+async def health():
+    """Health check."""
+    return {
+        "status": "healthy",
+        "pipeline": "initialized" if pipeline else "not_initialized"
+    }
+
 
 if __name__ == "__main__":
     import uvicorn
