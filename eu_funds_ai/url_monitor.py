@@ -323,7 +323,145 @@ class FinAssistURLMonitor:
                     "deadline": ".date",
                     "link": "a"
                 }
-            )
+            ),
+
+            # NVO i civilno društvo
+            MonitoringSource(
+                name="Mreža mira BiH",
+                url="https://www.mreza-mira.net/kategorija/vijesti/pozivi-za-projekte/",
+                category="NVO",
+                selector_patterns={
+                    "grants": "article, .post, .entry",
+                    "title": "h2, h3, .entry-title",
+                    "description": ".entry-content, .excerpt, p",
+                    "deadline": ".date, .entry-date, time",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="Civilno društvo BiH",
+                url="https://civilnodrustvo.ba/",
+                category="NVO",
+                selector_patterns={
+                    "grants": "article, .post, .vijest",
+                    "title": "h2, h3",
+                    "description": ".content, p",
+                    "deadline": ".date, time",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="NVO.ba",
+                url="https://nvo.ba/",
+                category="NVO",
+                selector_patterns={
+                    "grants": "article, .post",
+                    "title": "h2, h3",
+                    "description": ".content, p",
+                    "deadline": ".date, time",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="Open Society BiH (Soros)",
+                url="https://www.soros.ba/pozivi/",
+                category="NVO",
+                selector_patterns={
+                    "grants": "article, .poziv, .grant-item",
+                    "title": "h2, h3, .title",
+                    "description": ".content, .description, p",
+                    "deadline": ".deadline, .date, time",
+                    "link": "a"
+                }
+            ),
+
+            # Federalni javni pozivi
+            MonitoringSource(
+                name="Javni pozivi FBiH",
+                url="https://javnipozivi.gov.ba",
+                category="FBIH_POZIVI",
+                selector_patterns={
+                    "grants": "tr, .poziv-item, article",
+                    "title": "td, h3, h2, .title",
+                    "description": "td, .content, p",
+                    "deadline": "td.rok, .deadline, .date",
+                    "link": "a"
+                }
+            ),
+
+            # EU integracije i međunarodni
+            MonitoringSource(
+                name="DEI BiH — EU programi",
+                url="https://www.dei.gov.ba/en/eu-programmes",
+                category="EU_INTEGRACIJE",
+                selector_patterns={
+                    "grants": "article, .program-item, .news-item",
+                    "title": "h3, h2, .title",
+                    "description": ".content, p",
+                    "deadline": ".date, time",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="UNDP BiH",
+                url="https://www.ba.undp.org/",
+                category="MEDJUNARODNI",
+                selector_patterns={
+                    "grants": "article, .card, .news-item",
+                    "title": "h3, h2, .card-title",
+                    "description": ".card-body, .excerpt, p",
+                    "deadline": ".date, time",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="UNDP Javni pozivi BiH",
+                url="https://javnipoziv.undp.ba",
+                category="MEDJUNARODNI",
+                selector_patterns={
+                    "grants": "tr, article, .tender-item",
+                    "title": "td, h3, h2",
+                    "description": "td, .content, p",
+                    "deadline": "td.rok, .deadline",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="EU4Agri BiH",
+                url="https://eu4agri.ba",
+                category="AGRIKULTURA",
+                selector_patterns={
+                    "grants": "article, .call-item, .news-item",
+                    "title": "h3, h2, .title",
+                    "description": ".content, .excerpt, p",
+                    "deadline": ".deadline, .date, time",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="EU Delegacija u BiH",
+                url="https://www.eeas.europa.eu/delegations/bosnia-and-herzegovina",
+                category="EU_FONDOVI",
+                selector_patterns={
+                    "grants": "article, .news-item, .call-item",
+                    "title": "h3, h2, .title",
+                    "description": ".content, p",
+                    "deadline": ".date, time",
+                    "link": "a"
+                }
+            ),
+            MonitoringSource(
+                name="Western Balkans EU fondovi",
+                url="https://webalkans.eu/en/country/bosnia-and-herzegovina/",
+                category="EU_FONDOVI",
+                selector_patterns={
+                    "grants": "article, .grant-card, .opportunity",
+                    "title": "h3, h2, .card-title",
+                    "description": ".card-body, .excerpt, p",
+                    "deadline": ".deadline, .date",
+                    "link": "a"
+                }
+            ),
         ]
     
     async def __aenter__(self):
