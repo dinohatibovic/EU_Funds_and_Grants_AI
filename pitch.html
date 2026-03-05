@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinAssistBH — Investor Pitch | EU Grants AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        eu: { blue: '#003399', yellow: '#FFCC00', dark: '#001a4d', light: '#e8edf8' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background: #0a0f1e; color: #e2e8f0; }
+        .hero-bg {
+            background: linear-gradient(135deg, #001a4d 0%, #003399 50%, #001a4d 100%);
+        }
+        .section-alt { background: #0f1628; }
+        .section-light { background: #111827; }
+        .card-glow {
+            border: 1px solid rgba(0,51,153,0.4);
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(4px);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .card-glow:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,204,0,0.5);
+        }
+        .badge-tier {
+            background: linear-gradient(135deg, #003399, #0055cc);
+            border: 1px solid rgba(255,204,0,0.3);
+        }
+        .tier-highlight {
+            background: linear-gradient(135deg, #003399 0%, #0044bb 100%);
+            border: 2px solid #FFCC00;
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFCC00, #ffdd44);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .flow-step {
+            background: rgba(0,51,153,0.2);
+            border: 1px solid rgba(0,51,153,0.5);
+        }
+        .flow-arrow { color: #FFCC00; }
+        .traction-check { color: #22c55e; }
+        .section-number {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            color: #FFCC00;
+            text-transform: uppercase;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #003399; border-radius: 2px; }
+    </style>
+</head>
+<body class="font-sans min-h-screen">
+
+<!-- =================== SECTION 1: HERO =================== -->
+<section class="hero-bg min-h-screen flex flex-col justify-center px-6 py-16 text-center">
+    <div class="max-w-3xl mx-auto">
+
+        <!-- Logo -->
+        <div class="flex items-center justify-center gap-3 mb-8">
+            <div class="w-14 h-14 bg-eu-yellow rounded-xl flex items-center justify-center shadow-lg">
+                <span class="text-eu-dark font-black text-xl">EU</span>
+            </div>
+            <div class="text-left">
+                <h1 class="text-3xl font-black text-white">FinAssistBH</h1>
+                <p class="text-blue-300 text-sm">EU Funds & Grants AI Platform</p>
+            </div>
+        </div>
+
+        <!-- Tagline -->
+        <h2 class="text-4xl sm:text-5xl font-black text-white leading-tight mb-6">
+            AI koja čita<br>
+            <span class="text-eu-yellow">EU birokratiju</span><br>
+            umjesto tebe.
+        </h2>
+
+        <p class="text-blue-200 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+            Bosanskohercegovačke firme propuštaju <strong class="text-white">milijarde eura</strong> EU fondova svake godine — zbog rasutih informacija, propuštenih rokova i jezičnih barijera.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/"
+               target="_blank"
+               class="bg-eu-yellow text-eu-dark font-bold px-8 py-4 rounded-xl text-base hover:bg-yellow-300 transition shadow-lg">
+                <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i>Pogledaj live demo
+            </a>
+            <a href="#kontakt"
+               class="border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-xl text-base hover:border-eu-yellow hover:text-eu-yellow transition">
+                <i class="fa-solid fa-envelope mr-2"></i>Kontaktiraj osnivača
+            </a>
+        </div>
+
+        <!-- Flags -->
+        <p class="mt-12 text-blue-300 text-sm">
+            🇧🇦 Razvijeno u Tešnju, BiH &nbsp;·&nbsp; 🇪🇺 Za EU tržište
+        </p>
+    </div>
+</section>
+
+<!-- =================== SECTION 2: PROBLEM =================== -->
+<section class="section-alt py-20 px-6">
+    <div class="max-w-4xl mx-auto">
+        <p class="section-number mb-3 text-center">Problem</p>
+        <h2 class="text-3xl font-black text-white text-center mb-4">
+            BiH firme <span class="text-red-400">gube novac</span> koji im pripada.
+        </h2>
+        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">
+            Svake godine kroz EU programe prolazi ogroman iznos dostupan za BiH — ali većina preduzetnika nikad ne aplicira.
+        </p>
+
+        <!-- Big stat -->
+        <div class="text-center mb-14">
+            <div class="inline-block bg-red-900/20 border border-red-500/30 rounded-2xl px-10 py-6">
+                <div class="stat-number" style="background: linear-gradient(135deg,#f87171,#ef4444); -webkit-background-clip:text; background-clip:text;">
+                    &lt;30%
+                </div>
+                <p class="text-red-300 font-semibold mt-1">dostupnih EU sredstava BiH zapravo iskoristi</p>
+            </div>
+        </div>
+
+        <!-- 3 problem cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="card-glow rounded-2xl p-6">
+                <div class="text-3xl mb-3">🗂️</div>
+                <h3 class="font-bold text-white mb-2">Rasuti fondovi</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">
+                    Horizon Europe, FIPA, IPA, WBIF, TED — svaki portal ima drugačiji format, drugačiji jezik, drugu prijavu.
+                </p>
+            </div>
+            <div class="card-glow rounded-2xl p-6">
+                <div class="text-3xl mb-3">⏰</div>
+                <h3 class="font-bold text-white mb-2">Propušteni rokovi</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">
+                    Konsultanti ručno prate desetine portala. Dobar projekt propusti rok jer niko nije vidio poziv na vrijeme.
+                </p>
+            </div>
+            <div class="card-glow rounded-2xl p-6">
+                <div class="text-3xl mb-3">🗣️</div>
+                <h3 class="font-bold text-white mb-2">Jezična barijera</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">
+                    EU dokumenti na engleskom, birokratski jezik. Firme ne znaju ni aplicirati, a kamoli da se kvalifikuju.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== SECTION 3: RJEŠENJE =================== -->
+<section class="section-light py-20 px-6">
+    <div class="max-w-4xl mx-auto">
+        <p class="section-number mb-3 text-center">Rješenje</p>
+        <h2 class="text-3xl font-black text-white text-center mb-4">
+            Opišeš firmu. AI nađe grant.
+        </h2>
+        <p class="text-slate-400 text-center mb-14 max-w-xl mx-auto">
+            FinAssistBH agregira sve fondove u jednom dashboardu i koristi vektorsku AI pretragu da pronađe savršeni match.
+        </p>
+
+        <!-- Flow -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-3 mb-14">
+            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
+                <div class="text-2xl mb-1">💬</div>
+                <p class="text-white font-semibold text-sm">Opišeš projekt</p>
+                <p class="text-slate-500 text-xs mt-1">"Startup, fintech, Tešanj"</p>
+            </div>
+            <div class="flow-arrow text-2xl font-black hidden md:block">→</div>
+            <div class="flow-arrow text-2xl font-black md:hidden">↓</div>
+            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
+                <div class="text-2xl mb-1">🤖</div>
+                <p class="text-white font-semibold text-sm">AI analizira</p>
+                <p class="text-slate-500 text-xs mt-1">3.072-dim vektori</p>
+            </div>
+            <div class="flow-arrow text-2xl font-black hidden md:block">→</div>
+            <div class="flow-arrow text-2xl font-black md:hidden">↓</div>
+            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
+                <div class="text-2xl mb-1">🎯</div>
+                <p class="text-white font-semibold text-sm">Top grantovi</p>
+                <p class="text-slate-500 text-xs mt-1">Rangirani po relevantnosti</p>
+            </div>
+            <div class="flow-arrow text-2xl font-black hidden md:block">→</div>
+            <div class="flow-arrow text-2xl font-black md:hidden">↓</div>
+            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
+                <div class="text-2xl mb-1">📅</div>
+                <p class="text-white font-semibold text-sm">Alert na rok</p>
+                <p class="text-slate-500 text-xs mt-1">Notifikacije na email</p>
+            </div>
+        </div>
+
+        <!-- Key differentiators -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
+                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                    <h4 class="font-bold text-white mb-1">32 aktivna izvora</h4>
+                    <p class="text-slate-400 text-sm">TED, SEDIA, FIPA, UNDP, ZDK, Mreža mira i još 26 lokalnih portala — sve na jednom mjestu.</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
+                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-language"></i></div>
+                <div>
+                    <h4 class="font-bold text-white mb-1">Na bosanskom</h4>
+                    <p class="text-slate-400 text-sm">Jedina AI platforma za EU fondove koja govori bosanski — za lokalne MSP-ove, općine i NGO-e.</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
+                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                <div>
+                    <h4 class="font-bold text-white mb-1">RAG arhitektura</h4>
+                    <p class="text-slate-400 text-sm">Retrieval-Augmented Generation — AI ne pogađa, nego čita prave dokumente i vraća tačne odgovore.</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
+                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-bell"></i></div>
+                <div>
+                    <h4 class="font-bold text-white mb-1">Alarm na rokove</h4>
+                    <p class="text-slate-400 text-sm">Sistem automatski prati rokove i šalje alert kada se deadline bliži — niko više ne propušta prijavu.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== SECTION 4: TRŽIŠNA PRILIKA =================== -->
+<section class="section-alt py-20 px-6">
+    <div class="max-w-4xl mx-auto">
+        <p class="section-number mb-3 text-center">Tržišna Prilika</p>
+        <h2 class="text-3xl font-black text-white text-center mb-4">
+            Ogroman novac. <span class="text-eu-yellow">Mali broj korisnika.</span>
+        </h2>
+        <p class="text-slate-400 text-center mb-14 max-w-xl mx-auto">
+            BiH je EU kandidat od 2022. god. Pristup fondovima raste svake godine — a alati za navigaciju ne postoje.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="card-glow rounded-2xl p-6 text-center">
+                <div class="stat-number">€1.2B+</div>
+                <p class="text-slate-300 font-semibold mt-1">EU fondova aktivno dostupno BiH</p>
+                <p class="text-slate-500 text-xs mt-2">IPA, Horizon, Digital Europe, WBIF, Interreg</p>
+            </div>
+            <div class="card-glow rounded-2xl p-6 text-center">
+                <div class="stat-number">18M+</div>
+                <p class="text-slate-300 font-semibold mt-1">korisnika u regiji Zapadnog Balkana</p>
+                <p class="text-slate-500 text-xs mt-2">BiH, Srbija, Crna Gora, Albanija, N. Makedonija</p>
+            </div>
+            <div class="card-glow rounded-2xl p-6 text-center">
+                <div class="stat-number">~50k</div>
+                <p class="text-slate-300 font-semibold mt-1">MSP-ova i NGO-a u BiH</p>
+                <p class="text-slate-500 text-xs mt-2">Direktna ciljna grupa za SaaS model</p>
+            </div>
+        </div>
+
+        <!-- Target segments -->
+        <h3 class="text-white font-bold text-lg mb-5">Ciljni segmenti — po prioritetu</h3>
+        <div class="space-y-3">
+            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-xl">🧑‍💼</span>
+                    <div>
+                        <p class="font-semibold text-white text-sm">EU konsultanti</p>
+                        <p class="text-slate-500 text-xs">80% vremena troše na pretragu — sistem im daje 3× više kapaciteta</p>
+                    </div>
+                </div>
+                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€300–800/mj</span>
+            </div>
+            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-xl">🧾</span>
+                    <div>
+                        <p class="font-semibold text-white text-sm">Računovodstveni uredi</p>
+                        <p class="text-slate-500 text-xs">Prate fondove za 10–50 klijenata — alert "Klijent X može dobiti €50k"</p>
+                    </div>
+                </div>
+                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€100–300/mj</span>
+            </div>
+            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-xl">⚖️</span>
+                    <div>
+                        <p class="font-semibold text-white text-sm">Odvjetnički uredi</p>
+                        <p class="text-slate-500 text-xs">EU Official Journal svaki dan — alternativa LexisNexis-u za €1.000+/mj</p>
+                    </div>
+                </div>
+                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€200–500/mj</span>
+            </div>
+            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-xl">🏛️</span>
+                    <div>
+                        <p class="font-semibold text-white text-sm">Općine BiH (140+)</p>
+                        <p class="text-slate-500 text-xs">1–2 osobe ne mogu pratiti WBIF, IPA, WBIP — automatske obavijesti</p>
+                    </div>
+                </div>
+                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€150–400/mj</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== SECTION 5: POSLOVNI MODEL =================== -->
+<section class="section-light py-20 px-6">
+    <div class="max-w-4xl mx-auto">
+        <p class="section-number mb-3 text-center">Poslovni Model</p>
+        <h2 class="text-3xl font-black text-white text-center mb-4">
+            SaaS pretplata. <span class="text-eu-yellow">Skalabilno.</span>
+        </h2>
+        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">
+            Četiri jasna tiera — od individualnih preduzetnika do općina i institucija.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            <!-- Starter -->
+            <div class="card-glow rounded-2xl p-5 text-center">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Starter</p>
+                <div class="text-3xl font-black text-white mb-1">€29</div>
+                <div class="text-slate-500 text-xs mb-4">/mjesec</div>
+                <p class="text-slate-300 text-sm mb-4">MSP-ovi, preduzetnici, startupi</p>
+                <ul class="text-slate-400 text-xs space-y-1 text-left">
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Dashboard pristup</li>
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>AI pretraga (50 upita/mj)</li>
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Email obavijesti</li>
+                </ul>
+            </div>
+
+            <!-- Pro -->
+            <div class="card-glow rounded-2xl p-5 text-center">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Pro</p>
+                <div class="text-3xl font-black text-white mb-1">€149</div>
+                <div class="text-slate-500 text-xs mb-4">/mjesec</div>
+                <p class="text-slate-300 text-sm mb-4">EU konsultanti, NGO-ovi</p>
+                <ul class="text-slate-400 text-xs space-y-1 text-left">
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Neograničena AI pretraga</li>
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Export u PDF/Excel</li>
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>5 praćenih korisnika</li>
+                </ul>
+            </div>
+
+            <!-- Agency — highlighted -->
+            <div class="tier-highlight rounded-2xl p-5 text-center relative">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-eu-yellow text-eu-dark text-xs font-black px-3 py-1 rounded-full">
+                    NAJPOPULARNIJI
+                </div>
+                <p class="text-eu-yellow text-xs font-semibold uppercase tracking-widest mb-2 mt-2">Agency</p>
+                <div class="text-3xl font-black text-white mb-1">€299</div>
+                <div class="text-blue-300 text-xs mb-4">/mjesec</div>
+                <p class="text-blue-200 text-sm mb-4">Računovođe, odvjetnici</p>
+                <ul class="text-blue-200 text-xs space-y-1 text-left">
+                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>25 klijentskih profila</li>
+                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>Automatski client reports</li>
+                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>API pristup</li>
+                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>Prioritetna podrška</li>
+                </ul>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="card-glow rounded-2xl p-5 text-center">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Enterprise</p>
+                <div class="text-3xl font-black text-white mb-1">€799</div>
+                <div class="text-slate-500 text-xs mb-4">/mjesec</div>
+                <p class="text-slate-300 text-sm mb-4">Općine, univerziteti, institucije</p>
+                <ul class="text-slate-400 text-xs space-y-1 text-left">
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>White-label opcija</li>
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Custom integracije</li>
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Neograničeni korisnici</li>
+                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>SLA ugovor</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Revenue projection -->
+        <div class="card-glow rounded-2xl p-6">
+            <h3 class="font-bold text-white mb-4 text-center">Projekcija prihoda (konzervativna)</h3>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                    <p class="text-slate-400 text-sm mb-1">Godina 1</p>
+                    <div class="text-2xl font-black text-white">€18k</div>
+                    <p class="text-slate-500 text-xs mt-1">50 Starter korisnika</p>
+                </div>
+                <div class="border-l border-r border-slate-700">
+                    <p class="text-slate-400 text-sm mb-1">Godina 2</p>
+                    <div class="text-2xl font-black text-eu-yellow">€120k</div>
+                    <p class="text-slate-500 text-xs mt-1">Mix Pro + Agency</p>
+                </div>
+                <div>
+                    <p class="text-slate-400 text-sm mb-1">Godina 3</p>
+                    <div class="text-2xl font-black text-white">€480k</div>
+                    <p class="text-slate-500 text-xs mt-1">Region + Enterprise</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== SECTION 6: TRACTION =================== -->
+<section class="section-alt py-20 px-6">
+    <div class="max-w-4xl mx-auto">
+        <p class="section-number mb-3 text-center">Traction</p>
+        <h2 class="text-3xl font-black text-white text-center mb-4">
+            Živi produkt. <span class="text-green-400">Radi sada.</span>
+        </h2>
+        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">
+            Nisu to ideje na papiru — FinAssistBH je live platforma izgrađena u Tešnju, BiH.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
+                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
+                <div>
+                    <p class="font-semibold text-white">Live frontend dashboard</p>
+                    <p class="text-slate-500 text-xs">GitHub Pages — dinohatibovic.github.io/EU_Funds_and_Grants_AI</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
+                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
+                <div>
+                    <p class="font-semibold text-white">Backend API deplojovan</p>
+                    <p class="text-slate-500 text-xs">FastAPI na Render — health endpoint aktivan</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
+                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
+                <div>
+                    <p class="font-semibold text-white">32 aktivna izvora za scraping</p>
+                    <p class="text-slate-500 text-xs">TED, SEDIA, FIPA, UNDP, ZDK, Mreža mira, DEI BiH...</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
+                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
+                <div>
+                    <p class="font-semibold text-white">€1.2B+ grantova u bazi</p>
+                    <p class="text-slate-500 text-xs">12 verificiranih poziva — Horizon, Erasmus, Interreg, FIPA...</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
+                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
+                <div>
+                    <p class="font-semibold text-white">AI search (RAG) implementiran</p>
+                    <p class="text-slate-500 text-xs">Vektorska pretraga s 3.072-dim embeddingima</p>
+                </div>
+            </div>
+            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
+                <i class="fa-solid fa-clock text-eu-yellow text-2xl"></i>
+                <div>
+                    <p class="font-semibold text-white">Q2 2026: TED + SEDIA live data</p>
+                    <p class="text-slate-500 text-xs">REST API integracija — pravi EU podaci u realnom vremenu</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card-glow rounded-2xl p-6">
+            <h3 class="font-bold text-white mb-5">Roadmap</h3>
+            <div class="space-y-4">
+                <div class="flex gap-4 items-start">
+                    <div class="w-24 shrink-0 text-xs text-green-400 font-semibold pt-0.5">✅ Q1 2026</div>
+                    <p class="text-slate-300 text-sm">MVP: dashboard, API, AI search, 32 izvora, live deploy</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <div class="w-24 shrink-0 text-xs text-eu-yellow font-semibold pt-0.5">🔧 Q2 2026</div>
+                    <p class="text-slate-300 text-sm">TED + SEDIA API integracija, real-time podaci, email notifikacije</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <div class="w-24 shrink-0 text-xs text-blue-400 font-semibold pt-0.5">🚀 Q3 2026</div>
+                    <p class="text-slate-300 text-sm">Beta korisnici (konsultanti, računovođe), SaaS naplata, mobile app</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <div class="w-24 shrink-0 text-xs text-slate-500 font-semibold pt-0.5">🌍 Q4 2026</div>
+                    <p class="text-slate-300 text-sm">Ekspanzija na region (Srbija, Crna Gora), bijeli label za općine</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== SECTION 7: TIM =================== -->
+<section class="section-light py-20 px-6">
+    <div class="max-w-4xl mx-auto">
+        <p class="section-number mb-3 text-center">Tim</p>
+        <h2 class="text-3xl font-black text-white text-center mb-12">
+            Izgrađeno lokalno. <span class="text-eu-yellow">Lokalno poznavanje.</span>
+        </h2>
+
+        <div class="max-w-sm mx-auto">
+            <div class="card-glow rounded-2xl p-8 text-center">
+                <div class="w-20 h-20 bg-eu-blue rounded-2xl flex items-center justify-center mx-auto mb-5">
+                    <span class="text-3xl font-black text-white">DH</span>
+                </div>
+                <h3 class="text-xl font-black text-white mb-1">Dino Hatibović</h3>
+                <p class="text-eu-yellow font-semibold text-sm mb-4">Osnivač & Full-stack AI Developer</p>
+                <p class="text-slate-400 text-sm leading-relaxed mb-5">
+                    Razvija AI rješenja za lokalno tržište BiH. Fokus na primjenu EU fondova za digitalni razvoj regije. Tešanj, Zeničko-dobojski kanton.
+                </p>
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">Python / FastAPI</span>
+                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">AI / RAG</span>
+                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">EU fondovi</span>
+                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">BiH tržište</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-slate-500 text-sm text-center mt-8">
+            Tražimo ko-osnivača s iskustvom u EU konsaltingu / prodaji ili strateškog investitora.
+        </p>
+    </div>
+</section>
+
+<!-- =================== SECTION 8: CTA / KONTAKT =================== -->
+<section id="kontakt" class="hero-bg py-20 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+        <p class="section-number mb-3">Investicija</p>
+        <h2 class="text-3xl font-black text-white mb-4">
+            Tražimo <span class="text-eu-yellow">€50.000</span> seed runde.
+        </h2>
+        <p class="text-blue-200 text-lg mb-6 max-w-xl mx-auto leading-relaxed">
+            Za 12 mjeseci runway: TED/SEDIA API integracija, beta korisnici, SaaS infrastruktura i marketinška ekspanzija na region.
+        </p>
+
+        <!-- Use of funds -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12 max-w-2xl mx-auto">
+            <div class="bg-white/10 rounded-xl p-4 text-center">
+                <div class="text-eu-yellow font-black text-xl mb-1">€20k</div>
+                <p class="text-blue-200 text-xs">Tech &amp; infrastruktura<br>(API, server, sigurnost)</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-4 text-center">
+                <div class="text-eu-yellow font-black text-xl mb-1">€18k</div>
+                <p class="text-blue-200 text-xs">Prodaja &amp; marketing<br>(beta korisnici, region)</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-4 text-center">
+                <div class="text-eu-yellow font-black text-xl mb-1">€12k</div>
+                <p class="text-blue-200 text-xs">Operativni troškovi<br>(12 mj. runway)</p>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="card-glow rounded-2xl p-8 max-w-md mx-auto bg-white/5">
+            <h3 class="font-bold text-white mb-5">Kontakt</h3>
+            <div class="space-y-3 text-left">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-envelope text-eu-yellow w-5 text-center"></i>
+                    <span class="text-slate-300 text-sm">dino@finassistbh.ba</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i class="fa-brands fa-github text-eu-yellow w-5 text-center"></i>
+                    <a href="https://github.com/dinohatibovic/EU_Funds_and_Grants_AI"
+                       target="_blank"
+                       class="text-blue-300 text-sm hover:text-eu-yellow transition">
+                        github.com/dinohatibovic/EU_Funds_and_Grants_AI
+                    </a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-globe text-eu-yellow w-5 text-center"></i>
+                    <a href="https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/"
+                       target="_blank"
+                       class="text-blue-300 text-sm hover:text-eu-yellow transition">
+                        Live demo →
+                    </a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-location-dot text-eu-yellow w-5 text-center"></i>
+                    <span class="text-slate-300 text-sm">Tešanj, Zeničko-dobojski kanton, BiH</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="bg-eu-dark text-slate-500 py-8 text-center border-t border-blue-900/50">
+    <p class="text-sm text-slate-400">&copy; 2026 <span class="text-white font-semibold">Dino Hatibović</span> – FinAssistBH</p>
+    <p class="text-xs mt-2">🇧🇦 Razvijeno u Tešnju, Bosna i Hercegovina &nbsp;·&nbsp; 🇪🇺 Sufinansirano u okviru EU programa za digitalizaciju i razvoj</p>
+    <p class="text-xs mt-3">
+        <a href="index.html" class="text-blue-400 hover:text-eu-yellow transition">← Grants Dashboard</a>
+    </p>
+</footer>
+
+</body>
+</html>
