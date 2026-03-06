@@ -118,5 +118,25 @@
     "deadline": "2026-11-30",
     "relevance": "High",
     "url": "https://www.interreg.eu/"
+  },
+  {
+    "id": "grant_013",
+    "title": "Mreža mira BiH: Grantovi za civilno društvo",
+    "category": "National Grant",
+    "description": "Mreža mira podržava projekte izgradnje mira, međureligijskog dijaloga i civilnog društva u BiH. Otvoreni pozivi za NVO, udruženja i neformalne grupe sa fokusom na pomirenje i demokratski razvoj.",
+    "budget": "€5M",
+    "deadline": "2026-09-30",
+    "relevance": "High",
+    "url": "https://www.mreza-mira.net/"
+  },
+  {
+    "id": "grant_014",
+    "title": "ZDK: Kantonalni fond za razvoj Zeničko-dobojskog kantona",
+    "category": "National Grant",
+    "description": "Zeničko-dobojski kanton dodjeljuje sredstva za razvoj MSP, poljoprivrede, sporta i kulture. Lokalni pozivi namijenjeni firmama i udruženjima registriranim na području ZDK. Ključni izvor za tešanjske i zeničke poduzetnike.",
+    "budget": "€2M",
+    "deadline": "2026-10-15",
+    "relevance": "High",
+    "url": "https://zdk.ba/"
   }
 ]
