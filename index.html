@@ -57,13 +57,13 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold leading-tight">FinAssistBH</h1>
-                    <p class="text-blue-300 text-xs">Grants Analytics Dashboard</p>
+                    <p class="text-blue-300 text-xs">Kontrolna ploča za analitiku grantova</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <span id="header-count" class="text-xs bg-eu-blue/60 border border-blue-400/30 px-3 py-1 rounded-full font-medium"></span>
                 <span class="text-xs bg-green-700/60 border border-green-400/30 px-3 py-1 rounded-full font-medium">
-                    <i class="fa-solid fa-circle text-green-400 text-[8px] mr-1 animate-pulse"></i>Live Data
+                    <i class="fa-solid fa-circle text-green-400 text-[8px] mr-1 animate-pulse"></i>Podaci uživo
                 </span>
                 <span class="text-xs text-blue-300 hidden sm:block">Ažurirano: Mart 2026</span>
             </div>
@@ -177,7 +177,7 @@
             </select>
             <!-- Reset -->
             <button id="btn-reset" class="px-4 py-2.5 bg-eu-light text-eu-blue rounded-xl text-sm font-medium hover:bg-blue-100 transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-rotate-left"></i> Reset
+                <i class="fa-solid fa-rotate-left"></i> Resetuj
             </button>
         </div>
         <p id="filter-result-info" class="text-xs text-gray-400 mt-3"></p>
@@ -202,7 +202,7 @@
                         <th class="px-4 py-3 text-left font-semibold">Budžet</th>
                         <th class="px-4 py-3 text-left font-semibold">Rok</th>
                         <th class="px-4 py-3 text-left font-semibold">Relevantnost</th>
-                        <th class="px-4 py-3 text-center font-semibold">Link</th>
+                        <th class="px-4 py-3 text-center font-semibold">Veza</th>
                     </tr>
                 </thead>
                 <tbody id="grants-table-body" class="divide-y divide-gray-50"></tbody>
@@ -230,46 +230,46 @@
 <script>
 // ---- GRANT DATA (embedded from data/grants.json) ----
 const GRANTS = [
-  { id:"grant_001", title:"Horizon Europe: AI for Healthcare", category:"EU Grant",
-    description:"Finansiranje AI projekata u zdravstvenom sektoru.", budget:"€50M",
+  { id:"grant_001", title:"Horizont Evropa: Vještačka inteligencija za zdravstvo", category:"EU Grant",
+    description:"Finansiranje AI projekata u zdravstvenom sektoru. Fokus: dijagnostika, e-zdravlje, medicinska istraživanja.", budget:"€50M",
     deadline:"2026-06-30", relevance:"High", url:"https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/horizon-hlth-2026-ai-02-01" },
-  { id:"grant_002", title:"Erasmus+ 2026: Tech Education", category:"EU Grant",
-    description:"Finansiranje za univerzitete i tehnološko obrazovanje.", budget:"€75M",
+  { id:"grant_002", title:"Erasmus+ 2026: Tehnološko obrazovanje", category:"EU Grant",
+    description:"Finansiranje za univerzitete i institucije tehnološkog obrazovanja širom EU i BiH.", budget:"€75M",
     deadline:"2026-05-15", relevance:"High", url:"https://erasmusplus.ec.europa.eu/" },
-  { id:"grant_003", title:"Digital Europe Programme: SME Digitalization", category:"EU Grant",
-    description:"Podrška za digitalnu transformaciju MSP.", budget:"€100M",
+  { id:"grant_003", title:"Program Digitalna Evropa: Digitalizacija malih i srednjih preduzeća", category:"EU Grant",
+    description:"Podrška za digitalnu transformaciju MSP. Fokus: oblak, vještačka inteligencija, kibernetička sigurnost.", budget:"€100M",
     deadline:"2026-04-30", relevance:"High", url:"https://digital-strategy.ec.europa.eu/en/funding/digital-europe-programme" },
   { id:"grant_004", title:"Innovate Bosnia: Grantovi za startupe", category:"National Grant",
-    description:"Maksimalno finansiranje: 50.000 KM. Za tech startupe u BiH.", budget:"50.000 KM",
+    description:"Maksimalno finansiranje: 50.000 KM. Za tech startupe registrovane u Bosni i Hercegovini.", budget:"50.000 KM",
     deadline:"2026-03-31", relevance:"High", url:"https://fipa.gov.ba/" },
-  { id:"grant_005", title:"FIPA Poticaji: IT sektor", category:"National Grant",
-    description:"Do 150.000 KM za investicije u IT sektoru.", budget:"150.000 KM",
+  { id:"grant_005", title:"FIPA podsticaji: IT sektor", category:"National Grant",
+    description:"Do 150.000 KM za investicije u IT sektoru. Namijenjeno privrednicima koji ulažu u informatičku opremu i softvere.", budget:"150.000 KM",
     deadline:"2026-04-15", relevance:"Medium", url:"https://fipa.gov.ba/" },
-  { id:"grant_006", title:"Fond za Regionalni Razvoj", category:"Additional",
-    description:"Infrastrukturni projekti u regionalnom razvoju.", budget:"Varijabilno",
+  { id:"grant_006", title:"Fond za regionalni razvoj", category:"Additional",
+    description:"Infrastrukturni projekti u oblasti regionalnog razvoja. Podrška lokalnim zajednicama i općinama.", budget:"Varijabilno",
     deadline:"2026-05-30", relevance:"High", url:"https://www.vijeceministara.gov.ba/" },
-  { id:"grant_007", title:"Fond za Zaštitu Okoliša", category:"Specialized",
-    description:"Energetska efikasnost i projekti obnovljive energije.", budget:"Varijabilno",
+  { id:"grant_007", title:"Fond za zaštitu okoliša FBiH", category:"Specialized",
+    description:"Energetska efikasnost i projekti obnovljive energije. Solarni paneli, biomasa, toplotne pumpe.", budget:"Varijabilno",
     deadline:"2026-06-15", relevance:"High", url:"http://fondzzopfbih.ba/" },
-  { id:"grant_008", title:"Competitiveness and Innovation Framework", category:"Additional",
-    description:"Podrška za inovacije i konkurentnost.", budget:"Varijabilno",
+  { id:"grant_008", title:"Okvir za konkurentnost i inovacije", category:"Additional",
+    description:"Podrška za inovacije i jačanje konkurentnosti privrednih subjekata na domaćem i međunarodnom tržištu.", budget:"Varijabilno",
     deadline:"2026-07-01", relevance:"Medium", url:"https://ec.europa.eu/growth/tools-databases/competitiveness/" },
   { id:"grant_009", title:"EU4Digital: Digitalizacija javne uprave", category:"Additional",
-    description:"Podrška za digitalnu transformaciju vlade.", budget:"€200M",
+    description:"Podrška za digitalnu transformaciju državne i lokalne uprave u zemljama Zapadnog Balkana.", budget:"€200M",
     deadline:"2026-08-31", relevance:"Medium", url:"https://eu4digital.eu/" },
-  { id:"grant_010", title:"Copernicus Programme: Earth Observation", category:"EU Grant",
-    description:"Podrška za monitoring Zemljine površine i klimatske projekte.", budget:"€150M",
+  { id:"grant_010", title:"Program Kopernikus: Posmatranje Zemlje", category:"EU Grant",
+    description:"Podrška za monitoring Zemljine površine i klimatske projekte korištenjem satelitskih podataka.", budget:"€150M",
     deadline:"2026-09-30", relevance:"Medium", url:"https://www.copernicus.eu/" },
-  { id:"grant_011", title:"Creative Europe: Kulturni projekti", category:"EU Grant",
-    description:"Finansiranje za kulturne i kreativne projekte širom Europe.", budget:"€200M",
+  { id:"grant_011", title:"Kreativna Evropa: Kulturni projekti", category:"EU Grant",
+    description:"Finansiranje za kulturne i kreativne projekte širom Evrope. Muzika, film, pozorište, vizualne umjetnosti.", budget:"€200M",
     deadline:"2026-10-15", relevance:"Low", url:"https://culture.ec.europa.eu/creative-europe" },
-  { id:"grant_012", title:"Interreg IPA CBC: Prekogranična Saradnja", category:"EU Grant",
-    description:"Podrška projektima prekogranične saradnje na Zapadnom Balkanu.", budget:"€500M",
+  { id:"grant_012", title:"Interreg IPA CBC: Prekogranična saradnja", category:"EU Grant",
+    description:"Podrška projektima prekogranične saradnje na Zapadnom Balkanu. Infrastruktura, turizam, zaštita okoliša.", budget:"€500M",
     deadline:"2026-11-30", relevance:"High", url:"https://www.interreg.eu/" }
 ];
 
 // ---- HELPERS ----
-const TODAY = new Date('2026-03-04');
+const TODAY = new Date();
 
 function daysUntil(dateStr) {
     const d = new Date(dateStr);
