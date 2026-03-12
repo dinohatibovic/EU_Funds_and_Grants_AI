@@ -30,7 +30,7 @@ class RAGPipeline:
             logger.info(f"🔍 Searching: {query}")
             
             # Generate query embedding
-            query_embedding = self.embedding_client.embed_single(query)
+            query_embedding = self.embedding_client.generate_embeddings([query])[0]
             
             # Search in ChromaDB
             results = self.collection.query(

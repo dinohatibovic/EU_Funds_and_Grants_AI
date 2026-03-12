@@ -8,5 +8,8 @@ class MainAgent:
         self.rag = RAGPipeline()
 
     def answer(self, query: str) -> str:
-        result = self.rag.run(query)
-        return f"Contextual answer based on retrieved grants:\n\n{result['context']}"
+        results = self.rag.search(query)
+        if not results:
+            return "Nisu pronađeni relevantni grantovi za ovaj upit."
+        context = "\n".join([f"{r['rank']}. {r['title']} ({r['category']}): {r['text'][:200]}" for r in results])
+        return f"Pronađeni grantovi:\n\n{context}"

@@ -114,47 +114,36 @@ async def stats():
         )
     return pipeline.get_stats()
 
-from pydantic import BaseModel
 from typing import Dict, Optional
 import uuid
 
 class IngestRequest(BaseModel):
-    """Model za dodavanje dokumenata"""
+    """Model za dodavanje dokumenata."""
     text: str
     metadata: Optional[Dict[str, str]] = None
 
-    """
-    Dodaj dokument u ChromaDB
-    """
-    if not pipeline:  # ← DODAJ OVU PROVJERU!
-        raise HTTPException(
-            status_code=503,
-            detail="Service temporarily unavailable"
-        )
-    
+
+@app.post("/ingest")
+async def ingest(request: IngestRequest):
+    """Dodaj dokument u ChromaDB."""
+    if not pipeline:
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     try:
-        # Generiši ID
         doc_id = str(uuid.uuid4())
-        
-        # Dodaj u ChromaDB - KORISTI "pipeline", NE "rag_pipeline"!
-        pipeline.vector_db.collection.add(  # ← ISPRAVKA OVDJE!
+        pipeline.db_client.add_documents(
             documents=[request.text],
             metadatas=[request.metadata] if request.metadata else [{}],
-            ids=[doc_id]
+            ids=[doc_id],
+            embeddings=pipeline.embedding_client.generate_embeddings([request.text])
         )
-        
         return {
             "status": "success",
             "document_id": doc_id,
             "text_preview": request.text[:100] + "..." if len(request.text) > 100 else request.text
         }
-        
     except Exception as e:
-        logger.error(f"❌ Ingest error: {e}")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        logger.error(f"Ingest error: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while ingesting the document")
         
 @app.get("/health")
 async def health():
