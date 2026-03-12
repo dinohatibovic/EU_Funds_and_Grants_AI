@@ -1,5 +1,9 @@
 # FinAssistBH — AI platforma za EU grantove u BiH
 
+![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)
+![Python](https://img.shields.io/badge/Python-3.12-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)
+
 **FinAssistBH** je AI alat koji agregira sve EU i domaće BiH fondove na jednom mjestu, te pomaže firmama, NVO-ima i privatnim osobama da pronađu i apliciraju za grantove koji odgovaraju njihovom profilu.
 
 > Bosna i Hercegovina koristi manje od 30% dostupnih EU sredstava. FinAssistBH to mijenja.

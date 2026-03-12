@@ -1,0 +1,76 @@
+PROPRIETARY SOFTWARE LICENSE
+
+Copyright (c) 2026 Dino Hatibović. All Rights Reserved.
+
+OWNER: Dino Hatibović
+CONTACT: +387 62 564 303
+LOCATION: Tešanj, Zeničko-dobojski kanton, Bosna i Hercegovina
+
+================================================================================
+
+1. VLASNIŠTVO
+
+Sav izvorni kod, dokumentacija, dizajn, algoritmi, baze podataka, logotipi i
+svi drugi materijali sadržani u ovom repozitoriju isključivo su vlasništvo
+Dino Hatibović ("Vlasnik") i zaštićeni su zakonima o autorskim pravima Bosne i
+Hercegovine, Europske unije i međunarodnim konvencijama o intelektualnom
+vlasništvu.
+
+2. ZABRANJENA UPOTREBA
+
+Bez prethodne pisane dozvole Vlasnika, strogo je zabranjeno:
+
+  a) Kopirati, reproducirati ili distribuirati bilo koji dio ovog softvera
+  b) Modificirati, adaptirati, prevoditi ili izrađivati izvedena djela
+  c) Koristiti softver u komercijalne svrhe ili za ostvarivanje prihoda
+  d) Sublicencirati, prodavati, iznajmljivati ili prenositi prava trećim
+     stranama
+  e) Uklanjati, mijenjati ili prikrivati ovu licencu ili obavijesti o
+     autorskim pravima
+  f) Koristiti naziv "FinAssistBH", logotip ili brendiranje Vlasnika
+  g) Obrnuto inženjeriti (reverse engineer) ili dekompilirati softver
+  h) Koristiti softver za izgradnju konkurentskog proizvoda ili usluge
+
+3. OGRANIČENA DOZVOLA ZA PREGLED
+
+Jedina dozvoljena radnja bez pisane dozvole je pregled (čitanje) javno
+dostupnog izvornog koda isključivo u edukativne svrhe, bez prava na
+reprodukciju, distribuciju ili komercijalnu upotrebu.
+
+4. BEZ GARANCIJE
+
+Softver se pruža "KAKAV JEST" (AS IS), bez ikakvih garancija, izričitih ili
+podrazumijevanih. Vlasnik ne odgovara za bilo kakvu štetu nastalu korištenjem
+ili nemogućnošću korištenja softvera.
+
+5. KRŠENJE LICENCE
+
+Svako neovlašteno korištenje ovog softvera smatra se kršenjem autorskih prava
+i može rezultirati:
+
+  - Građanskom tužbom za naknadu štete
+  - Kaznenom prijavom prema važećim zakonima BiH i EU
+  - Zahtjevom za hitnom zabranom korištenja (privremena mjera)
+
+6. KOMERCIJALNE LICENCE
+
+Za komercijalnu upotrebu, white-label integraciju, API pristup ili partnerstvo,
+obratite se Vlasniku:
+
+  Dino Hatibović
+  Tešanj, Zeničko-dobojski kanton, BiH
+  Telefon: +387 62 564 303
+  GitHub: https://github.com/dinohatibovic
+
+  Dostupni planovi: Starter (€29/mj) | Pro (€149/mj) |
+                    Agency (€299/mj) | Enterprise (€799/mj)
+
+7. MJERODAVNO PRAVO
+
+Ova licenca podliježe zakonima Bosne i Hercegovine. Za sve sporove nadležan
+je sud u Zenici, Bosna i Hercegovina.
+
+================================================================================
+
+FinAssistBH — AI platforma za EU grantove
+© 2026 Dino Hatibović. Sva prava zadržana.
