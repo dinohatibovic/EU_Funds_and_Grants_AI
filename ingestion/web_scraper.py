@@ -58,14 +58,14 @@ class GrantScraper:
             metadata = {"source": url, "title": title, "type": "scraped_web"}
             
             print("🔄 Generisanje vektora (Geminija)...")
-            embedding = self.embedder.embed_single(final_content)
-            
+            embedding = self.embedder.generate_embeddings([final_content])
+
             print("💾 Spremanje u ChromaDB...")
-            self.db.add(
+            self.db.add_documents(
                 documents=[final_content],
                 metadatas=[metadata],
                 ids=[doc_id],
-                embeddings=[embedding] # embed_single vraća listu floatova, a add traži listu listi
+                embeddings=embedding
             )
             
             print("✅ USJPJEŠNO! Ovaj link je sada dio 'mozga' tvog AI agenta.")

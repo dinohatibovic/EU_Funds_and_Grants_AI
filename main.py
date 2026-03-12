@@ -28,13 +28,20 @@ app = FastAPI(
     version="v2.1.0-enterprise"
 )
 
-# CORS (Dozvole za Frontend)
+# CORS — samo dozvoljeni domeni
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+    "https://dinohatibovic.github.io",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 # --- 3. DOMENSKI MODELI (Pydantic - Iz tvog JSON-a) ---
