@@ -14,11 +14,11 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 RUN pip install --upgrade pip
-RUN pip install fastapi uvicorn sentence-transformers chromadb pdfplumber requests beautifulsoup4
+RUN pip install -r requirements.txt
 
 # Expose API port
 EXPOSE 8000
 
 # Run FastAPI server
-CMD ["uvicorn", "EU_Funds_and_Grants_AI.api.server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
