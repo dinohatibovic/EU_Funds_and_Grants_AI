@@ -2,10 +2,16 @@ import os
 import logging
 import time
 import uuid
+import json
+import sqlite3
+import hashlib
+import secrets
+from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+import jwt
 
 # Uvozimo tvoje popravljene module (koji sada rade!)
 from embeddings.embedding_client import EmbeddingClient
@@ -22,6 +28,52 @@ logger = logging.getLogger("eu_grants_api")
 embedding_client = None
 chroma_client = None
 
+# JWT tajni ključ — postavi JWT_SECRET u Render environment za produkciju
+JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_hex(32))
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_DAYS = 30
+
+DB_PATH = os.getenv("DB_PATH", "users.db")
+
+
+# --- 2a. SQLite baza korisnika ---
+
+def init_user_db():
+    """Kreira tabelu korisnika ako ne postoji."""
+    with sqlite3.connect(DB_PATH) as db:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                plan TEXT DEFAULT 'free',
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        db.commit()
+
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_hex(16)
+    h = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
+    return f"{salt}:{h}"
+
+
+def verify_password(password: str, stored: str) -> bool:
+    parts = stored.split(":", 1)
+    if len(parts) != 2:
+        return False
+    salt, h = parts
+    return hashlib.sha256(f"{salt}{password}".encode()).hexdigest() == h
+
+
+def create_jwt(email: str) -> str:
+    payload = {
+        "sub": email,
+        "exp": datetime.utcnow() + timedelta(days=JWT_EXPIRE_DAYS)
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
 app = FastAPI(
     title="FinAssistBH AI Platform API",
     description="Enterprise-grade AI API za EU fondove u BiH (Gemini 3072-dim).",
@@ -33,6 +85,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8080",
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:5500",   # VS Code Live Server
     "https://dinohatibovic.github.io",
 ]
 
@@ -41,10 +94,23 @@ app.add_middleware(
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # --- 3. DOMENSKI MODELI (Pydantic - Iz tvog JSON-a) ---
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class AuthResponse(BaseModel):
+    token: str
+    email: str
+    plan: str
 
 class SearchRequest(BaseModel):
     """
@@ -69,8 +135,9 @@ class SearchResponse(BaseModel):
 async def startup_event():
     global embedding_client, chroma_client
     logger.info("🚀 Podižem FinAssistBH AI Sistem...")
+    init_user_db()
+    logger.info("✅ SQLite baza korisnika inicijalizovana.")
     try:
-        # Inicijalizujemo klijente koje si popravio
         embedding_client = EmbeddingClient()
         chroma_client = ChromaDBClient()
         logger.info("✅ Klijenti za Gemini AI i ChromaDB su spremni.")
@@ -148,6 +215,115 @@ async def search_endpoint(request: SearchRequest):
     except Exception as e:
         logger.error(f"🔥 [ID: {req_id}] Neočekivana greška: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- 6. AUTH ENDPOINTI ---
+
+@app.post("/auth/register", response_model=AuthResponse)
+async def register(req: RegisterRequest):
+    """Registracija novog korisnika."""
+    email = req.email.strip().lower()
+    if len(req.password) < 6:
+        raise HTTPException(status_code=400, detail="Lozinka mora imati min. 6 karaktera.")
+    try:
+        with sqlite3.connect(DB_PATH) as db:
+            db.execute(
+                "INSERT INTO users (email, password_hash) VALUES (?, ?)",
+                (email, hash_password(req.password))
+            )
+            db.commit()
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="Korisnik s ovim emailom već postoji.")
+    logger.info(f"✅ Novi korisnik registrovan: {email}")
+    return AuthResponse(token=create_jwt(email), email=email, plan="free")
+
+
+@app.post("/auth/login", response_model=AuthResponse)
+async def login(req: LoginRequest):
+    """Prijava korisnika."""
+    email = req.email.strip().lower()
+    with sqlite3.connect(DB_PATH) as db:
+        db.row_factory = sqlite3.Row
+        row = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    if not row or not verify_password(req.password, row["password_hash"]):
+        raise HTTPException(status_code=401, detail="Pogrešan email ili lozinka.")
+    logger.info(f"🔑 Korisnik ulogovan: {email}")
+    return AuthResponse(token=create_jwt(email), email=email, plan=row["plan"])
+
+
+@app.get("/auth/me")
+async def auth_me(request: Request):
+    """Provjera tokena — vraća info o korisniku."""
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Token nije proslijeđen.")
+    token = auth_header.split(" ", 1)[1]
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token je istekao.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Neispravan token.")
+    email = payload["sub"]
+    with sqlite3.connect(DB_PATH) as db:
+        db.row_factory = sqlite3.Row
+        row = db.execute("SELECT email, plan, created_at FROM users WHERE email = ?", (email,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Korisnik ne postoji.")
+    return {"email": row["email"], "plan": row["plan"], "created_at": row["created_at"]}
+
+
+# --- 7. STRIPE WEBHOOK (za primanje uplata) ---
+
+STRIPE_SECRET = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+@app.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """
+    Stripe šalje event kad neko plati.
+    Ovaj endpoint prima taj event i loguje ga.
+    Kad dodaš Supabase, ovdje ćeš upisati pretplatu u bazu.
+    """
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature", "")
+
+    # Ako Stripe ključevi nisu konfigurisani, loguj i vrati OK
+    if not STRIPE_SECRET or not STRIPE_WEBHOOK_SECRET:
+        logger.warning("⚠️ Stripe webhook primljen ali ključevi nisu konfigurisani.")
+        return {"status": "received", "configured": False}
+
+    try:
+        import stripe
+        stripe.api_key = STRIPE_SECRET
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except Exception as e:
+        logger.error(f"❌ Stripe webhook verifikacija: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # Obradi event
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        customer_email = session.get("customer_email", "unknown")
+        amount = session.get("amount_total", 0) / 100  # centi → euri
+        logger.info(f"💰 NOVA UPLATA: {customer_email} platio €{amount}")
+
+        # TODO: Kad dodaš Supabase, upiši ovdje:
+        # supabase.table("subscriptions").insert({
+        #     "email": customer_email,
+        #     "plan": determine_plan(amount),
+        #     "status": "active",
+        #     "stripe_session_id": session["id"]
+        # }).execute()
+
+    elif event["type"] == "customer.subscription.deleted":
+        logger.info(f"🚫 Pretplata otkazana: {event['data']['object'].get('customer', 'unknown')}")
+
+    return {"status": "ok"}
+
 
 if __name__ == "__main__":
     import uvicorn
