@@ -18,7 +18,7 @@ class RAGPipeline:
         try:
             self.embedding_client = EmbeddingClient()
             self.db_client = ChromaDBClient()
-            self.collection = self.db_client.client.get_or_create_collection("grants")
+            self.collection = self.db_client.client.get_or_create_collection("eu_grants")
             logger.info("✅ RAG Pipeline initialized")
         except Exception as e:
             logger.error(f"❌ Error: {e}")
