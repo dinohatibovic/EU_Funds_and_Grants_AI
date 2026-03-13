@@ -5,6 +5,11 @@ class RAGClient:
         self.pipeline = RAGPipeline()
 
     def get_context(self, query: str) -> str:
-        result = self.pipeline.run(query)
-        return result.get("context", None)
+        results = self.pipeline.search(query)
+        if not results:
+            return "Nema rezultata."
+        return "\n".join(
+            f"{r['rank']}. {r['title']} ({r['category']}): {r['text'][:300]}"
+            for r in results
+        )
 
