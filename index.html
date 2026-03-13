@@ -47,6 +47,20 @@
 </head>
 <body class="font-sans text-slate-800 min-h-screen">
 
+<!-- Auth Guard: redirect to login if not authenticated -->
+<script>
+(function() {
+    const token = localStorage.getItem('supabase_token');
+    const isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
+    window.__isAuthenticated = !!token;
+    window.__isDemo = isDemo;
+    // If no token and not in demo mode, redirect to auth
+    if (!token && !isDemo) {
+        window.location.href = 'auth.html';
+    }
+})();
+</script>
+
 <!-- ===================== HEADER ===================== -->
 <header class="bg-eu-dark text-white shadow-xl sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -65,6 +79,10 @@
                 <a href="#dashboard" class="text-blue-300 hover:text-white transition">Dashboard</a>
                 <a href="pitch.html" class="text-blue-300 hover:text-white transition">Cijene</a>
                 <a href="#kontakt" class="bg-eu-yellow text-eu-dark font-semibold px-4 py-1.5 rounded-lg hover:bg-yellow-300 transition text-xs">Kontakt</a>
+                <span id="nav-user-email" class="text-blue-300 text-xs truncate max-w-[120px]"></span>
+                <button id="btn-logout" onclick="handleLogout()" class="hidden text-red-300 hover:text-red-200 text-xs font-medium transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i>Odjava
+                </button>
             </nav>
             <div class="flex md:hidden items-center gap-2">
                 <span id="header-count" class="text-xs bg-eu-blue/60 border border-blue-400/30 px-3 py-1 rounded-full font-medium"></span>
@@ -407,6 +425,23 @@
 
 <!-- ===================== SCRIPT ===================== -->
 <script>
+// ---- AUTH UI ----
+function handleLogout() {
+    localStorage.removeItem('supabase_token');
+    localStorage.removeItem('user_email');
+    window.location.href = 'auth.html';
+}
+
+(function initAuthUI() {
+    const email = localStorage.getItem('user_email');
+    const navEmail = document.getElementById('nav-user-email');
+    const btnLogout = document.getElementById('btn-logout');
+    if (email && navEmail) {
+        navEmail.textContent = email;
+        if (btnLogout) btnLogout.classList.remove('hidden');
+    }
+})();
+
 // ---- GRANT DATA (embedded from data/grants.json) ----
 const GRANTS = [
   { id:"grant_001", title:"Horizont Evropa: Vještačka inteligencija za zdravstvo", category:"EU Grant",
@@ -740,12 +775,45 @@ function applyFilters() {
     renderTable(getFiltered());
 }
 
+// ---- GATING: besplatni vs plaćeni ----
+const FREE_GRANT_LIMIT = 3;
+const isPaidUser = window.__isAuthenticated && !window.__isDemo;
+
+function getVisibleGrants() {
+    // Demo / neplaćeni korisnici vide samo 3 granta
+    if (!isPaidUser) return GRANTS.slice(0, FREE_GRANT_LIMIT);
+    return GRANTS;
+}
+
+function showUpgradeBanner() {
+    if (isPaidUser) return;
+    const banner = document.createElement('div');
+    banner.id = 'upgrade-banner';
+    banner.className = 'bg-gradient-to-r from-eu-blue to-blue-700 text-white p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-center justify-between gap-3';
+    banner.innerHTML = `
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-lock text-eu-yellow text-xl"></i>
+            <div>
+                <p class="font-semibold text-sm">Vidite samo ${FREE_GRANT_LIMIT} od ${GRANTS.length} grantova</p>
+                <p class="text-blue-200 text-xs">Nadogradite na Starter plan za pristup svim grantovima i AI pretrazi.</p>
+            </div>
+        </div>
+        <a href="pitch.html#poslovni-model" class="bg-eu-yellow text-eu-dark font-bold text-sm px-5 py-2 rounded-xl hover:bg-yellow-300 transition whitespace-nowrap">
+            Nadogradi od €29/mj <i class="fa-solid fa-arrow-right ml-1"></i>
+        </a>
+    `;
+    const table = document.querySelector('#dashboard .bg-white.rounded-2xl.shadow-sm');
+    if (table) table.parentNode.insertBefore(banner, table);
+}
+
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
+    const visibleGrants = getVisibleGrants();
     updateStats(GRANTS);
     buildCharts();
     buildUpcoming();
-    renderTable(GRANTS);
+    renderTable(visibleGrants);
+    showUpgradeBanner();
 
     document.getElementById('search-input').addEventListener('input', applyFilters);
     document.getElementById('filter-cat').addEventListener('change', applyFilters);
@@ -753,6 +821,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // AI Search dugme
     document.getElementById('btn-ai-search').addEventListener('click', () => {
+        if (!isPaidUser) {
+            showAIStatus('AI pretraga je dostupna za plaćene korisnike. Nadogradite na Starter plan (€29/mj).', 'error');
+            return;
+        }
         const query = document.getElementById('search-input').value.trim();
         if (query.length < 3) {
             showAIStatus('Unesite najmanje 3 karaktera za AI pretragu.', 'error');

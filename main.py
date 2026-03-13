@@ -2,8 +2,9 @@ import os
 import logging
 import time
 import uuid
+import json
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -148,6 +149,59 @@ async def search_endpoint(request: SearchRequest):
     except Exception as e:
         logger.error(f"🔥 [ID: {req_id}] Neočekivana greška: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- 6. STRIPE WEBHOOK (za primanje uplata) ---
+
+STRIPE_SECRET = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+@app.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """
+    Stripe šalje event kad neko plati.
+    Ovaj endpoint prima taj event i loguje ga.
+    Kad dodaš Supabase, ovdje ćeš upisati pretplatu u bazu.
+    """
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature", "")
+
+    # Ako Stripe ključevi nisu konfigurisani, loguj i vrati OK
+    if not STRIPE_SECRET or not STRIPE_WEBHOOK_SECRET:
+        logger.warning("⚠️ Stripe webhook primljen ali ključevi nisu konfigurisani.")
+        return {"status": "received", "configured": False}
+
+    try:
+        import stripe
+        stripe.api_key = STRIPE_SECRET
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except Exception as e:
+        logger.error(f"❌ Stripe webhook verifikacija: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # Obradi event
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        customer_email = session.get("customer_email", "unknown")
+        amount = session.get("amount_total", 0) / 100  # centi → euri
+        logger.info(f"💰 NOVA UPLATA: {customer_email} platio €{amount}")
+
+        # TODO: Kad dodaš Supabase, upiši ovdje:
+        # supabase.table("subscriptions").insert({
+        #     "email": customer_email,
+        #     "plan": determine_plan(amount),
+        #     "status": "active",
+        #     "stripe_session_id": session["id"]
+        # }).execute()
+
+    elif event["type"] == "customer.subscription.deleted":
+        logger.info(f"🚫 Pretplata otkazana: {event['data']['object'].get('customer', 'unknown')}")
+
+    return {"status": "ok"}
+
 
 if __name__ == "__main__":
     import uvicorn

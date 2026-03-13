@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prijava — FinAssistBH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        eu: { blue: '#003399', yellow: '#FFCC00', dark: '#001a4d', light: '#e8edf8' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background: linear-gradient(135deg, #001a4d 0%, #003399 50%, #001a4d 100%); min-height: 100vh; }
+    </style>
+</head>
+<body class="font-sans flex items-center justify-center px-4 py-12">
+
+<div class="w-full max-w-md">
+    <!-- Logo -->
+    <div class="flex items-center justify-center gap-3 mb-8">
+        <div class="w-12 h-12 bg-eu-yellow rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-eu-dark font-black text-lg">EU</span>
+        </div>
+        <div class="text-left">
+            <h1 class="text-2xl font-black text-white">FinAssistBH</h1>
+            <p class="text-blue-300 text-xs">EU Funds & Grants AI Platform</p>
+        </div>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8">
+
+        <!-- Tab Switch -->
+        <div class="flex bg-gray-100 rounded-xl p-1 mb-6">
+            <button id="tab-login" onclick="showTab('login')"
+                class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition bg-eu-blue text-white">
+                Prijava
+            </button>
+            <button id="tab-register" onclick="showTab('register')"
+                class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition text-gray-500">
+                Registracija
+            </button>
+        </div>
+
+        <!-- Status Message -->
+        <div id="auth-message" class="hidden mb-4 p-3 rounded-xl text-sm"></div>
+
+        <!-- Login Form -->
+        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="text-sm font-medium text-gray-700 mb-1 block">Email</label>
+                <input type="email" id="login-email" required placeholder="vas@email.com"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-eu-blue focus:border-eu-blue outline-none transition">
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700 mb-1 block">Lozinka</label>
+                <input type="password" id="login-password" required placeholder="Vaša lozinka" minlength="6"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-eu-blue focus:border-eu-blue outline-none transition">
+            </div>
+            <button type="submit" id="btn-login"
+                class="w-full bg-eu-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-800 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-to-bracket"></i> Prijavi se
+            </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+            <div>
+                <label class="text-sm font-medium text-gray-700 mb-1 block">Email</label>
+                <input type="email" id="reg-email" required placeholder="vas@email.com"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-eu-blue focus:border-eu-blue outline-none transition">
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700 mb-1 block">Lozinka</label>
+                <input type="password" id="reg-password" required placeholder="Min. 6 karaktera" minlength="6"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-eu-blue focus:border-eu-blue outline-none transition">
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700 mb-1 block">Potvrdite lozinku</label>
+                <input type="password" id="reg-password-confirm" required placeholder="Ponovite lozinku" minlength="6"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-eu-blue focus:border-eu-blue outline-none transition">
+            </div>
+            <button type="submit" id="btn-register"
+                class="w-full bg-eu-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-800 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-user-plus"></i> Registruj se
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 my-5">
+            <div class="flex-1 h-px bg-gray-200"></div>
+            <span class="text-xs text-gray-400">ili</span>
+            <div class="flex-1 h-px bg-gray-200"></div>
+        </div>
+
+        <!-- Demo access -->
+        <a href="index.html"
+            class="block text-center text-sm text-eu-blue font-medium hover:underline">
+            <i class="fa-solid fa-eye mr-1"></i> Pogledaj besplatni demo (3 granta)
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-blue-300 text-xs mt-6">
+        &copy; 2026 Dino Hatibovic - FinAssistBH &nbsp;|&nbsp;
+        <a href="pitch.html" class="text-eu-yellow hover:underline">Cijene</a>
+    </p>
+</div>
+
+<!-- ===================== SUPABASE SDK ===================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// =============================================================
+// SUPABASE CONFIG — Dino, zamijeni ove vrijednosti!
+// =============================================================
+// 1. Idi na supabase.com → kreiraj projekat
+// 2. Settings → API → kopiraj URL i anon key
+// 3. Zalijepi ovdje
+// =============================================================
+const SUPABASE_URL  = 'YOUR_SUPABASE_URL';   // npr: https://xyzabc.supabase.co
+const SUPABASE_KEY  = 'YOUR_SUPABASE_ANON_KEY'; // javni anon ključ
+
+let supabase = null;
+
+// Inicijalizacija — samo ako su ključevi postavljeni
+if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Provjeri da li je korisnik već ulogovan
+    supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+            window.location.href = 'index.html';
+        }
+    });
+}
+
+// ---- TAB SWITCHING ----
+function showTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+    document.getElementById('form-register').classList.toggle('hidden', isLogin);
+    document.getElementById('tab-login').className = isLogin
+        ? 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition bg-eu-blue text-white'
+        : 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition text-gray-500';
+    document.getElementById('tab-register').className = !isLogin
+        ? 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition bg-eu-blue text-white'
+        : 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition text-gray-500';
+    hideMessage();
+}
+
+// ---- MESSAGES ----
+function showMessage(text, type) {
+    const el = document.getElementById('auth-message');
+    el.classList.remove('hidden', 'bg-green-50', 'text-green-700', 'bg-red-50', 'text-red-700', 'bg-blue-50', 'text-blue-700');
+    if (type === 'success') { el.classList.add('bg-green-50', 'text-green-700'); }
+    else if (type === 'error') { el.classList.add('bg-red-50', 'text-red-700'); }
+    else { el.classList.add('bg-blue-50', 'text-blue-700'); }
+    el.textContent = text;
+}
+
+function hideMessage() {
+    document.getElementById('auth-message').classList.add('hidden');
+}
+
+// ---- LOGIN ----
+async function handleLogin(e) {
+    e.preventDefault();
+
+    if (!supabase) {
+        showMessage('Supabase nije konfigurisan. Kontaktirajte admina.', 'error');
+        return;
+    }
+
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('btn-login');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Prijava...';
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+        showMessage(error.message === 'Invalid login credentials'
+            ? 'Pogrešan email ili lozinka.'
+            : error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Prijavi se';
+    } else {
+        showMessage('Uspješna prijava! Preusmjeravanje...', 'success');
+        localStorage.setItem('supabase_token', data.session.access_token);
+        localStorage.setItem('user_email', data.user.email);
+        setTimeout(() => window.location.href = 'index.html', 500);
+    }
+}
+
+// ---- REGISTER ----
+async function handleRegister(e) {
+    e.preventDefault();
+
+    if (!supabase) {
+        showMessage('Supabase nije konfigurisan. Kontaktirajte admina.', 'error');
+        return;
+    }
+
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-password-confirm').value;
+    const btn = document.getElementById('btn-register');
+
+    if (password !== confirm) {
+        showMessage('Lozinke se ne poklapaju.', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registracija...';
+
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+        showMessage(error.message, 'error');
+    } else {
+        showMessage('Registracija uspješna! Provjerite email za potvrdu.', 'success');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Registruj se';
+}
+</script>
+
+</body>
+</html>

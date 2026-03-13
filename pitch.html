@@ -329,33 +329,41 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             <!-- Starter -->
-            <div class="card-glow rounded-2xl p-5 text-center">
+            <div class="card-glow rounded-2xl p-5 text-center flex flex-col">
                 <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Starter</p>
                 <div class="text-3xl font-black text-white mb-1">€29</div>
                 <div class="text-slate-500 text-xs mb-4">/mjesec</div>
                 <p class="text-slate-300 text-sm mb-4">MSP-ovi, preduzetnici, startupi</p>
-                <ul class="text-slate-400 text-xs space-y-1 text-left">
+                <ul class="text-slate-400 text-xs space-y-1 text-left mb-5">
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Dashboard pristup</li>
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>AI pretraga (50 upita/mj)</li>
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Email obavijesti</li>
                 </ul>
+                <a href="#" data-stripe-plan="starter"
+                   class="mt-auto block bg-eu-blue text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-700 transition">
+                    Započni <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
             </div>
 
             <!-- Pro -->
-            <div class="card-glow rounded-2xl p-5 text-center">
+            <div class="card-glow rounded-2xl p-5 text-center flex flex-col">
                 <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Pro</p>
                 <div class="text-3xl font-black text-white mb-1">€149</div>
                 <div class="text-slate-500 text-xs mb-4">/mjesec</div>
                 <p class="text-slate-300 text-sm mb-4">EU konsultanti, NGO-ovi</p>
-                <ul class="text-slate-400 text-xs space-y-1 text-left">
+                <ul class="text-slate-400 text-xs space-y-1 text-left mb-5">
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Neograničena AI pretraga</li>
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Export u PDF/Excel</li>
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>5 praćenih korisnika</li>
                 </ul>
+                <a href="#" data-stripe-plan="pro"
+                   class="mt-auto block bg-eu-blue text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-700 transition">
+                    Započni <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
             </div>
 
             <!-- Agency — highlighted -->
-            <div class="tier-highlight rounded-2xl p-5 text-center relative">
+            <div class="tier-highlight rounded-2xl p-5 text-center relative flex flex-col">
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-eu-yellow text-eu-dark text-xs font-black px-3 py-1 rounded-full">
                     NAJPOPULARNIJI
                 </div>
@@ -363,26 +371,34 @@
                 <div class="text-3xl font-black text-white mb-1">€299</div>
                 <div class="text-blue-300 text-xs mb-4">/mjesec</div>
                 <p class="text-blue-200 text-sm mb-4">Računovođe, odvjetnici</p>
-                <ul class="text-blue-200 text-xs space-y-1 text-left">
+                <ul class="text-blue-200 text-xs space-y-1 text-left mb-5">
                     <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>25 klijentskih profila</li>
                     <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>Automatski client reports</li>
                     <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>API pristup</li>
                     <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>Prioritetna podrška</li>
                 </ul>
+                <a href="#" data-stripe-plan="agency"
+                   class="mt-auto block bg-eu-yellow text-eu-dark font-bold text-sm py-2.5 rounded-xl hover:bg-yellow-300 transition">
+                    Započni <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
             </div>
 
             <!-- Enterprise -->
-            <div class="card-glow rounded-2xl p-5 text-center">
+            <div class="card-glow rounded-2xl p-5 text-center flex flex-col">
                 <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Enterprise</p>
                 <div class="text-3xl font-black text-white mb-1">€799</div>
                 <div class="text-slate-500 text-xs mb-4">/mjesec</div>
                 <p class="text-slate-300 text-sm mb-4">Općine, univerziteti, institucije</p>
-                <ul class="text-slate-400 text-xs space-y-1 text-left">
+                <ul class="text-slate-400 text-xs space-y-1 text-left mb-5">
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>White-label opcija</li>
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Custom integracije</li>
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Neograničeni korisnici</li>
                     <li><i class="fa-solid fa-check text-green-400 mr-2"></i>SLA ugovor</li>
                 </ul>
+                <a href="#kontakt" data-stripe-plan="enterprise"
+                   class="mt-auto block bg-eu-blue text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-700 transition">
+                    Kontaktiraj nas <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
             </div>
         </div>
 
@@ -592,6 +608,41 @@
         <a href="index.html" class="text-blue-400 hover:text-eu-yellow transition">← Grants Dashboard</a>
     </p>
 </footer>
+
+<!-- Stripe Payment Links Config -->
+<script>
+// =============================================================
+// STRIPE PAYMENT LINKS — Dino, zamijeni ove linkove pravim!
+// =============================================================
+// Kad kreiraš Stripe nalog:
+// 1. Idi na dashboard.stripe.com → Products → kreiraj 4 proizvoda
+// 2. Za svaki proizvod klikni "Create payment link"
+// 3. Kopiraj link i zalijepi ovdje umjesto '#'
+// =============================================================
+const STRIPE_LINKS = {
+    starter:    '#',  // Zamijeni sa: https://buy.stripe.com/xxx
+    pro:        '#',  // Zamijeni sa: https://buy.stripe.com/xxx
+    agency:     '#',  // Zamijeni sa: https://buy.stripe.com/xxx
+    enterprise: null  // Enterprise = kontakt forma, ne Stripe
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-stripe-plan]').forEach(btn => {
+        const plan = btn.dataset.stripePlan;
+        const link = STRIPE_LINKS[plan];
+
+        if (link && link !== '#') {
+            btn.href = link;
+            btn.target = '_blank';
+        } else if (link === '#') {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Pretplate će uskoro biti dostupne! Kontaktirajte nas na dino@finassistbh.ba za rani pristup.');
+            });
+        }
+    });
+});
+</script>
 
 </body>
 </html>
