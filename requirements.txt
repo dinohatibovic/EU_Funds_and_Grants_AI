@@ -8,3 +8,4 @@ beautifulsoup4
 requests
 python-multipart
 stripe
+PyJWT>=2.8.0
