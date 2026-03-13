@@ -272,12 +272,20 @@
                 <option value="Medium">Srednja</option>
                 <option value="Low">Niska</option>
             </select>
+            <!-- AI Search -->
+            <button id="btn-ai-search" class="px-4 py-2.5 bg-eu-blue text-white rounded-xl text-sm font-semibold hover:bg-eu-dark transition flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-robot" id="ai-icon"></i> AI Pretraga
+            </button>
             <!-- Reset -->
             <button id="btn-reset" class="px-4 py-2.5 bg-eu-light text-eu-blue rounded-xl text-sm font-medium hover:bg-blue-100 transition flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-rotate-left"></i> Resetuj
             </button>
         </div>
         <p id="filter-result-info" class="text-xs text-gray-400 mt-3"></p>
+        <!-- AI Search Status -->
+        <div id="ai-status" class="hidden mt-3 p-3 rounded-xl text-sm">
+            <div id="ai-status-content" class="flex items-center gap-2"></div>
+        </div>
     </div>
 
     <!-- === GRANTS TABLE === -->
@@ -631,7 +639,89 @@ function renderTable(data) {
         </div>`).join('');
 }
 
-// ---- FILTERING ----
+// ---- API CONFIG ----
+const API_BASE = 'https://eu-funds-and-grants-ai.onrender.com';
+let aiSearchActive = false;
+
+// ---- AI SEARCH ----
+function showAIStatus(message, type) {
+    const status = document.getElementById('ai-status');
+    const content = document.getElementById('ai-status-content');
+    status.classList.remove('hidden', 'bg-blue-50', 'bg-green-50', 'bg-red-50', 'bg-amber-50');
+    if (type === 'loading') {
+        status.classList.add('bg-blue-50');
+        content.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-eu-blue"></i> <span class="text-eu-blue">${message}</span>`;
+    } else if (type === 'success') {
+        status.classList.add('bg-green-50');
+        content.innerHTML = `<i class="fa-solid fa-check-circle text-green-600"></i> <span class="text-green-700">${message}</span>`;
+    } else if (type === 'error') {
+        status.classList.add('bg-amber-50');
+        content.innerHTML = `<i class="fa-solid fa-exclamation-triangle text-amber-600"></i> <span class="text-amber-700">${message}</span>`;
+    }
+}
+
+function hideAIStatus() {
+    document.getElementById('ai-status').classList.add('hidden');
+}
+
+async function searchAPI(query) {
+    const btn = document.getElementById('btn-ai-search');
+    const icon = document.getElementById('ai-icon');
+
+    btn.disabled = true;
+    icon.className = 'fa-solid fa-spinner fa-spin';
+    showAIStatus('AI pretražuje bazu grantova...', 'loading');
+
+    try {
+        const response = await fetch(`${API_BASE}/search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query, n_results: 10 })
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+
+        // Konvertuj API rezultate u format koji renderTable() očekuje
+        const aiResults = [];
+        if (data.results && data.results.length > 0) {
+            data.results.forEach((text, i) => {
+                const meta = (data.metadatas && data.metadatas[0] && data.metadatas[0][i]) || {};
+                aiResults.push({
+                    id: `ai_${i}`,
+                    title: meta.title || text.substring(0, 80),
+                    description: text,
+                    category: meta.category || 'EU Grant',
+                    budget: meta.budget || 'N/A',
+                    deadline: meta.deadline || '2026-12-31',
+                    relevance: meta.relevance || 'High',
+                    url: meta.url || '#'
+                });
+            });
+        }
+
+        if (aiResults.length > 0) {
+            aiSearchActive = true;
+            renderTable(aiResults);
+            showAIStatus(`AI pronašao ${aiResults.length} rezultata za "${query}" (${data.processing_time.toFixed(2)}s)`, 'success');
+        } else {
+            // Nema AI rezultata — fallback na lokalni filter
+            showAIStatus('AI nije pronašao rezultate. Prikazujem lokalne grantove.', 'error');
+            applyFilters();
+        }
+    } catch (err) {
+        // API nedostupan — fallback na lokalni filter
+        console.warn('AI Search API error:', err.message);
+        showAIStatus(`API nedostupan (${err.message}). Prikazujem lokalne grantove.`, 'error');
+        applyFilters();
+    } finally {
+        btn.disabled = false;
+        icon.className = 'fa-solid fa-robot';
+    }
+}
+
+// ---- FILTERING (lokalni) ----
 function getFiltered() {
     const q   = document.getElementById('search-input').value.trim().toLowerCase();
     const cat = document.getElementById('filter-cat').value;
@@ -644,7 +734,11 @@ function getFiltered() {
     });
 }
 
-function applyFilters() { renderTable(getFiltered()); }
+function applyFilters() {
+    aiSearchActive = false;
+    hideAIStatus();
+    renderTable(getFiltered());
+}
 
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
@@ -656,10 +750,31 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('search-input').addEventListener('input', applyFilters);
     document.getElementById('filter-cat').addEventListener('change', applyFilters);
     document.getElementById('filter-rel').addEventListener('change', applyFilters);
+
+    // AI Search dugme
+    document.getElementById('btn-ai-search').addEventListener('click', () => {
+        const query = document.getElementById('search-input').value.trim();
+        if (query.length < 3) {
+            showAIStatus('Unesite najmanje 3 karaktera za AI pretragu.', 'error');
+            return;
+        }
+        searchAPI(query);
+    });
+
+    // Enter u search polju pokreće AI pretragu
+    document.getElementById('search-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value.trim();
+            if (query.length >= 3) searchAPI(query);
+        }
+    });
+
     document.getElementById('btn-reset').addEventListener('click', () => {
         document.getElementById('search-input').value = '';
         document.getElementById('filter-cat').value = '';
         document.getElementById('filter-rel').value = '';
+        aiSearchActive = false;
+        hideAIStatus();
         renderTable(GRANTS);
     });
 });
