@@ -7,4 +7,8 @@ services:
     envVars:
       - key: GEMINI_API_KEY
         sync: false
+      # BUG #3: JWT_SECRET mora biti stabilan između restartova
+      # Generiši: python3 -c "import secrets; print(secrets.token_hex(32))"
+      - key: JWT_SECRET
+        sync: false
     healthCheckPath: /health
