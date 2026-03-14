@@ -141,8 +141,69 @@ async def startup_event():
         embedding_client = EmbeddingClient()
         chroma_client = ChromaDBClient()
         logger.info("✅ Klijenti za Gemini AI i ChromaDB su spremni.")
+        await auto_ingest_grants()
     except Exception as e:
         logger.critical(f"❌ Kritična greška pri startu: {e}")
+
+
+async def auto_ingest_grants():
+    """
+    Auto-ingestira grants.json u ChromaDB ako je baza prazna ili zastarjela.
+    Render briše disk pri svakom restartu — ovo osigurava da podaci uvijek budu tu.
+    """
+    global embedding_client, chroma_client
+
+    grants_path = os.path.join(os.path.dirname(__file__), "data", "grants.json")
+    if not os.path.exists(grants_path):
+        logger.warning("⚠️ data/grants.json nije pronađen — preskačem auto-ingestion.")
+        return
+
+    with open(grants_path, "r", encoding="utf-8") as f:
+        grants = json.load(f)
+
+    collection = chroma_client.collection
+    existing_ids = set(collection.get(include=[])["ids"])
+    grant_ids = {g["id"] for g in grants}
+
+    missing = [g for g in grants if g["id"] not in existing_ids]
+    if not missing:
+        logger.info(f"✅ ChromaDB ima {len(existing_ids)} dokumenata — auto-ingestion preskočen.")
+        return
+
+    logger.info(f"📥 Auto-ingestion: {len(missing)} novih grantova u ChromaDB...")
+
+    texts = [
+        f"{g['title']}. {g.get('description', '')} Kategorija: {g.get('category', '')}. "
+        f"Budžet: {g.get('budget', '')}. Rok: {g.get('deadline', '')}."
+        for g in missing
+    ]
+
+    embeddings = embedding_client.generate_embeddings(texts)
+    if not embeddings or len(embeddings) != len(missing):
+        logger.error("❌ Auto-ingestion neuspješan — embeddings nisu generirani.")
+        return
+
+    # Ukloni stare dokumente koji više ne postoje u grants.json
+    stale = existing_ids - grant_ids
+    if stale:
+        collection.delete(ids=list(stale))
+        logger.info(f"🗑️ Obrisano {len(stale)} zastarjelih dokumenata.")
+
+    ids = [g["id"] for g in missing]
+    metadatas = [
+        {
+            "title": g["title"],
+            "category": g.get("category", ""),
+            "budget": g.get("budget", ""),
+            "deadline": g.get("deadline", ""),
+            "url": g.get("url", ""),
+            "relevance": g.get("relevance", ""),
+        }
+        for g in missing
+    ]
+
+    collection.add(ids=ids, embeddings=embeddings, metadatas=metadatas, documents=texts)
+    logger.info(f"✅ Auto-ingestion završen — {len(missing)} grantova dodano u ChromaDB.")
 
 # --- 5. API ENDPOINTI ---
 
