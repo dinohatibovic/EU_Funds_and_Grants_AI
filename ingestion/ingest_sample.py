@@ -135,7 +135,7 @@ def main():
     print("-" * 70)
     
     try:
-        collection = db_client.client.get_or_create_collection("grants")
+        collection = db_client.client.get_or_create_collection("eu_grants")
         
         # Add documents with embeddings
         ids = [doc["id"] for doc in documents]

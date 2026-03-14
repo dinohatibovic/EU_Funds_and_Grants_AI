@@ -3,853 +3,749 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EU Grants AI – Analytics Dashboard | FinAssistBH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>FinAssistBH — Pronađi EU grantove za BiH</title>
+    <meta name="description" content="AI asistent za pretragu EU fondova i grantova dostupnih u Bosni i Hercegovini">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        eu: { blue: '#003399', yellow: '#FFCC00', dark: '#001a4d', light: '#e8edf8' },
-                    },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        body { background: #f0f4fa; }
-        .stat-card { transition: transform 0.2s, box-shadow 0.2s; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,51,153,0.12); }
-        .grant-row { transition: background 0.15s; }
-        .grant-row:hover { background: #f0f4fa; }
-        .badge-high    { background:#dcfce7; color:#166534; }
-        .badge-medium  { background:#fef9c3; color:#854d0e; }
-        .badge-low     { background:#fee2e2; color:#991b1b; }
-        .badge-eu      { background:#dbeafe; color:#1e40af; }
-        .badge-national{ background:#ede9fe; color:#6b21a8; }
-        .badge-add     { background:#e0f2fe; color:#075985; }
-        .badge-spec    { background:#fce7f3; color:#9d174d; }
-        ::-webkit-scrollbar { width:6px; }
-        ::-webkit-scrollbar-thumb { background:#c7d2e8; border-radius:3px; }
-        .chart-wrap { position:relative; height:260px; }
-        .deadline-urgent { border-left: 4px solid #ef4444; }
-        .deadline-soon   { border-left: 4px solid #f59e0b; }
-        .deadline-ok     { border-left: 4px solid #10b981; }
-        input[type="range"] { accent-color: #003399; }
-        #search-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(0,51,153,0.18); }
+        /* ============================================
+           CSS VARIJABLE
+           ============================================ */
+        :root {
+            --primary: #1a4b8c;
+            --primary-light: #2d6fd4;
+            --primary-soft: #e8f0fe;
+            --accent: #d4a843;
+            --accent-soft: #fdf6e3;
+            --bg: #f7f8fa;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-soft: #64748b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --error: #dc2626;
+            --error-soft: #fef2f2;
+            --success: #16a34a;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { height: 100%; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Accessibility — screen reader only */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px;
+            padding: 0; margin: -1px; overflow: hidden;
+            clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+
+        /* ============================================
+           HEADER
+           ============================================ */
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .header-brand { display: flex; align-items: center; gap: 10px; }
+        .header-logo {
+            width: 36px; height: 36px;
+            background: var(--primary); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: -0.5px;
+        }
+        .header-title { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
+        .header-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        .header-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--text-muted); transition: background 0.3s;
+        }
+        .status-dot.online  { background: var(--success); }
+        .status-dot.loading { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+        .status-dot.error   { background: var(--error); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* ============================================
+           CHAT AREA
+           ============================================ */
+        .chat-area {
+            flex: 1; overflow-y: auto;
+            padding: 20px; display: flex; flex-direction: column;
+            gap: 16px; scroll-behavior: smooth;
+        }
+        .chat-area::-webkit-scrollbar { width: 6px; }
+        .chat-area::-webkit-scrollbar-track { background: transparent; }
+        .chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* ============================================
+           WELCOME SCREEN
+           ============================================ */
+        .welcome {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 40px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .welcome-icon {
+            width: 64px; height: 64px; background: var(--primary-soft);
+            border-radius: 20px; display: flex; align-items: center;
+            justify-content: center; font-size: 28px; margin-bottom: 20px;
+        }
+        .welcome h2 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: -0.5px; }
+        .welcome p  { font-size: 14px; color: var(--text-soft); max-width: 400px; line-height: 1.6; margin-bottom: 28px; }
+
+        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 560px; }
+        .suggestion-btn {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 24px; padding: 9px 16px; font-size: 13px;
+            font-family: var(--font); color: var(--text); cursor: pointer;
+            transition: all 0.2s; line-height: 1.3;
+        }
+        .suggestion-btn:hover {
+            border-color: var(--primary-light); background: var(--primary-soft);
+            color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-sm);
+        }
+
+        /* ============================================
+           PORUKE
+           ============================================ */
+        .message {
+            display: flex; gap: 10px; max-width: 720px;
+            width: 100%; margin: 0 auto; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .message.user { flex-direction: row-reverse; }
+
+        .msg-avatar {
+            width: 32px; height: 32px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0; margin-top: 2px;
+        }
+        .message.bot  .msg-avatar { background: var(--primary); color: var(--accent); font-weight: 700; font-size: 11px; }
+        .message.user .msg-avatar { background: var(--primary-soft); color: var(--primary); }
+
+        .msg-content { flex: 1; }
+        .msg-bubble { padding: 12px 16px; border-radius: var(--radius); font-size: 14px; line-height: 1.65; }
+
+        .message.user .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+        .message.bot  .msg-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+
+        .msg-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; padding: 0 4px; }
+        .message.user .msg-time { text-align: right; }
+
+        /* ============================================
+           RESULT KARTICE
+           ============================================ */
+        .results-wrapper { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .grant-card {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 12px 14px; transition: all 0.2s;
+        }
+        .grant-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
+        .grant-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+        .grant-rank {
+            font-size: 11px; font-weight: 600; color: var(--primary);
+            background: var(--primary-soft); padding: 2px 8px;
+            border-radius: 6px; white-space: nowrap; font-family: var(--mono);
+        }
+        .grant-category {
+            font-size: 11px; color: var(--accent); background: var(--accent-soft);
+            padding: 2px 8px; border-radius: 6px; font-weight: 500;
+        }
+        .grant-title   { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 4px; }
+        .grant-text    {
+            font-size: 13px; color: var(--text-soft); line-height: 1.55;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .grant-text.expanded { -webkit-line-clamp: unset; }
+        .grant-expand  {
+            font-size: 12px; color: var(--primary-light); background: none; border: none;
+            cursor: pointer; padding: 4px 0; font-family: var(--font); font-weight: 500; margin-top: 2px;
+        }
+        .grant-expand:hover { text-decoration: underline; }
+        .results-meta { font-size: 12px; color: var(--text-muted); margin-top: 6px; font-family: var(--mono); }
+
+        /* ============================================
+           LOADING
+           ============================================ */
+        .loading-message .msg-bubble { display: flex; align-items: center; gap: 10px; }
+        .typing-dots { display: flex; gap: 4px; }
+        .typing-dots span {
+            width: 7px; height: 7px; background: var(--text-muted);
+            border-radius: 50%; animation: typing 1.4s ease-in-out infinite;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+            30%           { opacity: 1;   transform: translateY(-4px); }
+        }
+        .loading-text { font-size: 13px; color: var(--text-muted); }
+
+        /* ============================================
+           ERROR
+           ============================================ */
+        .error-bubble { background: var(--error-soft) !important; border-color: #fecaca !important; }
+        .error-bubble .error-text { color: var(--error); font-size: 13px; }
+        .error-bubble .error-hint { color: var(--text-soft); font-size: 12px; margin-top: 6px; }
+
+        /* ============================================
+           INPUT AREA
+           ============================================ */
+        .input-area {
+            background: var(--surface); border-top: 1px solid var(--border);
+            padding: 14px 20px; flex-shrink: 0;
+        }
+        .input-container { max-width: 720px; margin: 0 auto; display: flex; gap: 10px; align-items: flex-end; }
+        .input-wrapper {
+            flex: 1; background: var(--bg); border: 1.5px solid var(--border);
+            border-radius: 14px; display: flex; align-items: flex-end;
+            transition: border-color 0.2s, box-shadow 0.2s; overflow: hidden;
+        }
+        .input-wrapper:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(45, 111, 212, 0.1);
+        }
+        #userInput {
+            flex: 1; border: none; background: transparent;
+            padding: 12px 16px; font-size: 14px; font-family: var(--font);
+            color: var(--text); resize: none; outline: none;
+            min-height: 44px; max-height: 120px; line-height: 1.5;
+        }
+        #userInput::placeholder { color: var(--text-muted); }
+
+        .send-btn {
+            width: 44px; height: 44px; border-radius: 12px; border: none;
+            background: var(--primary); color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .send-btn:hover:not(:disabled) { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+        .send-btn:disabled { background: var(--border); cursor: not-allowed; }
+        .send-btn svg { width: 18px; height: 18px; }
+
+        .input-hint {
+            text-align: center; font-size: 11px; color: var(--text-muted);
+            margin-top: 8px; max-width: 720px; margin-left: auto; margin-right: auto;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 640px) {
+            .header      { padding: 10px 14px; }
+            .chat-area   { padding: 14px; gap: 12px; }
+            .input-area  { padding: 10px 14px; }
+            .welcome h2  { font-size: 19px; }
+            .welcome p   { font-size: 13px; }
+            .suggestions { gap: 6px; }
+            .suggestion-btn { font-size: 12px; padding: 8px 12px; }
+            .message     { max-width: 100%; }
+            .msg-avatar  { width: 28px; height: 28px; font-size: 12px; }
+            .msg-bubble  { padding: 10px 14px; font-size: 13px; }
+            .grant-card  { padding: 10px 12px; }
+            .header-subtitle { display: none; }
+        }
+
+        @media print {
+            .input-area, .header-status, .send-btn { display: none; }
+            .chat-area { overflow: visible; }
+        }
     </style>
 </head>
-<body class="font-sans text-slate-800 min-h-screen">
+<body>
 
-<!-- Auth Guard: redirect to login if not authenticated -->
-<script>
-(function() {
-    const token = localStorage.getItem('supabase_token');
-    const isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
-    window.__isAuthenticated = !!token;
-    window.__isDemo = isDemo;
-    // If no token and not in demo mode, redirect to auth
-    if (!token && !isDemo) {
-        window.location.href = 'auth.html';
-    }
-})();
-</script>
-
-<!-- ===================== HEADER ===================== -->
-<header class="bg-eu-dark text-white shadow-xl sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-eu-yellow rounded-lg flex items-center justify-center">
-                    <span class="text-eu-dark font-bold text-base">EU</span>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold leading-tight">FinAssistBH</h1>
-                    <p class="text-blue-300 text-xs">Kontrolna ploča za analitiku grantova</p>
-                </div>
-            </div>
-            <nav class="hidden md:flex items-center gap-6 text-sm">
-                <a href="#o-projektu" class="text-blue-300 hover:text-white transition">O projektu</a>
-                <a href="#dashboard" class="text-blue-300 hover:text-white transition">Dashboard</a>
-                <a href="pitch.html" class="text-blue-300 hover:text-white transition">Cijene</a>
-                <a href="#kontakt" class="bg-eu-yellow text-eu-dark font-semibold px-4 py-1.5 rounded-lg hover:bg-yellow-300 transition text-xs">Kontakt</a>
-                <span id="nav-user-email" class="text-blue-300 text-xs truncate max-w-[120px]"></span>
-                <button id="btn-logout" onclick="handleLogout()" class="hidden text-red-300 hover:text-red-200 text-xs font-medium transition">
-                    <i class="fa-solid fa-right-from-bracket mr-1"></i>Odjava
-                </button>
-            </nav>
-            <div class="flex md:hidden items-center gap-2">
-                <span id="header-count" class="text-xs bg-eu-blue/60 border border-blue-400/30 px-3 py-1 rounded-full font-medium"></span>
-                <span class="text-xs bg-green-700/60 border border-green-400/30 px-3 py-1 rounded-full font-medium">
-                    <i class="fa-solid fa-circle text-green-400 text-[8px] mr-1 animate-pulse"></i>Podaci uživo
-                </span>
-            </div>
-            <div class="hidden md:flex items-center gap-3">
-                <span id="header-count-desktop" class="text-xs bg-eu-blue/60 border border-blue-400/30 px-3 py-1 rounded-full font-medium"></span>
-                <span class="text-xs bg-green-700/60 border border-green-400/30 px-3 py-1 rounded-full font-medium">
-                    <i class="fa-solid fa-circle text-green-400 text-[8px] mr-1 animate-pulse"></i>Podaci uživo
-                </span>
-                <span class="text-xs text-blue-300">Mart 2026.</span>
+    <!-- ========== HEADER ========== -->
+    <header class="header" role="banner">
+        <div class="header-brand">
+            <div class="header-logo" aria-hidden="true">EU</div>
+            <div>
+                <div class="header-title">FinAssistBH</div>
+                <div class="header-subtitle">AI pretraga EU fondova za BiH</div>
             </div>
         </div>
-    </div>
-</header>
+        <div class="header-status" role="status" aria-live="polite" aria-label="Status servera">
+            <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+            <span id="statusText">Provjera...</span>
+        </div>
+    </header>
 
-<!-- ===================== HERO / O PROJEKTU ===================== -->
-<section id="o-projektu" class="bg-gradient-to-br from-eu-dark via-eu-blue to-eu-dark text-white py-14 px-6">
-    <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-
-            <!-- Tekst -->
-            <div>
-                <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs font-medium mb-5">
-                    <i class="fa-solid fa-circle text-green-400 text-[8px] animate-pulse"></i>
-                    Platforma aktivna — Mart 2026.
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-black leading-tight mb-4">
-                    AI koja pronalazi<br>
-                    <span class="text-eu-yellow">EU grantove</span> za tebe.
-                </h2>
-                <p class="text-blue-100 text-base leading-relaxed mb-6">
-                    FinAssistBH je AI platforma koja agregira sve EU i lokalne BiH fondove na jednom mjestu.
-                    Umjesto ručnog pretraživanja stotina portala — opišeš svoju firmu i sistem ti u sekundi
-                    pronađe najprikladnije prilike za finansiranje.
-                </p>
-
-                <!-- Ključne usluge -->
-                <ul class="text-blue-100 text-sm space-y-2 mb-5">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-eu-yellow"></i> AI pretraga i matching EU + BiH grantova</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-eu-yellow"></i> Vođenje kompletne projektne dokumentacije</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-eu-yellow"></i> Monitoring 32 aktivna izvora u realnom vremenu</li>
-                </ul>
-
-                <!-- Vizija -->
-                <div class="bg-white/10 border border-white/15 rounded-xl p-4 mb-6">
-                    <p class="text-eu-yellow font-semibold text-sm mb-1">
-                        <i class="fa-solid fa-lightbulb mr-2"></i>Vizija
-                    </p>
-                    <p class="text-blue-100 text-sm leading-relaxed">
-                        Bosna i Hercegovina trenutno iskorištava manje od 30% dostupnih EU sredstava.
-                        FinAssistBH želi to promijeniti — jedna platforma, svi fondovi, na bosanskom.
-                    </p>
-                </div>
-
-                <div class="flex flex-wrap gap-3">
-                    <a href="#dashboard" class="bg-eu-yellow text-eu-dark font-bold px-6 py-3 rounded-xl text-sm hover:bg-yellow-300 transition shadow-lg">
-                        <i class="fa-solid fa-chart-line mr-2"></i>Otvori dashboard
-                    </a>
-                    <a href="pitch.html" target="_blank" class="border border-white/30 text-white font-semibold px-6 py-3 rounded-xl text-sm hover:border-eu-yellow hover:text-eu-yellow transition">
-                        <i class="fa-solid fa-briefcase mr-2"></i>Za investitore
-                    </a>
-                </div>
+    <!-- ========== CHAT AREA ========== -->
+    <main class="chat-area" id="chatArea" role="main" aria-label="Razgovor sa asistentom">
+        <div class="welcome" id="welcomeScreen">
+            <div class="welcome-icon" aria-hidden="true">🇪🇺</div>
+            <h2>Pronađite EU fondove za vaš projekat</h2>
+            <p>
+                Opišite svoj projekat ili potrebu, a ja ću pretražiti bazu dostupnih
+                EU grantova i fondova za Bosnu i Hercegovinu.
+            </p>
+            <div class="suggestions" role="list" aria-label="Prijedlozi pitanja">
+                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">Poticaji za poljoprivredu u BiH</button>
+                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">EU fondovi za male vrtiće i obrt</button>
+                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">Solarna energija — subvencije</button>
+                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">Grantovi za startupe i digitalizaciju</button>
+                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">IPA III sredstva za civilno društvo</button>
+                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">EU4AGRI — kako aplicirati?</button>
             </div>
+        </div>
+    </main>
 
-            <!-- Stats / vizualni dio -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white/10 border border-white/15 rounded-2xl p-5 text-center">
-                    <div class="text-4xl font-black text-eu-yellow">€1.2B</div>
-                    <p class="text-blue-200 text-sm mt-1">EU fondova dostupno BiH</p>
-                </div>
-                <div class="bg-white/10 border border-white/15 rounded-2xl p-5 text-center">
-                    <div class="text-4xl font-black text-eu-yellow">32</div>
-                    <p class="text-blue-200 text-sm mt-1">aktivna izvora za praćenje</p>
-                </div>
-                <div class="bg-white/10 border border-white/15 rounded-2xl p-5 text-center">
-                    <div class="text-4xl font-black text-eu-yellow">14</div>
-                    <p class="text-blue-200 text-sm mt-1">verificiranih poziva u bazi</p>
-                </div>
-                <div class="bg-white/10 border border-white/15 rounded-2xl p-5 text-center">
-                    <div class="text-4xl font-black text-eu-yellow">&lt;30%</div>
-                    <p class="text-blue-200 text-sm mt-1">BiH iskoristi dostupna sredstva</p>
-                </div>
+    <!-- ========== INPUT AREA ========== -->
+    <div class="input-area">
+        <div class="input-container">
+            <label for="userInput" class="sr-only">Unesite pitanje o grantovima</label>
+            <div class="input-wrapper">
+                <textarea
+                    id="userInput"
+                    placeholder="Opišite vaš projekat ili pitajte o grantovima..."
+                    rows="1"
+                    autofocus
+                    aria-label="Unesite pitanje o grantovima"
+                ></textarea>
+            </div>
+            <button
+                class="send-btn"
+                id="sendBtn"
+                onclick="sendMessage()"
+                disabled
+                aria-label="Pošalji poruku"
+                title="Pošalji (Enter)"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+        <div class="input-hint" aria-hidden="true">
+            FinAssistBH pretražuje bazu EU grantova koristeći AI. Rezultati su informativnog karaktera.
+        </div>
+    </div>
 
-                <!-- Tagovi tehnologije -->
-                <div class="col-span-2 bg-white/5 border border-white/10 rounded-xl p-4">
-                    <p class="text-blue-300 text-xs font-semibold uppercase tracking-wide mb-3">Tehnički stack</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="bg-blue-800/60 text-blue-200 text-xs px-3 py-1 rounded-full">FastAPI</span>
-                        <span class="bg-blue-800/60 text-blue-200 text-xs px-3 py-1 rounded-full">RAG arhitektura</span>
-                        <span class="bg-blue-800/60 text-blue-200 text-xs px-3 py-1 rounded-full">Vektorska baza</span>
-                        <span class="bg-blue-800/60 text-blue-200 text-xs px-3 py-1 rounded-full">3.072-dim AI</span>
-                        <span class="bg-blue-800/60 text-blue-200 text-xs px-3 py-1 rounded-full">GitHub Pages</span>
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+        // ============================================
+        // KONFIGURACIJA
+        // ============================================
+
+        // Auto-detekcija: lokalni razvoj ili produkcija
+        const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        const API_BASE = IS_LOCAL
+            ? 'http://127.0.0.1:8000'
+            : 'https://eu-funds-and-grants-ai.onrender.com';
+
+        // Timeout: lokalno 15s, Render free tier cold start do 90s
+        const REQUEST_TIMEOUT = IS_LOCAL ? 15000 : 90000;
+
+        // Periodična provjera statusa svakih 5 minuta
+        const HEALTH_CHECK_INTERVAL = 5 * 60 * 1000;
+
+        // ============================================
+        // STATE
+        // ============================================
+        let isWaiting = false;
+        let serverOnline = false;
+        let messageCount = 0;
+        let healthCheckTimer = null;
+
+        // ============================================
+        // DOM ELEMENTI
+        // ============================================
+        const chatArea    = document.getElementById('chatArea');
+        const userInput   = document.getElementById('userInput');
+        const sendBtn     = document.getElementById('sendBtn');
+        const statusDot   = document.getElementById('statusDot');
+        const statusText  = document.getElementById('statusText');
+
+        // ============================================
+        // HEALTH CHECK — provjeri backend, ponavljaj svakih 5 min
+        // ============================================
+        async function checkHealth() {
+            statusDot.className = 'status-dot loading';
+            statusText.textContent = 'Povezivanje...';
+
+            try {
+                const controller = new AbortController();
+                const t = setTimeout(() => controller.abort(), 15000);
+
+                const res = await fetch(`${API_BASE}/health`, { signal: controller.signal });
+                clearTimeout(t);
+
+                if (!res.ok) throw new Error('Server error');
+
+                const data = await res.json();
+                serverOnline = true;
+                statusDot.className = 'status-dot online';
+                statusText.textContent = data.database === 'connected'
+                    ? 'Sistem spreman'
+                    : 'Online (inicijalizacija...)';
+
+            } catch (err) {
+                serverOnline = false;
+                statusDot.className = 'status-dot error';
+
+                if (err.name === 'AbortError') {
+                    // Render free tier — server spava, pokušaj ponovo za 30s
+                    statusText.textContent = 'Server se budi...';
+                    setTimeout(checkHealth, 30000);
+                    return; // Ne postavljaj timer dok se ne probudi
+                }
+
+                statusText.textContent = IS_LOCAL
+                    ? 'Backend nije pokrenut'
+                    : 'Nije dostupan';
+            }
+
+            // Postavi periodičnu provjeru jednom (ne dupliciraj)
+            if (!healthCheckTimer) {
+                healthCheckTimer = setInterval(checkHealth, HEALTH_CHECK_INTERVAL);
+            }
+        }
+
+        // ============================================
+        // SLANJE PORUKE
+        // ============================================
+        async function sendMessage() {
+            const query = userInput.value.trim();
+            if (!query || isWaiting) return;
+
+            // Ukloni welcome screen iz DOM-a (ne samo sakrij — čisti memoriju)
+            const ws = document.getElementById('welcomeScreen');
+            if (ws) ws.remove();
+
+            addUserMessage(query);
+            userInput.value = '';
+            autoResizeInput();
+            setWaiting(true);
+
+            const loadingId = addLoadingMessage();
+
+            try {
+                if (!serverOnline) {
+                    updateLoadingText(loadingId, IS_LOCAL
+                        ? 'Čekam odgovor od lokalnog servera...'
+                        : 'Budim server (ovo traje do 60 sekundi prvi put)...'
+                    );
+                }
+
+                const controller = new AbortController();
+                const t = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+                const res = await fetch(`${API_BASE}/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, n_results: 5 }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(t);
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.detail || `Greška ${res.status}`);
+                }
+
+                const data = await res.json();
+
+                serverOnline = true;
+                statusDot.className = 'status-dot online';
+                statusText.textContent = 'Sistem spreman';
+
+                removeMessage(loadingId);
+                displayResults(query, data);
+
+            } catch (err) {
+                removeMessage(loadingId);
+
+                if (err.name === 'AbortError') {
+                    addErrorMessage(
+                        'Pretraga je trajala predugo.',
+                        IS_LOCAL
+                            ? 'Provjeri da li je backend pokrenut na portu 8000.'
+                            : 'Server je možda u fazi buđenja. Pokušajte ponovo za 30 sekundi.'
+                    );
+                } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    addErrorMessage(
+                        'Ne mogu se povezati sa serverom.',
+                        IS_LOCAL
+                            ? 'Pokreni backend: uvicorn main:app --host 0.0.0.0 --port 8000'
+                            : 'Server je možda privremeno nedostupan. Pokušajte za minutu.'
+                    );
+                    checkHealth();
+                } else {
+                    addErrorMessage(
+                        `Greška: ${err.message}`,
+                        'Pokušajte ponovo ili preformulirajte pitanje.'
+                    );
+                }
+            } finally {
+                setWaiting(false);
+            }
+        }
+
+        // ============================================
+        // PRIKAZ REZULTATA
+        // ============================================
+        function displayResults(query, data) {
+            messageCount++;
+
+            let results = [];
+            const processingTime = data.processing_time || 0;
+
+            // Format iz main.py: flat lista stringova + metadatas
+            if (Array.isArray(data.results) && data.results.length > 0) {
+                const metadatas = data.metadatas?.[0] || [];
+                results = data.results.map((text, i) => ({
+                    rank:      i + 1,
+                    title:     metadatas[i]?.title    || `Rezultat ${i + 1}`,
+                    category:  metadatas[i]?.category || '',
+                    text:      text,
+                    relevance: i < 3 ? 'High' : 'Medium'
+                }));
+            }
+
+            if (results.length === 0) {
+                addBotMessage(
+                    `Nisam pronašao rezultate za "<strong>${escapeHtml(query)}</strong>". ` +
+                    `Pokušajte sa drugačijim opisom vašeg projekta ili potrebe.`
+                );
+                return;
+            }
+
+            const broji = results.length === 1 ? 'i rezultat'
+                        : results.length < 5   ? 'a rezultata'
+                        :                        'ih rezultata';
+
+            let html = `Pronašao sam <strong>${results.length}</strong> relevantn${broji}:`;
+            html += '<div class="results-wrapper">';
+
+            for (const r of results) {
+                const textId    = `gtext-${messageCount}-${r.rank}`;
+                const showMore  = r.text.length > 200;
+                html += `
+                    <div class="grant-card">
+                        <div class="grant-card-header">
+                            <span class="grant-rank">#${r.rank}</span>
+                            ${r.category ? `<span class="grant-category">${escapeHtml(r.category)}</span>` : ''}
+                        </div>
+                        ${r.title !== `Rezultat ${r.rank}` ? `<div class="grant-title">${escapeHtml(r.title)}</div>` : ''}
+                        <div class="grant-text" id="${textId}">${escapeHtml(r.text)}</div>
+                        ${showMore ? `<button class="grant-expand" onclick="toggleExpand('${textId}', this)" aria-expanded="false">Prikaži više</button>` : ''}
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            if (processingTime > 0) {
+                html += `<div class="results-meta">Pretraga: ${processingTime.toFixed(2)}s</div>`;
+            }
+
+            addBotMessage(html);
+        }
+
+        // ============================================
+        // DOM HELPER FUNKCIJE
+        // ============================================
+
+        function addUserMessage(text) {
+            const id   = 'msg-' + Date.now();
+            const time = getTime();
+            const div  = document.createElement('div');
+            div.className = 'message user';
+            div.id = id;
+            div.setAttribute('role', 'article');
+            div.setAttribute('aria-label', 'Vaša poruka');
+            div.innerHTML = `
+                <div class="msg-avatar" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="msg-content">
+                    <div class="msg-bubble">${escapeHtml(text)}</div>
+                    <div class="msg-time">${time}</div>
+                </div>
+            `;
+            chatArea.appendChild(div);
+            scrollToBottom();
+            return id;
+        }
+
+        function addBotMessage(html) {
+            const id   = 'msg-' + Date.now();
+            const time = getTime();
+            const div  = document.createElement('div');
+            div.className = 'message bot';
+            div.id = id;
+            div.setAttribute('role', 'article');
+            div.setAttribute('aria-label', 'Odgovor asistenta');
+            div.innerHTML = `
+                <div class="msg-avatar" aria-hidden="true">EU</div>
+                <div class="msg-content">
+                    <div class="msg-bubble">${html}</div>
+                    <div class="msg-time">${time}</div>
+                </div>
+            `;
+            chatArea.appendChild(div);
+            scrollToBottom();
+            return id;
+        }
+
+        function addLoadingMessage() {
+            const id  = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'message bot loading-message';
+            div.id = id;
+            div.setAttribute('aria-live', 'polite');
+            div.innerHTML = `
+                <div class="msg-avatar" aria-hidden="true">EU</div>
+                <div class="msg-content">
+                    <div class="msg-bubble">
+                        <div class="typing-dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <span class="loading-text" id="lt-${id}">Pretražujem bazu grantova...</span>
                     </div>
                 </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- ===================== MAIN ===================== -->
-<main id="dashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-    <!-- === STATS CARDS === -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="stat-card bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-start gap-4">
-            <div class="p-3 bg-eu-light rounded-xl"><i class="fa-solid fa-file-contract text-eu-blue text-xl"></i></div>
-            <div>
-                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Ukupno grantova</p>
-                <p id="stat-total" class="text-3xl font-bold text-slate-800 mt-0.5">0</p>
-                <p class="text-xs text-gray-400 mt-0.5">u bazi podataka</p>
-            </div>
-        </div>
-        <div class="stat-card bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-start gap-4">
-            <div class="p-3 bg-green-50 rounded-xl"><i class="fa-solid fa-circle-check text-green-600 text-xl"></i></div>
-            <div>
-                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Visoka relevantnost</p>
-                <p id="stat-high" class="text-3xl font-bold text-green-600 mt-0.5">0</p>
-                <p class="text-xs text-gray-400 mt-0.5">preporučeni grantovi</p>
-            </div>
-        </div>
-        <div class="stat-card bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-start gap-4">
-            <div class="p-3 bg-red-50 rounded-xl"><i class="fa-solid fa-clock text-red-500 text-xl"></i></div>
-            <div>
-                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Uskoro ističu</p>
-                <p id="stat-urgent" class="text-3xl font-bold text-red-500 mt-0.5">0</p>
-                <p class="text-xs text-gray-400 mt-0.5">rok u 60 dana</p>
-            </div>
-        </div>
-        <div class="stat-card bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-start gap-4">
-            <div class="p-3 bg-yellow-50 rounded-xl"><i class="fa-solid fa-euro-sign text-yellow-500 text-xl"></i></div>
-            <div>
-                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">EU budžet</p>
-                <p id="stat-budget" class="text-3xl font-bold text-yellow-600 mt-0.5">€1.2B</p>
-                <p class="text-xs text-gray-400 mt-0.5">dostupno (EU grantovi)</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- === CHARTS ROW === -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <!-- Pie: by category -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-chart-pie text-eu-blue"></i> Po kategoriji
-            </h3>
-            <div class="chart-wrap"><canvas id="chartCategory"></canvas></div>
-        </div>
-
-        <!-- Bar: by deadline month -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 md:col-span-2">
-            <h3 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-calendar-days text-eu-blue"></i> Grantovi po roku (2026)
-            </h3>
-            <div class="chart-wrap"><canvas id="chartTimeline"></canvas></div>
-        </div>
-
-    </div>
-
-    <!-- === RELEVANCE BAR + NEXT DEADLINES === -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <!-- Donut: by relevance -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-bullseye text-eu-blue"></i> Relevantnost
-            </h3>
-            <div class="chart-wrap"><canvas id="chartRelevance"></canvas></div>
-        </div>
-
-        <!-- Next 5 deadlines -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 md:col-span-2">
-            <h3 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-hourglass-half text-red-500"></i> Sljedeći rokovi
-            </h3>
-            <div id="upcoming-deadlines" class="space-y-3"></div>
-        </div>
-    </div>
-
-    <!-- === FILTER + SEARCH BAR === -->
-    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-        <div class="flex flex-col sm:flex-row gap-3 items-center">
-            <!-- Search -->
-            <div class="relative flex-1 w-full">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input id="search-input" type="text" placeholder="Pretraži grantove (naziv, opis, kategorija)..."
-                    class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm transition">
-            </div>
-            <!-- Filter Category -->
-            <select id="filter-cat" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white cursor-pointer hover:border-eu-blue transition">
-                <option value="">Sve kategorije</option>
-                <option value="EU Grant">EU Grant</option>
-                <option value="National Grant">Nacionalni</option>
-                <option value="Additional">Dodatni</option>
-                <option value="Specialized">Specijalni</option>
-            </select>
-            <!-- Filter Relevance -->
-            <select id="filter-rel" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white cursor-pointer hover:border-eu-blue transition">
-                <option value="">Sva relevantnost</option>
-                <option value="High">Visoka</option>
-                <option value="Medium">Srednja</option>
-                <option value="Low">Niska</option>
-            </select>
-            <!-- AI Search -->
-            <button id="btn-ai-search" class="px-4 py-2.5 bg-eu-blue text-white rounded-xl text-sm font-semibold hover:bg-eu-dark transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-robot" id="ai-icon"></i> AI Pretraga
-            </button>
-            <!-- Reset -->
-            <button id="btn-reset" class="px-4 py-2.5 bg-eu-light text-eu-blue rounded-xl text-sm font-medium hover:bg-blue-100 transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-rotate-left"></i> Resetuj
-            </button>
-        </div>
-        <p id="filter-result-info" class="text-xs text-gray-400 mt-3"></p>
-        <!-- AI Search Status -->
-        <div id="ai-status" class="hidden mt-3 p-3 rounded-xl text-sm">
-            <div id="ai-status-content" class="flex items-center gap-2"></div>
-        </div>
-    </div>
-
-    <!-- === GRANTS TABLE === -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="font-semibold text-slate-700 flex items-center gap-2">
-                <i class="fa-solid fa-table-list text-eu-blue"></i> Sve Grant Mogućnosti
-            </h3>
-            <span id="table-count" class="text-xs bg-eu-light text-eu-blue px-3 py-1 rounded-full font-semibold"></span>
-        </div>
-
-        <!-- Desktop table -->
-        <div class="overflow-x-auto hidden md:block">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="bg-slate-50 text-xs text-gray-400 uppercase tracking-wide">
-                        <th class="px-6 py-3 text-left font-semibold">Grant</th>
-                        <th class="px-4 py-3 text-left font-semibold">Kategorija</th>
-                        <th class="px-4 py-3 text-left font-semibold">Budžet</th>
-                        <th class="px-4 py-3 text-left font-semibold">Rok</th>
-                        <th class="px-4 py-3 text-left font-semibold">Relevantnost</th>
-                        <th class="px-4 py-3 text-center font-semibold">Veza</th>
-                    </tr>
-                </thead>
-                <tbody id="grants-table-body" class="divide-y divide-gray-50"></tbody>
-            </table>
-        </div>
-
-        <!-- Mobile cards -->
-        <div id="grants-cards-mobile" class="md:hidden divide-y divide-gray-100"></div>
-
-        <div id="no-results" class="hidden text-center py-12 text-gray-400">
-            <i class="fa-solid fa-folder-open text-4xl mb-3 block"></i>
-            Nema grantova koji odgovaraju filteru.
-        </div>
-    </div>
-
-</main>
-
-<!-- ===================== FOOTER ===================== -->
-<footer id="kontakt" class="bg-eu-dark text-slate-400 mt-8">
-
-    <!-- Gornji dio footera -->
-    <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
-        <!-- Brend -->
-        <div class="lg:col-span-1">
-            <div class="flex items-center gap-2 mb-4">
-                <div class="w-9 h-9 bg-eu-yellow rounded-lg flex items-center justify-center">
-                    <span class="text-eu-dark font-black text-sm">EU</span>
-                </div>
-                <span class="text-white font-bold text-lg">FinAssistBH</span>
-            </div>
-            <p class="text-slate-400 text-sm leading-relaxed mb-4">
-                AI platforma za pronalazak EU grantova i fondova dostupnih Bosni i Hercegovini.
-            </p>
-            <p class="text-xs text-slate-500">
-                🇧🇦 Tešanj, BiH &nbsp;·&nbsp; 🇪🇺 Za EU tržište
-            </p>
-        </div>
-
-        <!-- Navigacija -->
-        <div>
-            <h4 class="text-white font-semibold text-sm mb-4 uppercase tracking-wide">Navigacija</h4>
-            <ul class="space-y-2 text-sm">
-                <li><a href="#o-projektu" class="text-slate-400 hover:text-eu-yellow transition">O projektu</a></li>
-                <li><a href="#dashboard" class="text-slate-400 hover:text-eu-yellow transition">Dashboard</a></li>
-                <li><a href="pitch.html" class="text-slate-400 hover:text-eu-yellow transition">Za investitore</a></li>
-                <li><a href="https://github.com/dinohatibovic/EU_Funds_and_Grants_AI" target="_blank" class="text-slate-400 hover:text-eu-yellow transition">GitHub repozitorij</a></li>
-            </ul>
-        </div>
-
-        <!-- Cijene -->
-        <div>
-            <h4 class="text-white font-semibold text-sm mb-4 uppercase tracking-wide">Cijene</h4>
-            <ul class="space-y-2 text-sm">
-                <li class="flex justify-between"><span class="text-slate-400">Starter</span><span class="text-eu-yellow font-semibold">€29/mj</span></li>
-                <li class="flex justify-between"><span class="text-slate-400">Pro</span><span class="text-eu-yellow font-semibold">€149/mj</span></li>
-                <li class="flex justify-between"><span class="text-slate-400">Agency</span><span class="text-eu-yellow font-semibold">€299/mj</span></li>
-                <li class="flex justify-between"><span class="text-slate-400">Enterprise</span><span class="text-eu-yellow font-semibold">€799/mj</span></li>
-            </ul>
-            <a href="pitch.html" class="inline-block mt-4 text-xs text-blue-400 hover:text-eu-yellow transition">Pogledaj sve detalje →</a>
-        </div>
-
-        <!-- Kontakt -->
-        <div>
-            <h4 class="text-white font-semibold text-sm mb-4 uppercase tracking-wide">Kontakt</h4>
-            <ul class="space-y-3 text-sm">
-                <li class="flex items-center gap-2">
-                    <i class="fa-solid fa-phone text-eu-yellow w-4 text-center"></i>
-                    <a href="tel:+38762564303" class="text-slate-400 hover:text-white transition">+387 62 564 303</a>
-                </li>
-                <li class="flex items-center gap-2">
-                    <i class="fa-brands fa-github text-eu-yellow w-4 text-center"></i>
-                    <a href="https://github.com/dinohatibovic" target="_blank" class="text-slate-400 hover:text-white transition">github.com/dinohatibovic</a>
-                </li>
-                <li class="flex items-center gap-2">
-                    <i class="fa-brands fa-linkedin text-eu-yellow w-4 text-center"></i>
-                    <a href="https://linkedin.com/in/dinohatibovic" target="_blank" class="text-slate-400 hover:text-white transition">linkedin.com/in/dinohatibovic</a>
-                </li>
-                <li class="flex items-center gap-2">
-                    <i class="fa-solid fa-location-dot text-eu-yellow w-4 text-center"></i>
-                    <span class="text-slate-400">Tešanj, Zeničko-dobojski kanton</span>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Donja traka -->
-    <div class="border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p class="text-xs text-slate-500">&copy; 2026 <span class="text-slate-300 font-semibold">Dino Hatibović</span> – FinAssistBH. Sva prava zadržana.</p>
-            <p class="text-xs text-slate-600">
-                🇧🇦 Razvijeno u Tešnju, BiH &nbsp;·&nbsp; 🇪🇺 Sufinansirano u okviru EU programa za digitalizaciju i razvoj
-            </p>
-        </div>
-    </div>
-</footer>
-
-<!-- ===================== SCRIPT ===================== -->
-<script>
-// ---- AUTH UI ----
-function handleLogout() {
-    localStorage.removeItem('supabase_token');
-    localStorage.removeItem('user_email');
-    window.location.href = 'auth.html';
-}
-
-(function initAuthUI() {
-    const email = localStorage.getItem('user_email');
-    const navEmail = document.getElementById('nav-user-email');
-    const btnLogout = document.getElementById('btn-logout');
-    if (email && navEmail) {
-        navEmail.textContent = email;
-        if (btnLogout) btnLogout.classList.remove('hidden');
-    }
-})();
-
-// ---- GRANT DATA (embedded from data/grants.json) ----
-const GRANTS = [
-  { id:"grant_001", title:"Horizont Evropa: Vještačka inteligencija za zdravstvo", category:"EU Grant",
-    description:"Finansiranje AI projekata u zdravstvenom sektoru. Fokus: dijagnostika, e-zdravlje, medicinska istraživanja.", budget:"€50M",
-    deadline:"2026-06-30", relevance:"High", url:"https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/horizon-hlth-2026-ai-02-01" },
-  { id:"grant_002", title:"Erasmus+ 2026: Tehnološko obrazovanje", category:"EU Grant",
-    description:"Finansiranje za univerzitete i institucije tehnološkog obrazovanja širom EU i BiH.", budget:"€75M",
-    deadline:"2026-05-15", relevance:"High", url:"https://erasmusplus.ec.europa.eu/" },
-  { id:"grant_003", title:"Program Digitalna Evropa: Digitalizacija malih i srednjih preduzeća", category:"EU Grant",
-    description:"Podrška za digitalnu transformaciju MSP. Fokus: oblak, vještačka inteligencija, kibernetička sigurnost.", budget:"€100M",
-    deadline:"2026-04-30", relevance:"High", url:"https://digital-strategy.ec.europa.eu/en/funding/digital-europe-programme" },
-  { id:"grant_004", title:"Innovate Bosnia: Grantovi za startupe", category:"National Grant",
-    description:"Maksimalno finansiranje: 50.000 KM. Za tech startupe registrovane u Bosni i Hercegovini.", budget:"50.000 KM",
-    deadline:"2026-03-31", relevance:"High", url:"https://fipa.gov.ba/" },
-  { id:"grant_005", title:"FIPA podsticaji: IT sektor", category:"National Grant",
-    description:"Do 150.000 KM za investicije u IT sektoru. Namijenjeno privrednicima koji ulažu u informatičku opremu i softvere.", budget:"150.000 KM",
-    deadline:"2026-04-15", relevance:"Medium", url:"https://fipa.gov.ba/" },
-  { id:"grant_006", title:"Fond za regionalni razvoj", category:"Additional",
-    description:"Infrastrukturni projekti u oblasti regionalnog razvoja. Podrška lokalnim zajednicama i općinama.", budget:"Varijabilno",
-    deadline:"2026-05-30", relevance:"High", url:"https://www.vijeceministara.gov.ba/" },
-  { id:"grant_007", title:"Fond za zaštitu okoliša FBiH", category:"Specialized",
-    description:"Energetska efikasnost i projekti obnovljive energije. Solarni paneli, biomasa, toplotne pumpe.", budget:"Varijabilno",
-    deadline:"2026-06-15", relevance:"High", url:"http://fondzzopfbih.ba/" },
-  { id:"grant_008", title:"Okvir za konkurentnost i inovacije", category:"Additional",
-    description:"Podrška za inovacije i jačanje konkurentnosti privrednih subjekata na domaćem i međunarodnom tržištu.", budget:"Varijabilno",
-    deadline:"2026-07-01", relevance:"Medium", url:"https://ec.europa.eu/growth/tools-databases/competitiveness/" },
-  { id:"grant_009", title:"EU4Digital: Digitalizacija javne uprave", category:"Additional",
-    description:"Podrška za digitalnu transformaciju državne i lokalne uprave u zemljama Zapadnog Balkana.", budget:"€200M",
-    deadline:"2026-08-31", relevance:"Medium", url:"https://eu4digital.eu/" },
-  { id:"grant_010", title:"Program Kopernikus: Posmatranje Zemlje", category:"EU Grant",
-    description:"Podrška za monitoring Zemljine površine i klimatske projekte korištenjem satelitskih podataka.", budget:"€150M",
-    deadline:"2026-09-30", relevance:"Medium", url:"https://www.copernicus.eu/" },
-  { id:"grant_011", title:"Kreativna Evropa: Kulturni projekti", category:"EU Grant",
-    description:"Finansiranje za kulturne i kreativne projekte širom Evrope. Muzika, film, pozorište, vizualne umjetnosti.", budget:"€200M",
-    deadline:"2026-10-15", relevance:"Low", url:"https://culture.ec.europa.eu/creative-europe" },
-  { id:"grant_012", title:"Interreg IPA CBC: Prekogranična saradnja", category:"EU Grant",
-    description:"Podrška projektima prekogranične saradnje na Zapadnom Balkanu. Infrastruktura, turizam, zaštita okoliša.", budget:"€500M",
-    deadline:"2026-11-30", relevance:"High", url:"https://www.interreg.eu/" }
-];
-
-// ---- HELPERS ----
-const TODAY = new Date();
-
-function daysUntil(dateStr) {
-    const d = new Date(dateStr);
-    return Math.ceil((d - TODAY) / (1000*60*60*24));
-}
-
-function formatDate(dateStr) {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('bs-BA', { day:'2-digit', month:'short', year:'numeric' });
-}
-
-function deadlineClass(dateStr) {
-    const days = daysUntil(dateStr);
-    if (days <= 30) return 'deadline-urgent';
-    if (days <= 60) return 'deadline-soon';
-    return 'deadline-ok';
-}
-
-function categoryBadge(cat) {
-    const map = {
-        'EU Grant':       ['badge-eu',       'EU Grant'],
-        'National Grant': ['badge-national',  'Nacionalni'],
-        'Additional':     ['badge-add',       'Dodatni'],
-        'Specialized':    ['badge-spec',      'Specijalni'],
-    };
-    const [cls, label] = map[cat] || ['badge-add', cat];
-    return `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${cls}">${label}</span>`;
-}
-
-function relevanceBadge(rel) {
-    const map = { 'High':'badge-high', 'Medium':'badge-medium', 'Low':'badge-low' };
-    const label = { 'High':'Visoka', 'Medium':'Srednja', 'Low':'Niska' };
-    return `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${map[rel]||'badge-medium'}">${label[rel]||rel}</span>`;
-}
-
-function urgencyLabel(dateStr) {
-    const days = daysUntil(dateStr);
-    if (days <= 0)  return `<span class="text-red-600 font-bold text-xs">Istekao</span>`;
-    if (days <= 30) return `<span class="text-red-500 font-semibold text-xs">${days} dana</span>`;
-    if (days <= 60) return `<span class="text-amber-500 font-semibold text-xs">${days} dana</span>`;
-    return `<span class="text-green-600 text-xs">${days} dana</span>`;
-}
-
-// ---- STATS ----
-function updateStats(filtered) {
-    const total = GRANTS.length;
-    const high  = GRANTS.filter(g => g.relevance === 'High').length;
-    const urgent = GRANTS.filter(g => daysUntil(g.deadline) <= 60).length;
-    document.getElementById('stat-total').textContent  = total;
-    document.getElementById('stat-high').textContent   = high;
-    document.getElementById('stat-urgent').textContent = urgent;
-    document.getElementById('header-count').textContent = `${total} grantova`;
-    const hcd = document.getElementById('header-count-desktop');
-    if (hcd) hcd.textContent = `${total} grantova`;
-}
-
-// ---- CHARTS ----
-function buildCharts() {
-    // Category pie
-    const catCounts = {};
-    GRANTS.forEach(g => { catCounts[g.category] = (catCounts[g.category]||0)+1; });
-    const catLabels = ['EU Grant','National Grant','Additional','Specialized'];
-    const catValues = catLabels.map(c => catCounts[c]||0);
-    const catColors = ['#003399','#7c3aed','#0284c7','#db2777'];
-    new Chart(document.getElementById('chartCategory'), {
-        type:'doughnut',
-        data:{ labels:['EU Grant','Nacionalni','Dodatni','Specijalni'], datasets:[{ data:catValues, backgroundColor:catColors, borderWidth:2, borderColor:'#fff' }] },
-        options:{
-            responsive:true, maintainAspectRatio:false,
-            plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, padding:12 } } }
+            `;
+            chatArea.appendChild(div);
+            scrollToBottom();
+            return id;
         }
-    });
 
-    // Timeline bar
-    const months = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
-    const monthlyCounts = Array(12).fill(0);
-    GRANTS.forEach(g => { const m = new Date(g.deadline).getMonth(); monthlyCounts[m]++; });
-    const barColors = monthlyCounts.map((_,i) => i < 3 ? '#ef4444' : i < 5 ? '#f59e0b' : '#003399');
-    new Chart(document.getElementById('chartTimeline'), {
-        type:'bar',
-        data:{ labels:months, datasets:[{ label:'Broj grantova', data:monthlyCounts, backgroundColor:barColors, borderRadius:6 }] },
-        options:{
-            responsive:true, maintainAspectRatio:false,
-            plugins:{ legend:{display:false} },
-            scales:{ y:{ beginAtZero:true, ticks:{stepSize:1}, grid:{color:'#f1f5f9'} }, x:{ grid:{display:false} } }
+        function updateLoadingText(loadingId, text) {
+            const el = document.getElementById(`lt-${loadingId}`);
+            if (el) el.textContent = text;
         }
-    });
 
-    // Relevance donut
-    const relMap = { High:0, Medium:0, Low:0 };
-    GRANTS.forEach(g => relMap[g.relevance]++);
-    new Chart(document.getElementById('chartRelevance'), {
-        type:'doughnut',
-        data:{
-            labels:['Visoka','Srednja','Niska'],
-            datasets:[{ data:[relMap.High,relMap.Medium,relMap.Low], backgroundColor:['#22c55e','#f59e0b','#ef4444'], borderWidth:2, borderColor:'#fff' }]
-        },
-        options:{
-            responsive:true, maintainAspectRatio:false,
-            plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, padding:12 } } }
+        function addErrorMessage(mainText, hint) {
+            const div = document.createElement('div');
+            div.className = 'message bot';
+            div.setAttribute('role', 'alert');
+            div.innerHTML = `
+                <div class="msg-avatar" aria-hidden="true">EU</div>
+                <div class="msg-content">
+                    <div class="msg-bubble error-bubble">
+                        <div class="error-text">${escapeHtml(mainText)}</div>
+                        ${hint ? `<div class="error-hint">${escapeHtml(hint)}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            chatArea.appendChild(div);
+            scrollToBottom();
         }
-    });
-}
 
-// ---- UPCOMING DEADLINES ----
-function buildUpcoming() {
-    const sorted = [...GRANTS].sort((a,b) => new Date(a.deadline)-new Date(b.deadline)).slice(0,5);
-    const container = document.getElementById('upcoming-deadlines');
-    container.innerHTML = sorted.map(g => {
-        const days = daysUntil(g.deadline);
-        const borderClass = days<=30 ? 'border-red-400' : days<=60 ? 'border-amber-400' : 'border-green-400';
-        const bgClass     = days<=30 ? 'bg-red-50'     : days<=60 ? 'bg-amber-50'     : 'bg-green-50';
-        return `
-        <div class="flex items-center gap-3 p-3 rounded-xl ${bgClass} border-l-4 ${borderClass}">
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-slate-700 truncate">${g.title}</p>
-                <p class="text-xs text-gray-400 mt-0.5">${formatDate(g.deadline)} &bull; ${g.budget}</p>
-            </div>
-            <div class="text-right shrink-0">
-                ${urgencyLabel(g.deadline)}
-                <p class="text-xs text-gray-400 mt-0.5">${categoryBadge(g.category)}</p>
-            </div>
-        </div>`;
-    }).join('');
-}
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
 
-// ---- TABLE RENDERING ----
-function renderTable(data) {
-    const tbody = document.getElementById('grants-table-body');
-    const mobileList = document.getElementById('grants-cards-mobile');
-    const noResults = document.getElementById('no-results');
-    const tableCount = document.getElementById('table-count');
+        function toggleExpand(textId, btn) {
+            const el = document.getElementById(textId);
+            if (!el) return;
+            const expanded = el.classList.toggle('expanded');
+            btn.textContent = expanded ? 'Prikaži manje' : 'Prikaži više';
+            btn.setAttribute('aria-expanded', String(expanded));
+        }
 
-    tableCount.textContent = `${data.length} grant${data.length === 1 ? '' : 'a'}`;
-    document.getElementById('filter-result-info').textContent =
-        data.length === GRANTS.length
-            ? `Prikazano svih ${data.length} grantova`
-            : `Pronađeno ${data.length} od ${GRANTS.length} grantova`;
+        // ============================================
+        // UTILITY
+        // ============================================
 
-    if (!data.length) {
-        tbody.innerHTML = '';
-        mobileList.innerHTML = '';
-        noResults.classList.remove('hidden');
-        return;
-    }
-    noResults.classList.add('hidden');
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
 
-    // Desktop rows
-    tbody.innerHTML = data.map(g => `
-        <tr class="grant-row cursor-pointer" onclick="window.open('${g.url}','_blank')">
-            <td class="px-6 py-4">
-                <p class="font-medium text-slate-800 text-sm leading-snug">${g.title}</p>
-                <p class="text-xs text-gray-400 mt-0.5 max-w-xs truncate">${g.description}</p>
-            </td>
-            <td class="px-4 py-4 whitespace-nowrap">${categoryBadge(g.category)}</td>
-            <td class="px-4 py-4 text-sm font-medium text-slate-700 whitespace-nowrap">${g.budget}</td>
-            <td class="px-4 py-4 whitespace-nowrap">
-                <p class="text-sm text-slate-600">${formatDate(g.deadline)}</p>
-                <p class="text-xs mt-0.5">${urgencyLabel(g.deadline)}</p>
-            </td>
-            <td class="px-4 py-4 whitespace-nowrap">${relevanceBadge(g.relevance)}</td>
-            <td class="px-4 py-4 text-center">
-                <a href="${g.url}" target="_blank" onclick="event.stopPropagation()"
-                   class="inline-flex items-center gap-1 text-eu-blue hover:underline text-xs font-medium">
-                    Otvori <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                </a>
-            </td>
-        </tr>`).join('');
+        function getTime() {
+            return new Date().toLocaleTimeString('bs-BA', { hour: '2-digit', minute: '2-digit' });
+        }
 
-    // Mobile cards
-    mobileList.innerHTML = data.map(g => `
-        <div class="p-4 ${deadlineClass(g.deadline)} cursor-pointer" onclick="window.open('${g.url}','_blank')">
-            <div class="flex justify-between items-start gap-2">
-                <p class="font-semibold text-sm text-slate-800 leading-snug flex-1">${g.title}</p>
-                ${relevanceBadge(g.relevance)}
-            </div>
-            <p class="text-xs text-gray-400 mt-1">${g.description}</p>
-            <div class="flex items-center justify-between mt-3">
-                <div class="flex items-center gap-2">
-                    ${categoryBadge(g.category)}
-                    <span class="text-xs font-medium text-slate-600">${g.budget}</span>
-                </div>
-                <div class="text-right">
-                    <p class="text-xs text-gray-400">${formatDate(g.deadline)}</p>
-                    ${urgencyLabel(g.deadline)}
-                </div>
-            </div>
-        </div>`).join('');
-}
+        function scrollToBottom() {
+            requestAnimationFrame(() => { chatArea.scrollTop = chatArea.scrollHeight; });
+        }
 
-// ---- API CONFIG ----
-const API_BASE = 'https://eu-funds-and-grants-ai.onrender.com';
-let aiSearchActive = false;
+        function setWaiting(waiting) {
+            isWaiting = waiting;
+            sendBtn.disabled = waiting || !userInput.value.trim();
+            userInput.disabled = waiting;
+            if (!waiting) userInput.focus();
+        }
 
-// ---- AI SEARCH ----
-function showAIStatus(message, type) {
-    const status = document.getElementById('ai-status');
-    const content = document.getElementById('ai-status-content');
-    status.classList.remove('hidden', 'bg-blue-50', 'bg-green-50', 'bg-red-50', 'bg-amber-50');
-    if (type === 'loading') {
-        status.classList.add('bg-blue-50');
-        content.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-eu-blue"></i> <span class="text-eu-blue">${message}</span>`;
-    } else if (type === 'success') {
-        status.classList.add('bg-green-50');
-        content.innerHTML = `<i class="fa-solid fa-check-circle text-green-600"></i> <span class="text-green-700">${message}</span>`;
-    } else if (type === 'error') {
-        status.classList.add('bg-amber-50');
-        content.innerHTML = `<i class="fa-solid fa-exclamation-triangle text-amber-600"></i> <span class="text-amber-700">${message}</span>`;
-    }
-}
+        function askSuggestion(btn) {
+            userInput.value = btn.textContent.trim();
+            autoResizeInput();
+            sendBtn.disabled = false;
+            sendMessage();
+        }
 
-function hideAIStatus() {
-    document.getElementById('ai-status').classList.add('hidden');
-}
+        function autoResizeInput() {
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+        }
 
-async function searchAPI(query) {
-    const btn = document.getElementById('btn-ai-search');
-    const icon = document.getElementById('ai-icon');
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
 
-    btn.disabled = true;
-    icon.className = 'fa-solid fa-spinner fa-spin';
-    showAIStatus('AI pretražuje bazu grantova...', 'loading');
-
-    try {
-        const response = await fetch(`${API_BASE}/search`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: query, n_results: 10 })
+        userInput.addEventListener('input', () => {
+            autoResizeInput();
+            sendBtn.disabled = !userInput.value.trim() || isWaiting;
         });
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!sendBtn.disabled) sendMessage();
+            }
+        });
 
-        const data = await response.json();
-
-        // Konvertuj API rezultate u format koji renderTable() očekuje
-        const aiResults = [];
-        if (data.results && data.results.length > 0) {
-            data.results.forEach((text, i) => {
-                const meta = (data.metadatas && data.metadatas[0] && data.metadatas[0][i]) || {};
-                aiResults.push({
-                    id: `ai_${i}`,
-                    title: meta.title || text.substring(0, 80),
-                    description: text,
-                    category: meta.category || 'EU Grant',
-                    budget: meta.budget || 'N/A',
-                    deadline: meta.deadline || '2026-12-31',
-                    relevance: meta.relevance || 'High',
-                    url: meta.url || '#'
-                });
-            });
-        }
-
-        if (aiResults.length > 0) {
-            aiSearchActive = true;
-            renderTable(aiResults);
-            showAIStatus(`AI pronašao ${aiResults.length} rezultata za "${query}" (${data.processing_time.toFixed(2)}s)`, 'success');
-        } else {
-            // Nema AI rezultata — fallback na lokalni filter
-            showAIStatus('AI nije pronašao rezultate. Prikazujem lokalne grantove.', 'error');
-            applyFilters();
-        }
-    } catch (err) {
-        // API nedostupan — fallback na lokalni filter
-        console.warn('AI Search API error:', err.message);
-        showAIStatus(`API nedostupan (${err.message}). Prikazujem lokalne grantove.`, 'error');
-        applyFilters();
-    } finally {
-        btn.disabled = false;
-        icon.className = 'fa-solid fa-robot';
-    }
-}
-
-// ---- FILTERING (lokalni) ----
-function getFiltered() {
-    const q   = document.getElementById('search-input').value.trim().toLowerCase();
-    const cat = document.getElementById('filter-cat').value;
-    const rel = document.getElementById('filter-rel').value;
-    return GRANTS.filter(g => {
-        const matchQ   = !q || g.title.toLowerCase().includes(q) || g.description.toLowerCase().includes(q) || g.category.toLowerCase().includes(q);
-        const matchCat = !cat || g.category === cat;
-        const matchRel = !rel || g.relevance === rel;
-        return matchQ && matchCat && matchRel;
-    });
-}
-
-function applyFilters() {
-    aiSearchActive = false;
-    hideAIStatus();
-    renderTable(getFiltered());
-}
-
-// ---- GATING: besplatni vs plaćeni ----
-const FREE_GRANT_LIMIT = 3;
-const isPaidUser = window.__isAuthenticated && !window.__isDemo;
-
-function getVisibleGrants() {
-    // Demo / neplaćeni korisnici vide samo 3 granta
-    if (!isPaidUser) return GRANTS.slice(0, FREE_GRANT_LIMIT);
-    return GRANTS;
-}
-
-function showUpgradeBanner() {
-    if (isPaidUser) return;
-    const banner = document.createElement('div');
-    banner.id = 'upgrade-banner';
-    banner.className = 'bg-gradient-to-r from-eu-blue to-blue-700 text-white p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-center justify-between gap-3';
-    banner.innerHTML = `
-        <div class="flex items-center gap-3">
-            <i class="fa-solid fa-lock text-eu-yellow text-xl"></i>
-            <div>
-                <p class="font-semibold text-sm">Vidite samo ${FREE_GRANT_LIMIT} od ${GRANTS.length} grantova</p>
-                <p class="text-blue-200 text-xs">Nadogradite na Starter plan za pristup svim grantovima i AI pretrazi.</p>
-            </div>
-        </div>
-        <a href="pitch.html#poslovni-model" class="bg-eu-yellow text-eu-dark font-bold text-sm px-5 py-2 rounded-xl hover:bg-yellow-300 transition whitespace-nowrap">
-            Nadogradi od €29/mj <i class="fa-solid fa-arrow-right ml-1"></i>
-        </a>
-    `;
-    const table = document.querySelector('#dashboard .bg-white.rounded-2xl.shadow-sm');
-    if (table) table.parentNode.insertBefore(banner, table);
-}
-
-// ---- INIT ----
-document.addEventListener('DOMContentLoaded', () => {
-    const visibleGrants = getVisibleGrants();
-    updateStats(GRANTS);
-    buildCharts();
-    buildUpcoming();
-    renderTable(visibleGrants);
-    showUpgradeBanner();
-
-    document.getElementById('search-input').addEventListener('input', applyFilters);
-    document.getElementById('filter-cat').addEventListener('change', applyFilters);
-    document.getElementById('filter-rel').addEventListener('change', applyFilters);
-
-    // AI Search dugme
-    document.getElementById('btn-ai-search').addEventListener('click', () => {
-        if (!isPaidUser) {
-            showAIStatus('AI pretraga je dostupna za plaćene korisnike. Nadogradite na Starter plan (€29/mj).', 'error');
-            return;
-        }
-        const query = document.getElementById('search-input').value.trim();
-        if (query.length < 3) {
-            showAIStatus('Unesite najmanje 3 karaktera za AI pretragu.', 'error');
-            return;
-        }
-        searchAPI(query);
-    });
-
-    // Enter u search polju pokreće AI pretragu
-    document.getElementById('search-input').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const query = e.target.value.trim();
-            if (query.length >= 3) searchAPI(query);
-        }
-    });
-
-    document.getElementById('btn-reset').addEventListener('click', () => {
-        document.getElementById('search-input').value = '';
-        document.getElementById('filter-cat').value = '';
-        document.getElementById('filter-rel').value = '';
-        aiSearchActive = false;
-        hideAIStatus();
-        renderTable(GRANTS);
-    });
-});
-</script>
+        // ============================================
+        // POKRETANJE
+        // ============================================
+        checkHealth();
+    </script>
 </body>
 </html>

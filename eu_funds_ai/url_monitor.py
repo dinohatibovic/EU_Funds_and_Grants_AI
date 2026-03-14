@@ -462,6 +462,114 @@ class FinAssistURLMonitor:
                     "link": "a"
                 }
             ),
+
+            # ============================================================
+            # LOKALNI PRIORITETNI IZVORI — Tešanj / ZDK / FBiH (Mart 2026.)
+            # ============================================================
+
+            # ZDK / Tešanj — Tier 1
+            MonitoringSource(
+                name="Općina Tešanj",
+                url="https://www.tesanj.ba/",
+                category="KANTON_ZDK",
+                selector_patterns={
+                    "grants": ".natjecaj, .poziv, .vijest, article, .news-item",
+                    "title": "h2, h3, .title, .entry-title",
+                    "description": ".content, .excerpt, p",
+                    "deadline": ".date, .rok, .deadline, time",
+                    "link": "a"
+                },
+                update_frequency=12,
+                is_active=True
+            ),
+            MonitoringSource(
+                name="ZEDA — Zenička razvojna agencija",
+                url="https://zeda.ba/javni-pozivi/",
+                category="KANTON_ZDK",
+                selector_patterns={
+                    "grants": ".natjecaj, .poziv, article, .post, tr",
+                    "title": "h2, h3, .title, td",
+                    "description": ".content, .excerpt, p, td",
+                    "deadline": ".date, .rok, .deadline, td",
+                    "link": "a"
+                },
+                update_frequency=12,
+                is_active=True
+            ),
+            MonitoringSource(
+                name="Privredna komora ZDK",
+                url="https://pkzdk.ba/",
+                category="KANTON_ZDK",
+                selector_patterns={
+                    "grants": "article, .vijest, .obavijest, .natjecaj",
+                    "title": "h2, h3, .title",
+                    "description": ".content, p",
+                    "deadline": ".date, .rok, time",
+                    "link": "a"
+                },
+                update_frequency=24,
+                is_active=True
+            ),
+
+            # Federalni — Tier 2
+            MonitoringSource(
+                name="FMRPO — Javni pozivi (grant portal)",
+                url="https://javnipozivi.fmrpo.gov.ba/",
+                category="FBIH_MSP",
+                selector_patterns={
+                    "grants": "tr, article, .poziv-item, .tender-item",
+                    "title": "td, h3, h2, .title",
+                    "description": "td, .content, p",
+                    "deadline": "td.rok, .deadline, .date, td",
+                    "link": "a"
+                },
+                update_frequency=6,
+                is_active=True
+            ),
+            MonitoringSource(
+                name="Federalno ministarstvo poljoprivrede (FMPVS)",
+                url="https://fmpvs.gov.ba/",
+                category="FBIH",
+                selector_patterns={
+                    "grants": "article, .vijest, .natjecaj, .program, .poziv",
+                    "title": "h2, h3, .title",
+                    "description": ".content, .excerpt, p",
+                    "deadline": ".date, .rok, time",
+                    "link": "a"
+                },
+                update_frequency=24,
+                is_active=True
+            ),
+
+            # EU / Međunarodni — Tier 3
+            MonitoringSource(
+                name="EU4CAET — Energetska efikasnost (GIZ/EU)",
+                url="https://eu4caet.ba/",
+                category="EU_FONDOVI",
+                selector_patterns={
+                    "grants": "article, .call-item, .vijest, .news-item, .poziv",
+                    "title": "h2, h3, .title, .card-title",
+                    "description": ".content, .excerpt, p, .card-body",
+                    "deadline": ".deadline, .date, .rok, time",
+                    "link": "a"
+                },
+                update_frequency=6,
+                is_active=True
+            ),
+            MonitoringSource(
+                name="EU fondovi konkursi — Regionalni agregator",
+                url="https://www.eufondovikonkursi.com/",
+                category="EU_FONDOVI",
+                selector_patterns={
+                    "grants": "article, .grant-card, .konkurs-item, .opportunity",
+                    "title": "h2, h3, .card-title, .title",
+                    "description": ".card-body, .excerpt, p, .description",
+                    "deadline": ".deadline, .date, .rok",
+                    "link": "a"
+                },
+                update_frequency=24,
+                is_active=True
+            ),
         ]
     
     async def __aenter__(self):

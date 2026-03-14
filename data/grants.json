@@ -138,5 +138,88 @@
     "deadline": "2026-10-15",
     "relevance": "High",
     "url": "https://zdk.ba/"
+  },
+  {
+    "id": "local_grant_001",
+    "title": "FMRPO Grant Sredstva 2026 — Novo poduzetništvo i MSP",
+    "category": "Federalni",
+    "description": "Federalno ministarstvo razvoja, poduzetništva i obrta raspisuje grant sredstva ukupnog fonda 28 miliona KM za 2026. godinu. Obuhvata poticaje za novoosnovanje poslovnih subjekata, razvoj obrta i srodnih djelatnosti, jačanje konkurentnosti MSP, start-up ekosistem i poduzetničke zone. Prijave putem portala javnipozivi.fmrpo.gov.ba. Info dan organizovan u Zenici pri Privrednoj komori ZDK.",
+    "budget": "28.000.000 KM (ukupni fond)",
+    "deadline": "2026-04-30",
+    "relevance": "High",
+    "url": "https://javnipozivi.fmrpo.gov.ba/"
+  },
+  {
+    "id": "local_grant_002",
+    "title": "EU4CAET Grant — Energetska efikasnost (GIZ/EU)",
+    "category": "EU/GIZ",
+    "description": "EU4CAET program podržava projekte energetske efikasnosti u Bosni i Hercegovini. Grant iznosi 99.999 EUR do 170.000 EUR po projektu uz pokriće 50% do 80% ukupnih troškova. Prihvatljive aktivnosti: solarni fotonaponski sistemi (PV), biomasa kotlovnice, toplotne pumpe i energetska sanacija zgrada. Implementator: GIZ BiH. ROK: 30. mart 2026. do 16:00h — HITNO.",
+    "budget": "99.999 EUR – 170.000 EUR",
+    "deadline": "2026-03-30",
+    "relevance": "High",
+    "url": "https://eu4caet.ba/"
+  },
+  {
+    "id": "local_grant_003",
+    "title": "EU4Agri — Ruralni razvoj i poljoprivreda BiH (UNDP/EU)",
+    "category": "EU/UNDP",
+    "description": "Program EU4Agri podržava ruralni razvoj i modernizaciju poljoprivrede u Bosni i Hercegovini. Grant iznosi od 30.000 KM do 200.000 KM po projektu. Prihvatljivi projekti: nabavka mehanizacije, izgradnja kapaciteta za preradu voća i povrća, certifikacija proizvoda (GlobalG.A.P., organska). Implementator: UNDP BiH u saradnji s Europskom unijom. Fokus na ZDK i FBiH kantone. Prijave putem javnipoziv.undp.ba.",
+    "budget": "30.000 KM – 200.000 KM",
+    "deadline": "2026-12-31",
+    "relevance": "High",
+    "url": "https://javnipoziv.undp.ba"
+  },
+  {
+    "id": "local_grant_004",
+    "title": "FBiH Program novčanih podrški u poljoprivredi 2026",
+    "category": "Federalni",
+    "description": "Federalno ministarstvo poljoprivrede, vodoprivrede i šumarstva priprema Program novčanih podrški u poljoprivrednoj proizvodnji i ruralnom razvoju za 2026. godinu. Nacrt programa bio je u javnoj raspravi u februaru 2026. Obuhvata direktne podrške za ratarstvo, voćarstvo, stočarstvo i ruralni razvoj. Kontakt: info@fmpvs.gov.ba, tel: +387 33 726 550.",
+    "budget": "Varijabilno — budžet u pripremi",
+    "deadline": "2026-06-30",
+    "relevance": "High",
+    "url": "https://fmpvs.gov.ba/"
+  },
+  {
+    "id": "local_grant_005",
+    "title": "ZEDA — Refundacija troškova konkurentnosti MSP (ZDK)",
+    "category": "Kantonalni (ZDK)",
+    "description": "Zenička razvojna agencija (ZEDA) agregira i objavljuje kantonalne pozive za ZDK. Nudi refundaciju troškova za aktivnosti jačanja konkurentnosti malih i srednjih preduzeća. Pokriće do 50% prihvatljivih troškova. Direktno relevantno za preduzeća s područja Tešnja i Zeničko-dobojskog kantona. Pratiti portal zeda.ba/javni-pozivi/ za aktuelne pozive.",
+    "budget": "Do 50% refundacija prihvatljivih troškova",
+    "deadline": "2026-12-31",
+    "relevance": "High",
+    "url": "https://zeda.ba/javni-pozivi/"
+  },
+  {
+    "id": "local_grant_006",
+    "title": "Fond za zaštitu okoliša FBiH — Energetska efikasnost 2026",
+    "category": "Specijalni (FBiH)",
+    "description": "Fond za zaštitu okoliša Federacije BiH raspisuje pozive za projekte energetske efikasnosti i obnovljivih izvora energije. Prihvatljive aktivnosti: ugradnja solarnih panela, biomasa kotlovnice, energetska sanacija zgrada i fasada, zamjena zastarjelih sistema grijanja. Namijenjeno javnim institucijama, stambenim zajednicama i privrednim subjektima.",
+    "budget": "Varijabilno",
+    "deadline": "2026-06-15",
+    "relevance": "Medium",
+    "url": "https://fzofbih.org.ba/",
+    "note": "Solarni paneli, energetska sanacija, biomasa."
+  },
+  {
+    "id": "local_grant_007",
+    "title": "Innovate Bosnia — Grantovi za startupe 2026",
+    "category": "Nacionalni",
+    "description": "Program poticaja za tech startupe registrovane u Bosni i Hercegovini. Maksimalno finansiranje 50.000 KM po projektu. Fokus na digitalne proizvode, softverska rješenja i inovativne poslovne modele. Prijave putem FMRPO portala za javne pozive. Rok: 31. mart 2026.",
+    "budget": "50.000 KM max",
+    "deadline": "2026-03-31",
+    "relevance": "High",
+    "url": "https://javnipozivi.fmrpo.gov.ba/",
+    "note": "Tech startupe, digitalni proizvodi. HITNO — uskoro ističe."
+  },
+  {
+    "id": "local_grant_008",
+    "title": "FIPA Poticaji — IT sektor 2026",
+    "category": "Nacionalni",
+    "description": "Agencija za strane investicije u BiH (FIPA) nudi poticaje do 150.000 KM za investicije u IT sektoru. Namijenjeno privrednim subjektima koji ulažu u informatičku infrastrukturu, softverski razvoj i digitalnu transformaciju poslovanja u Bosni i Hercegovini.",
+    "budget": "150.000 KM max",
+    "deadline": "2026-04-15",
+    "relevance": "Medium",
+    "url": "https://fipa.gov.ba/",
+    "note": "Za investicije u IT sektor u BiH."
   }
 ]
