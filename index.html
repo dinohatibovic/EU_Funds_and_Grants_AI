@@ -70,6 +70,7 @@
         .status-dot.loading { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
         .status-dot.error   { background: var(--error); }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
         .nav-btn {
             padding: 7px 16px; border-radius: 10px; font-size: 13px;
@@ -1136,22 +1137,58 @@
             { title: "Innovate Bosnia — Grantovi za startupe", cat: "Nacionalni", catCls: "cat-nat", budget: "50.000 KM max", deadline: "2026-03-31", urgent: true, note: "Tech startupe, digitalni proizvodi.", url: "https://javnipozivi.fmrpo.gov.ba/" },
         ];
 
-        function renderGrantCards() {
-            const grid = document.getElementById('grantsGrid');
-            grid.innerHTML = LOCAL_GRANTS.map(g => `
-                <div class="grant-preview-card">
-                    <div class="grant-preview-top">
-                        <span class="grant-cat-badge ${g.catCls}">${g.cat}</span>
-                        ${g.urgent ? '<span class="grant-urgency">⏰ HITNO</span>' : ''}
-                    </div>
-                    <div class="grant-preview-title">${g.title}</div>
-                    <div class="grant-preview-budget">Iznos: <strong>${g.budget}</strong></div>
-                    <div class="grant-preview-deadline">📅 Rok: ${g.deadline}</div>
-                    <button class="grant-preview-cta" onclick="openChat(); setTimeout(()=>{ userInput.value='${g.title.replace(/'/g, "\\'")}'; autoResizeInput(); sendBtn.disabled=false; sendMessage(); }, 350)">
-                        Pitaj AI asistenta →
-                    </button>
+        function _catClass(cat) {
+            if (!cat) return 'cat-nat';
+            const c = cat.toLowerCase();
+            if (c.includes('eu') || c.includes('undp') || c.includes('giz')) return 'cat-eu';
+            if (c.includes('federalni') || c.includes('fbih')) return 'cat-fed';
+            if (c.includes('kanton') || c.includes('zdk')) return 'cat-kanton';
+            return 'cat-nat';
+        }
+
+        function _isUrgent(deadline) {
+            if (!deadline || deadline === 'Varijabilno') return false;
+            const d = new Date(deadline);
+            if (isNaN(d)) return false;
+            return (d - new Date()) / 86400000 <= 30;
+        }
+
+        function _cardHtml(g) {
+            const safeTitle = (g.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return `<div class="grant-preview-card">
+                <div class="grant-preview-top">
+                    <span class="grant-cat-badge ${_catClass(g.cat || g.category)}">${escapeHtml(g.cat || g.category || '')}</span>
+                    ${g.urgent || _isUrgent(g.deadline) ? '<span class="grant-urgency">⏰ HITNO</span>' : ''}
                 </div>
-            `).join('');
+                <div class="grant-preview-title">${escapeHtml(g.title || '')}</div>
+                <div class="grant-preview-budget">Iznos: <strong>${escapeHtml(g.budget || 'Varijabilno')}</strong></div>
+                <div class="grant-preview-deadline">📅 Rok: ${escapeHtml(g.deadline || '—')}</div>
+                <button class="grant-preview-cta" onclick="openChat();setTimeout(()=>{userInput.value='${safeTitle}';autoResizeInput();sendBtn.disabled=false;sendMessage();},350)">
+                    Pitaj AI asistenta →
+                </button>
+            </div>`;
+        }
+
+        async function renderGrantCards() {
+            const grid = document.getElementById('grantsGrid');
+            // Skeleton loader
+            grid.innerHTML = Array(6).fill(
+                '<div class="grant-preview-card" style="min-height:160px;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div>'
+            ).join('');
+
+            try {
+                const ctrl = new AbortController();
+                setTimeout(() => ctrl.abort(), 5000);
+                const res = await fetch(`${API_BASE}/grants?page_size=6&relevance=High`, { signal: ctrl.signal });
+                if (!res.ok) throw new Error('API error');
+                const data = await res.json();
+                const grants = data.grants || data;
+                if (!Array.isArray(grants) || grants.length === 0) throw new Error('empty');
+                grid.innerHTML = grants.map(_cardHtml).join('');
+            } catch {
+                // Fallback: hardkodirani grantovi
+                grid.innerHTML = LOCAL_GRANTS.map(_cardHtml).join('');
+            }
         }
 
         // ============================================
@@ -1175,9 +1212,9 @@
         // ============================================
         // INIT
         // ============================================
-        function initApp() {
+        async function initApp() {
             renderNav();
-            renderGrantCards();
+            renderGrantCards(); // async, ne čekamo — radi paralelno
 
             if (isGuest) {
                 updateQuota(getGuestCount(), GUEST_LIMIT, 'guest');

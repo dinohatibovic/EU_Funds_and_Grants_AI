@@ -259,6 +259,12 @@ if (existingToken) {
     window.location.href = 'index.html';
 }
 
+// URL param detekcija: auth.html?tab=register → automatski otvori register tab
+const _urlTab = new URLSearchParams(window.location.search).get('tab');
+if (_urlTab === 'register' || _urlTab === 'login') {
+    document.addEventListener('DOMContentLoaded', () => showTab(_urlTab));
+}
+
 // =============================================================
 // TAB SWITCHING
 // =============================================================
