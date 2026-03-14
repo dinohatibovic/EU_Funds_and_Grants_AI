@@ -6,11 +6,14 @@ import json
 import sqlite3
 import hashlib
 import secrets
+import re
+from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field, field_validator
 import jwt
 
 # Uvozimo tvoje popravljene module (koji sada rade!)
@@ -34,6 +37,27 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_DAYS = 30
 
 DB_PATH = os.getenv("DB_PATH", "users.db")
+
+# --- Rate Limiter (in-memory, per-IP) ---
+_rate_limit_store: Dict[str, List[float]] = defaultdict(list)
+RATE_LIMIT_REQUESTS = int(os.getenv("RATE_LIMIT_REQUESTS", "30"))  # max zahtjeva
+RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))       # u sekundi
+
+def _check_rate_limit(ip: str) -> bool:
+    """Vraća True ako IP nije prešao limit. Čisti stare upise automatski."""
+    now = time.time()
+    window_start = now - RATE_LIMIT_WINDOW
+    calls = _rate_limit_store[ip]
+    # Ukloni zahtjeve starije od window-a
+    _rate_limit_store[ip] = [t for t in calls if t > window_start]
+    if len(_rate_limit_store[ip]) >= RATE_LIMIT_REQUESTS:
+        return False
+    _rate_limit_store[ip].append(now)
+    return True
+
+# Cache grantova (učita se jednom pri startu)
+_grants_cache: List[Dict] = []
+_EMAIL_RE = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 
 
 # --- 2a. SQLite baza korisnika ---
@@ -103,6 +127,21 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
 
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not _EMAIL_RE.match(v):
+            raise ValueError("Neispravan format email adrese.")
+        return v
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if len(v) < 6:
+            raise ValueError("Lozinka mora imati minimalno 6 karaktera.")
+        return v
+
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -129,11 +168,38 @@ class SearchResponse(BaseModel):
     request_id: str
     processing_time: float
 
+class AIAnswerRequest(BaseModel):
+    """Zahtjev za AI odgovor (RAG + Gemini generacija)."""
+    query: str = Field(..., min_length=3, max_length=500)
+    language: str = Field(default="bs", description="Jezik odgovora: 'bs' (bosanski) ili 'en' (engleski)")
+
+class AIAnswerResponse(BaseModel):
+    """AI-generirani odgovor s izvorima."""
+    answer: str
+    sources: List[Dict[str, str]]  # [{title, category, url}]
+    request_id: str
+    processing_time: float
+
 # --- 4. INICIJALIZACIJA PRI STARTU ---
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """Globalni rate limiter po IP adresi."""
+    # Preskači health check da Render ne dobije 429
+    if request.url.path in ("/health", "/"):
+        return await call_next(request)
+    ip = request.client.host if request.client else "unknown"
+    if not _check_rate_limit(ip):
+        return JSONResponse(
+            status_code=429,
+            content={"detail": f"Previše zahtjeva. Maksimum {RATE_LIMIT_REQUESTS} zahtjeva/{RATE_LIMIT_WINDOW}s."}
+        )
+    return await call_next(request)
+
 
 @app.on_event("startup")
 async def startup_event():
-    global embedding_client, chroma_client
+    global embedding_client, chroma_client, _grants_cache
     logger.info("🚀 Podižem FinAssistBH AI Sistem...")
 
     # BUG #3: JWT_SECRET se reset-uje pri svakom restartu ako nije u env-u
@@ -153,6 +219,16 @@ async def startup_event():
 
     init_user_db()
     logger.info("✅ SQLite baza korisnika inicijalizovana.")
+
+    # Učitaj grants.json u memorijski cache
+    grants_path = os.path.join(os.path.dirname(__file__), "data", "grants.json")
+    if os.path.exists(grants_path):
+        with open(grants_path, "r", encoding="utf-8") as f:
+            _grants_cache = json.load(f)
+        logger.info(f"✅ Grants cache učitan: {len(_grants_cache)} grantova.")
+    else:
+        logger.warning("⚠️ data/grants.json nije pronađen — grants cache prazan.")
+
     try:
         embedding_client = EmbeddingClient()
         chroma_client = ChromaDBClient()
@@ -253,13 +329,33 @@ def root():
 
 @app.get("/health")
 def health_check():
-    """System Health Check za Render."""
-    status = {
+    """System Health Check za Render — prošireni status."""
+    grant_count = 0
+    chroma_docs = 0
+    try:
+        if chroma_client:
+            chroma_docs = chroma_client.collection.count()
+    except Exception:
+        pass
+
+    today = datetime.utcnow().date()
+    urgent = [
+        g for g in _grants_cache
+        if g.get("deadline") and g["deadline"] != "N/A"
+        and (datetime.strptime(g["deadline"], "%Y-%m-%d").date() - today).days <= 30
+        and (datetime.strptime(g["deadline"], "%Y-%m-%d").date() - today).days >= 0
+    ] if _grants_cache else []
+
+    return {
         "status": "healthy",
+        "version": "v2.2.0",
         "database": "connected" if chroma_client else "disconnected",
-        "ai_engine": "ready" if embedding_client else "offline"
+        "ai_engine": "ready" if embedding_client else "offline",
+        "grants_total": len(_grants_cache),
+        "grants_in_vector_db": chroma_docs,
+        "grants_urgent_30d": len(urgent),
+        "timestamp": datetime.utcnow().isoformat() + "Z",
     }
-    return status
 
 @app.post("/search", response_model=SearchResponse)
 async def search_endpoint(request: SearchRequest):
@@ -316,14 +412,206 @@ async def search_endpoint(request: SearchRequest):
         logger.error(f"🔥 [ID: {req_id}] Neočekivana greška: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# --- 5b. AI ANSWER ENDPOINT (RAG + Gemini generacija) ---
+
+@app.post("/ai-answer", response_model=AIAnswerResponse)
+async def ai_answer_endpoint(request: AIAnswerRequest):
+    """
+    AI odgovor koji kombinuje RAG pretragu + Gemini 2.0 Flash generaciju.
+    Vraća strukturirani odgovor na bosanskom ili engleskom jeziku.
+    """
+    start_time = time.time()
+    req_id = str(uuid.uuid4())
+    logger.info(f"🤖 [ID: {req_id}] AI upit: '{request.query}' | lang={request.language}")
+
+    if not embedding_client or not chroma_client:
+        raise HTTPException(status_code=503, detail="Sistem se još inicijalizuje, pokušajte za 10 sekundi.")
+
+    try:
+        from agent.agent import EUFundsAgent
+    except ImportError as e:
+        logger.error(f"❌ [ID: {req_id}] Agent import greška: {e}")
+        raise HTTPException(status_code=500, detail="AI agent nije dostupan.")
+
+    try:
+        # Pretraga relevantnih grantova
+        query_vectors = embedding_client.generate_embeddings([request.query])
+        if not query_vectors:
+            raise HTTPException(status_code=500, detail="Greška pri generisanju AI vektora.")
+
+        doc_count = chroma_client.collection.count()
+        safe_n = min(5, max(doc_count, 1))
+        search_results = chroma_client.query(
+            query_embeddings=query_vectors,
+            n_results=safe_n
+        )
+
+        metadatas = search_results.get("metadatas", [[]])[0]
+        documents = search_results.get("documents", [[]])[0]
+
+        # Kontekst za AI
+        context_parts = []
+        sources = []
+        for meta, doc in zip(metadatas, documents):
+            title = meta.get("title", "Nepoznat grant")
+            category = meta.get("category", "")
+            budget = meta.get("budget", "N/A")
+            deadline = meta.get("deadline", "N/A")
+            url = meta.get("url", "")
+            context_parts.append(
+                f"• {title} ({category})\n"
+                f"  Budžet: {budget} | Rok: {deadline}\n"
+                f"  Opis: {doc[:250]}"
+            )
+            if url:
+                sources.append({"title": title, "category": category, "url": url})
+
+        context = "\n\n".join(context_parts) if context_parts else "Nema pronađenih grantova."
+
+        lang_instruction = (
+            "Odgovaraj ISKLJUČIVO na bosanskom jeziku."
+            if request.language == "bs"
+            else "Answer in English."
+        )
+
+        prompt = f"""Ti si FinAssistBH — ekspert za EU fondove i grantove u Bosni i Hercegovini.
+Specijaliziran si za: Federalne pozive (FMRPO, FMPVS, FZZZ), kantonalne pozive ZDK/Tešanj,
+EU programe (EU4Agri, EU4CAET, Horizont Evropa), i lokalne poticaje.
+
+{lang_instruction}
+
+DOSTUPNI GRANTOVI IZ BAZE:
+{context}
+
+KORISNIČKO PITANJE:
+{request.query}
+
+INSTRUKCIJE:
+- Koristi informacije iz konteksta iznad
+- Navedi konkretne iznose, rokove i izvore kad su dostupni
+- Ako pitanje nije o grantovima, ljubazno usmjeri korisnika
+- Budi konkretan, koristan i precizan
+- Završi s preporukom sljedećeg koraka (npr. koji URL posjetiti)
+"""
+
+        from agent.genai_client import GenAIClient
+        genai_client = GenAIClient()
+        answer = genai_client.generate(prompt)
+
+        if not answer:
+            answer = "Nisam pronašao odgovor. Pokušajte precizirati upit ili kontaktirajte FMRPO na javnipozivi.fmrpo.gov.ba."
+
+        duration = time.time() - start_time
+        logger.info(f"✅ [ID: {req_id}] AI odgovor generisan za {duration:.2f}s ({len(answer)} znakova)")
+
+        return AIAnswerResponse(
+            answer=answer,
+            sources=sources[:5],
+            request_id=req_id,
+            processing_time=duration,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"🔥 [ID: {req_id}] AI greška: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# --- 5c. GRANTS REST ENDPOINTI ---
+
+LOCAL_CATEGORIES = {"Kantonalni (ZDK)", "Lokalni", "ZDK", "Tešanj", "ZEDA"}
+LOCAL_KEYWORDS = ["zdk", "tešanj", "tesanj", "zeda", "zenica", "kanton", "federalni zavod za zapošljavanje"]
+
+@app.get("/grants")
+def list_grants(
+    category: Optional[str] = None,
+    relevance: Optional[str] = None,
+    page: int = 1,
+    page_size: int = 20,
+):
+    """
+    Vraća listu svih dostupnih grantova iz baze.
+    Parametri: category, relevance (High/Medium/Low), page, page_size.
+    """
+    filtered = _grants_cache
+
+    if category:
+        filtered = [g for g in filtered if category.lower() in g.get("category", "").lower()]
+    if relevance:
+        filtered = [g for g in filtered if g.get("relevance", "").lower() == relevance.lower()]
+
+    total = len(filtered)
+    start = (page - 1) * page_size
+    paginated = filtered[start: start + page_size]
+
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "pages": (total + page_size - 1) // page_size,
+        "grants": paginated,
+    }
+
+
+@app.get("/grants/local")
+def list_local_grants():
+    """
+    Vraća grantove relevantne za ZDK kanton i Tešanj (Tier 1 prioritet).
+    Uključuje kantonalne i federalne pozive koji pokrivaju ZDK područje.
+    """
+    local = []
+    for g in _grants_cache:
+        cat = g.get("category", "").lower()
+        title = g.get("title", "").lower()
+        desc = g.get("description", "").lower()
+        combined = f"{cat} {title} {desc}"
+        if any(kw in combined for kw in LOCAL_KEYWORDS) or g.get("category") in LOCAL_CATEGORIES:
+            local.append(g)
+
+    return {
+        "region": "ZDK — Zeničko-dobojski kanton / Tešanj",
+        "total": len(local),
+        "note": "Ovi grantovi su direktno relevantni za poduzetnike iz ZDK kantona.",
+        "grants": local,
+    }
+
+
+@app.get("/grants/urgent")
+def list_urgent_grants(days: int = 30):
+    """
+    Vraća grantove čiji rok ističe unutar zadanog broja dana (default: 30).
+    """
+    today = datetime.utcnow().date()
+    urgent = []
+    for g in _grants_cache:
+        deadline_str = g.get("deadline", "")
+        if not deadline_str or deadline_str in ("N/A", "Varijabilno", ""):
+            continue
+        try:
+            deadline = datetime.strptime(deadline_str, "%Y-%m-%d").date()
+            days_left = (deadline - today).days
+            if 0 <= days_left <= days:
+                urgent.append({**g, "days_left": days_left})
+        except ValueError:
+            continue
+
+    urgent.sort(key=lambda x: x["days_left"])
+
+    return {
+        "window_days": days,
+        "total": len(urgent),
+        "as_of": today.isoformat(),
+        "grants": urgent,
+    }
+
+
 # --- 6. AUTH ENDPOINTI ---
 
 @app.post("/auth/register", response_model=AuthResponse)
 async def register(req: RegisterRequest):
-    """Registracija novog korisnika."""
-    email = req.email.strip().lower()
-    if len(req.password) < 6:
-        raise HTTPException(status_code=400, detail="Lozinka mora imati min. 6 karaktera.")
+    """Registracija novog korisnika. Validacija emaila i lozinke je u Pydantic modelu."""
+    email = req.email  # već normalizovan u validator-u
     try:
         with sqlite3.connect(DB_PATH) as db:
             db.execute(
