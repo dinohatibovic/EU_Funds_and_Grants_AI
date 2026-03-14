@@ -11,6 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
@@ -711,6 +712,140 @@ async def stripe_webhook(request: Request):
         logger.info(f"🚫 Pretplata otkazana: {event['data']['object'].get('customer', 'unknown')}")
 
     return {"status": "ok"}
+
+
+# --- 8. ADMIN PANEL ---
+
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+
+
+def _require_admin(request: Request):
+    """Provjera admin lozinke iz X-Admin-Password headera."""
+    pwd = request.headers.get("X-Admin-Password", "")
+    if pwd != ADMIN_PASSWORD:
+        raise HTTPException(status_code=403, detail="Pogrešna admin lozinka.")
+
+
+@app.get("/admin/users")
+def admin_list_users(request: Request):
+    """Vraća listu svih registrovanih korisnika. Zahtijeva X-Admin-Password header."""
+    _require_admin(request)
+    with sqlite3.connect(DB_PATH) as db:
+        db.row_factory = sqlite3.Row
+        rows = db.execute(
+            "SELECT id, email, plan, created_at FROM users ORDER BY created_at DESC"
+        ).fetchall()
+    return {
+        "total": len(rows),
+        "users": [dict(r) for r in rows]
+    }
+
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_panel():
+    """HTML admin panel — otvori u browseru."""
+    html = """<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<title>FinAssistBH — Admin Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-2">FinAssistBH — Admin Panel</h1>
+    <p class="text-gray-400 mb-6">Registrovani korisnici</p>
+
+    <div class="flex gap-3 mb-6">
+      <input id="pwd" type="password" placeholder="Admin lozinka"
+        class="bg-gray-800 border border-gray-600 rounded px-4 py-2 w-64 focus:outline-none focus:border-blue-500" />
+      <button onclick="loadUsers()"
+        class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded font-semibold">
+        Učitaj korisnike
+      </button>
+      <button onclick="exportCSV()"
+        class="bg-green-700 hover:bg-green-600 px-6 py-2 rounded font-semibold">
+        Export CSV
+      </button>
+    </div>
+
+    <div id="stats" class="mb-4 text-gray-300"></div>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-700">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-800 text-gray-400 uppercase text-xs">
+          <tr>
+            <th class="px-4 py-3 text-left">#</th>
+            <th class="px-4 py-3 text-left">Email</th>
+            <th class="px-4 py-3 text-left">Plan</th>
+            <th class="px-4 py-3 text-left">Datum registracije</th>
+          </tr>
+        </thead>
+        <tbody id="tbody" class="divide-y divide-gray-800">
+          <tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">Unesite lozinku i kliknite Učitaj</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+let userData = [];
+
+async function loadUsers() {
+  const pwd = document.getElementById('pwd').value;
+  if (!pwd) { alert('Unesite admin lozinku!'); return; }
+  try {
+    const res = await fetch('/admin/users', {
+      headers: { 'X-Admin-Password': pwd }
+    });
+    if (res.status === 403) { alert('Pogrešna lozinka!'); return; }
+    const data = await res.json();
+    userData = data.users;
+    document.getElementById('stats').textContent =
+      `Ukupno registrovanih: ${data.total}`;
+    const tbody = document.getElementById('tbody');
+    if (!data.users.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">Nema registrovanih korisnika</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.users.map((u, i) => `
+      <tr class="hover:bg-gray-800/50">
+        <td class="px-4 py-3 text-gray-500">${u.id}</td>
+        <td class="px-4 py-3 font-medium">${u.email}</td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-1 rounded text-xs font-semibold
+            ${u.plan === 'free' ? 'bg-gray-700 text-gray-300' :
+              u.plan === 'starter' ? 'bg-blue-900 text-blue-300' :
+              'bg-purple-900 text-purple-300'}">
+            ${u.plan.toUpperCase()}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-gray-400">${u.created_at}</td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    alert('Greška pri učitavanju: ' + e.message);
+  }
+}
+
+function exportCSV() {
+  if (!userData.length) { alert('Prvo učitaj korisnike!'); return; }
+  const rows = [['ID','Email','Plan','Datum registracije'],
+    ...userData.map(u => [u.id, u.email, u.plan, u.created_at])];
+  const csv = rows.map(r => r.join(',')).join('\\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'korisnici_finassistbh.csv';
+  a.click();
+}
+
+document.getElementById('pwd').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadUsers();
+});
+</script>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
 
 
 if __name__ == "__main__":
