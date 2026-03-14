@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinAssistBH — Pronađi EU grantove za BiH</title>
+    <title>FinAssistBH — EU Grantovi za Bosnu i Hercegovinu</title>
     <meta name="description" content="AI asistent za pretragu EU fondova i grantova dostupnih u Bosni i Hercegovini">
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -36,292 +34,395 @@
             --mono: 'JetBrains Mono', monospace;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
         }
 
         /* ============================================
            RESET & BASE
            ============================================ */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { height: 100%; }
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Accessibility — screen reader only */
-        .sr-only {
-            position: absolute; width: 1px; height: 1px;
-            padding: 0; margin: -1px; overflow: hidden;
-            clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-        }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        a { text-decoration: none; color: inherit; }
 
         /* ============================================
-           HEADER
+           NAV
            ============================================ */
-        .header {
-            background: var(--surface);
+        .nav {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-            z-index: 10;
+            padding: 0 24px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .header-brand { display: flex; align-items: center; gap: 10px; }
-        .header-logo {
-            width: 36px; height: 36px;
-            background: var(--primary); border-radius: 10px;
+        .nav-brand { display: flex; align-items: center; gap: 10px; }
+        .nav-logo {
+            width: 34px; height: 34px; background: var(--primary); border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
-            color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: -0.5px;
+            color: var(--accent); font-weight: 700; font-size: 13px;
         }
-        .header-title { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
-        .header-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-        .header-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
-
-        .status-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: var(--text-muted); transition: background 0.3s;
-        }
+        .nav-name { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .nav-status { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); transition: background 0.3s; }
         .status-dot.online  { background: var(--success); }
         .status-dot.loading { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
         .status-dot.error   { background: var(--error); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.5; transform: scale(0.8); }
+        .nav-btn {
+            padding: 7px 16px; border-radius: 10px; font-size: 13px;
+            font-family: var(--font); font-weight: 600; cursor: pointer;
+            border: none; transition: all 0.2s;
         }
+        .nav-btn.outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+        .nav-btn.outline:hover { border-color: var(--primary-light); color: var(--primary); }
+        .nav-btn.primary { background: var(--primary); color: white; }
+        .nav-btn.primary:hover { background: var(--primary-light); }
+        .nav-user { font-size: 13px; color: var(--text-soft); font-weight: 500; }
 
         /* ============================================
-           CHAT AREA
+           HERO
            ============================================ */
+        .hero {
+            background: linear-gradient(135deg, #0f2d5c 0%, #1a4b8c 50%, #1e5fa3 100%);
+            color: white; padding: 72px 24px 80px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .hero-inner { position: relative; max-width: 680px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            padding: 5px 14px; border-radius: 20px; font-size: 12px;
+            color: rgba(255,255,255,0.85); margin-bottom: 22px; font-weight: 500;
+        }
+        .hero h1 {
+            font-size: clamp(28px, 5vw, 46px); font-weight: 800;
+            letter-spacing: -1px; line-height: 1.15; margin-bottom: 16px;
+        }
+        .hero h1 span { color: var(--accent); }
+        .hero p {
+            font-size: 16px; color: rgba(255,255,255,0.78);
+            line-height: 1.65; margin-bottom: 36px; max-width: 520px; margin-left: auto; margin-right: auto;
+        }
+        .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .hero-btn {
+            padding: 13px 28px; border-radius: 12px; font-size: 15px;
+            font-family: var(--font); font-weight: 700; cursor: pointer;
+            border: none; transition: all 0.2s;
+        }
+        .hero-btn.cta { background: var(--accent); color: #1a1a1a; }
+        .hero-btn.cta:hover { background: #e8bb55; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212,168,67,0.4); }
+        .hero-btn.secondary { background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.25); }
+        .hero-btn.secondary:hover { background: rgba(255,255,255,0.2); }
+        .hero-stats {
+            display: flex; gap: 32px; justify-content: center; margin-top: 48px;
+            flex-wrap: wrap;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-num { font-size: 28px; font-weight: 800; color: var(--accent); display: block; }
+        .hero-stat-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+        /* ============================================
+           DEMO BANNER (gost)
+           ============================================ */
+        .demo-banner {
+            background: linear-gradient(90deg, #fdf6e3, #fffbeb);
+            border-bottom: 1px solid #fde68a;
+            padding: 8px 20px; font-size: 13px; color: #92400e;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            text-align: center; flex-wrap: wrap;
+        }
+        .demo-banner strong { font-weight: 600; }
+        .demo-banner a { font-weight: 700; color: var(--primary); text-decoration: underline; cursor: pointer; }
+        .demo-banner.hidden { display: none; }
+
+        /* ============================================
+           SECTIONS
+           ============================================ */
+        .section { padding: 60px 24px; max-width: 1100px; margin: 0 auto; }
+        .section-title {
+            font-size: 26px; font-weight: 800; color: var(--text);
+            letter-spacing: -0.5px; margin-bottom: 6px;
+        }
+        .section-sub { font-size: 15px; color: var(--text-soft); margin-bottom: 36px; }
+
+        /* ============================================
+           GRANT CARDS GRID
+           ============================================ */
+        .grants-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .grant-preview-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px;
+            transition: all 0.22s; display: flex; flex-direction: column; gap: 10px;
+        }
+        .grant-preview-card:hover {
+            border-color: var(--primary-light); box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .grant-preview-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .grant-cat-badge {
+            font-size: 11px; font-weight: 600; padding: 3px 10px;
+            border-radius: 20px; white-space: nowrap;
+        }
+        .cat-eu     { background: #dbeafe; color: #1d4ed8; }
+        .cat-fed    { background: #dcfce7; color: #166534; }
+        .cat-kanton { background: #fef9c3; color: #854d0e; }
+        .cat-nat    { background: #f3e8ff; color: #6b21a8; }
+        .grant-urgency {
+            font-size: 11px; font-weight: 600; color: var(--error);
+            background: var(--error-soft); padding: 3px 8px; border-radius: 6px;
+        }
+        .grant-preview-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.35; }
+        .grant-preview-budget { font-size: 13px; color: var(--text-soft); }
+        .grant-preview-budget strong { color: var(--primary); font-weight: 700; }
+        .grant-preview-deadline { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .grant-preview-cta {
+            margin-top: auto; font-size: 13px; font-weight: 600;
+            color: var(--primary-light); cursor: pointer; background: none; border: none;
+            font-family: var(--font); padding: 0; text-align: left;
+            transition: color 0.2s;
+        }
+        .grant-preview-cta:hover { color: var(--primary); text-decoration: underline; }
+
+        /* ============================================
+           HOW IT WORKS
+           ============================================ */
+        .how-bg { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px; }
+        .step { text-align: center; padding: 8px; }
+        .step-num {
+            width: 52px; height: 52px; border-radius: 16px;
+            background: var(--primary-soft); color: var(--primary);
+            font-size: 22px; font-weight: 800; display: flex;
+            align-items: center; justify-content: center; margin: 0 auto 14px;
+        }
+        .step h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .step p  { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+        /* ============================================
+           PRICING
+           ============================================ */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; max-width: 860px; margin: 0 auto; }
+        .pricing-card {
+            background: var(--surface); border: 1.5px solid var(--border);
+            border-radius: var(--radius); padding: 28px 22px;
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .pricing-card.popular { border-color: var(--primary-light); background: var(--primary-soft); }
+        .pricing-badge {
+            display: inline-block; font-size: 11px; font-weight: 700;
+            background: var(--primary); color: white; padding: 3px 10px;
+            border-radius: 6px; margin-bottom: 4px;
+        }
+        .pricing-name { font-size: 18px; font-weight: 800; color: var(--text); }
+        .pricing-price { font-size: 32px; font-weight: 800; color: var(--primary); }
+        .pricing-price span { font-size: 14px; font-weight: 500; color: var(--text-soft); }
+        .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .pricing-features li { font-size: 13px; color: var(--text-soft); display: flex; gap: 8px; align-items: flex-start; }
+        .pricing-features li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; }
+        .pricing-btn {
+            width: 100%; padding: 12px; border-radius: 12px;
+            font-size: 14px; font-family: var(--font); font-weight: 700;
+            cursor: pointer; border: none; transition: all 0.2s;
+        }
+        .pricing-btn.primary { background: var(--primary); color: white; }
+        .pricing-btn.primary:hover { background: var(--primary-light); }
+        .pricing-btn.outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+        .pricing-btn.outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            background: #0f2240; color: rgba(255,255,255,0.6);
+            padding: 36px 24px; text-align: center; font-size: 13px;
+        }
+        .footer-logo { color: white; font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+        .footer a { color: rgba(255,255,255,0.7); text-decoration: underline; }
+
+        /* ============================================
+           FLOATING CHAT WIDGET
+           ============================================ */
+
+        /* Toggle bubble */
+        .chat-bubble {
+            position: fixed; bottom: 24px; right: 24px; z-index: 200;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--primary); color: white;
+            border: none; cursor: pointer;
+            box-shadow: 0 6px 24px rgba(26,75,140,0.4);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s;
+            font-size: 26px;
+        }
+        .chat-bubble:hover { background: var(--primary-light); transform: scale(1.05); }
+        .chat-bubble .bubble-badge {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--accent); color: #1a1a1a;
+            font-size: 10px; font-weight: 800;
+            width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+        .chat-bubble .bubble-badge.hidden { display: none; }
+
+        /* Chat panel */
+        .chat-panel {
+            position: fixed; bottom: 100px; right: 24px; z-index: 199;
+            width: 380px; height: 560px; max-height: calc(100vh - 130px);
+            background: var(--surface); border-radius: 20px;
+            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0,0,0,0.06);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: scale(0.92) translateY(20px);
+            opacity: 0; pointer-events: none;
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
+            transform-origin: bottom right;
+        }
+        .chat-panel.open {
+            transform: scale(1) translateY(0);
+            opacity: 1; pointer-events: all;
+        }
+
+        /* Chat panel header */
+        .chat-header {
+            background: var(--primary); color: white;
+            padding: 14px 16px; display: flex; align-items: center; gap: 10px;
+            flex-shrink: 0;
+        }
+        .chat-header-avatar {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 13px; color: var(--accent); flex-shrink: 0;
+        }
+        .chat-header-info { flex: 1; min-width: 0; }
+        .chat-header-title { font-size: 14px; font-weight: 700; }
+        .chat-header-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+        .chat-header-right { display: flex; align-items: center; gap: 8px; }
+        .chat-quota-pill {
+            font-size: 11px; font-weight: 600; padding: 3px 9px;
+            border-radius: 12px; background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9); white-space: nowrap; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-quota-pill:hover { background: rgba(255,255,255,0.25); }
+        .chat-quota-pill.warn { background: rgba(253,186,116,0.3); color: #fed7aa; }
+        .close-btn {
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(255,255,255,0.12); border: none; color: white;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: background 0.2s; flex-shrink: 0;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.22); }
+
+        /* Chat messages area */
         .chat-area {
-            flex: 1; overflow-y: auto;
-            padding: 20px; display: flex; flex-direction: column;
-            gap: 16px; scroll-behavior: smooth;
+            flex: 1; overflow-y: auto; padding: 14px; display: flex;
+            flex-direction: column; gap: 12px; scroll-behavior: smooth;
+            background: var(--bg);
         }
-        .chat-area::-webkit-scrollbar { width: 6px; }
-        .chat-area::-webkit-scrollbar-track { background: transparent; }
-        .chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .chat-area::-webkit-scrollbar { width: 4px; }
+        .chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-        /* ============================================
-           WELCOME SCREEN
-           ============================================ */
-        .welcome {
+        /* Welcome inside panel */
+        .chat-welcome {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            text-align: center; padding: 40px 20px;
-            animation: fadeIn 0.5s ease;
+            text-align: center; padding: 20px 16px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .welcome-icon {
-            width: 64px; height: 64px; background: var(--primary-soft);
-            border-radius: 20px; display: flex; align-items: center;
-            justify-content: center; font-size: 28px; margin-bottom: 20px;
-        }
-        .welcome h2 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: -0.5px; }
-        .welcome p  { font-size: 14px; color: var(--text-soft); max-width: 400px; line-height: 1.6; margin-bottom: 28px; }
-
-        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 560px; }
-        .suggestion-btn {
+        .chat-welcome-icon { font-size: 36px; margin-bottom: 12px; }
+        .chat-welcome h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .chat-welcome p  { font-size: 12px; color: var(--text-soft); line-height: 1.55; margin-bottom: 16px; }
+        .chat-suggestions { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+        .chat-suggest-btn {
             background: var(--surface); border: 1px solid var(--border);
-            border-radius: 24px; padding: 9px 16px; font-size: 13px;
+            border-radius: 10px; padding: 8px 12px; font-size: 12px;
             font-family: var(--font); color: var(--text); cursor: pointer;
-            transition: all 0.2s; line-height: 1.3;
+            text-align: left; transition: all 0.18s;
         }
-        .suggestion-btn:hover {
-            border-color: var(--primary-light); background: var(--primary-soft);
-            color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-sm);
-        }
+        .chat-suggest-btn:hover { border-color: var(--primary-light); background: var(--primary-soft); color: var(--primary); }
 
-        /* ============================================
-           PORUKE
-           ============================================ */
-        .message {
-            display: flex; gap: 10px; max-width: 720px;
-            width: 100%; margin: 0 auto; animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+        /* Messages */
+        .message { display: flex; gap: 8px; animation: slideUp 0.25s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .message.user { flex-direction: row-reverse; }
-
         .msg-avatar {
-            width: 32px; height: 32px; border-radius: 10px;
+            width: 28px; height: 28px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0; margin-top: 2px;
+            font-size: 12px; flex-shrink: 0; margin-top: 2px;
         }
-        .message.bot  .msg-avatar { background: var(--primary); color: var(--accent); font-weight: 700; font-size: 11px; }
+        .message.bot  .msg-avatar { background: var(--primary); color: var(--accent); font-weight: 700; font-size: 10px; }
         .message.user .msg-avatar { background: var(--primary-soft); color: var(--primary); }
-
-        .msg-content { flex: 1; }
-        .msg-bubble { padding: 12px 16px; border-radius: var(--radius); font-size: 14px; line-height: 1.65; }
-
-        .message.user .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
-        .message.bot  .msg-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-
-        .msg-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; padding: 0 4px; }
+        .msg-content { flex: 1; min-width: 0; }
+        .msg-bubble { padding: 9px 12px; border-radius: 12px; font-size: 13px; line-height: 1.6; word-break: break-word; }
+        .message.user .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 3px; }
+        .message.bot  .msg-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
+        .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; padding: 0 3px; }
         .message.user .msg-time { text-align: right; }
 
-        /* ============================================
-           RESULT KARTICE
-           ============================================ */
-        .results-wrapper { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .grant-card {
-            background: var(--bg); border: 1px solid var(--border);
-            border-radius: var(--radius-sm); padding: 12px 14px; transition: all 0.2s;
-        }
-        .grant-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
-        .grant-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-        .grant-rank {
-            font-size: 11px; font-weight: 600; color: var(--primary);
-            background: var(--primary-soft); padding: 2px 8px;
-            border-radius: 6px; white-space: nowrap; font-family: var(--mono);
-        }
-        .grant-category {
-            font-size: 11px; color: var(--accent); background: var(--accent-soft);
-            padding: 2px 8px; border-radius: 6px; font-weight: 500;
-        }
-        .grant-title   { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 4px; }
-        .grant-text    {
-            font-size: 13px; color: var(--text-soft); line-height: 1.55;
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-        }
+        /* Grant cards inside chat */
+        .results-wrapper { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .grant-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; transition: all 0.2s; }
+        .grant-card:hover { border-color: var(--primary-light); }
+        .grant-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 4px; }
+        .grant-rank { font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-soft); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); }
+        .grant-category { font-size: 10px; color: var(--accent); background: var(--accent-soft); padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+        .grant-title { font-weight: 600; font-size: 12px; color: var(--text); margin-bottom: 3px; }
+        .grant-text { font-size: 12px; color: var(--text-soft); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .grant-text.expanded { -webkit-line-clamp: unset; }
-        .grant-expand  {
-            font-size: 12px; color: var(--primary-light); background: none; border: none;
-            cursor: pointer; padding: 4px 0; font-family: var(--font); font-weight: 500; margin-top: 2px;
-        }
+        .grant-expand { font-size: 11px; color: var(--primary-light); background: none; border: none; cursor: pointer; padding: 3px 0; font-family: var(--font); font-weight: 500; }
         .grant-expand:hover { text-decoration: underline; }
-        .results-meta { font-size: 12px; color: var(--text-muted); margin-top: 6px; font-family: var(--mono); }
+        .results-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-family: var(--mono); }
 
-        /* ============================================
-           LOADING
-           ============================================ */
-        .loading-message .msg-bubble { display: flex; align-items: center; gap: 10px; }
-        .typing-dots { display: flex; gap: 4px; }
-        .typing-dots span {
-            width: 7px; height: 7px; background: var(--text-muted);
-            border-radius: 50%; animation: typing 1.4s ease-in-out infinite;
-        }
+        /* Loading */
+        .loading-message .msg-bubble { display: flex; align-items: center; gap: 8px; }
+        .typing-dots { display: flex; gap: 3px; }
+        .typing-dots span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typing 1.4s ease-in-out infinite; }
         .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing {
-            0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-            30%           { opacity: 1;   transform: translateY(-4px); }
-        }
-        .loading-text { font-size: 13px; color: var(--text-muted); }
+        @keyframes typing { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+        .loading-text { font-size: 12px; color: var(--text-muted); }
 
-        /* ============================================
-           ERROR
-           ============================================ */
+        /* Error */
         .error-bubble { background: var(--error-soft) !important; border-color: #fecaca !important; }
-        .error-bubble .error-text { color: var(--error); font-size: 13px; }
-        .error-bubble .error-hint { color: var(--text-soft); font-size: 12px; margin-top: 6px; }
+        .error-bubble .error-text { color: var(--error); font-size: 12px; }
+        .error-bubble .error-hint { color: var(--text-soft); font-size: 11px; margin-top: 4px; }
 
-        /* ============================================
-           INPUT AREA
-           ============================================ */
-        .input-area {
+        /* Input area */
+        .chat-input-area {
             background: var(--surface); border-top: 1px solid var(--border);
-            padding: 14px 20px; flex-shrink: 0;
+            padding: 10px 12px; flex-shrink: 0;
         }
-        .input-container { max-width: 720px; margin: 0 auto; display: flex; gap: 10px; align-items: flex-end; }
-        .input-wrapper {
+        .chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+        .chat-input-wrapper {
             flex: 1; background: var(--bg); border: 1.5px solid var(--border);
-            border-radius: 14px; display: flex; align-items: flex-end;
-            transition: border-color 0.2s, box-shadow 0.2s; overflow: hidden;
+            border-radius: 12px; display: flex; align-items: flex-end; overflow: hidden;
+            transition: border-color 0.2s;
         }
-        .input-wrapper:focus-within {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(45, 111, 212, 0.1);
-        }
+        .chat-input-wrapper:focus-within { border-color: var(--primary-light); }
         #userInput {
             flex: 1; border: none; background: transparent;
-            padding: 12px 16px; font-size: 14px; font-family: var(--font);
+            padding: 9px 12px; font-size: 13px; font-family: var(--font);
             color: var(--text); resize: none; outline: none;
-            min-height: 44px; max-height: 120px; line-height: 1.5;
+            min-height: 38px; max-height: 100px; line-height: 1.5;
         }
         #userInput::placeholder { color: var(--text-muted); }
-
         .send-btn {
-            width: 44px; height: 44px; border-radius: 12px; border: none;
+            width: 38px; height: 38px; border-radius: 10px; border: none;
             background: var(--primary); color: white; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s; flex-shrink: 0;
         }
-        .send-btn:hover:not(:disabled) { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+        .send-btn:hover:not(:disabled) { background: var(--primary-light); }
         .send-btn:disabled { background: var(--border); cursor: not-allowed; }
-        .send-btn svg { width: 18px; height: 18px; }
-
-        .input-hint {
-            text-align: center; font-size: 11px; color: var(--text-muted);
-            margin-top: 8px; max-width: 720px; margin-left: auto; margin-right: auto;
-        }
-
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
-        @media (max-width: 640px) {
-            .header      { padding: 10px 14px; }
-            .chat-area   { padding: 14px; gap: 12px; }
-            .input-area  { padding: 10px 14px; }
-            .welcome h2  { font-size: 19px; }
-            .welcome p   { font-size: 13px; }
-            .suggestions { gap: 6px; }
-            .suggestion-btn { font-size: 12px; padding: 8px 12px; }
-            .message     { max-width: 100%; }
-            .msg-avatar  { width: 28px; height: 28px; font-size: 12px; }
-            .msg-bubble  { padding: 10px 14px; font-size: 13px; }
-            .grant-card  { padding: 10px 12px; }
-            .header-subtitle { display: none; }
-        }
-
-        @media print {
-            .input-area, .header-status, .send-btn { display: none; }
-            .chat-area { overflow: visible; }
-        }
-
-        /* ============================================
-           QUOTA BADGE
-           ============================================ */
-        .quota-badge {
-            display: inline-flex; align-items: center; gap: 5px;
-            font-size: 12px; font-weight: 500; padding: 4px 10px;
-            border-radius: 20px; border: 1px solid var(--border);
-            cursor: pointer; transition: all 0.2s;
-            background: var(--surface); color: var(--text-soft);
-            white-space: nowrap; text-decoration: none;
-        }
-        .quota-badge:hover { border-color: var(--primary-light); color: var(--primary); }
-        .quota-badge.guest  { background: var(--accent-soft); border-color: var(--accent); color: #92400e; }
-        .quota-badge.free   { background: var(--primary-soft); border-color: var(--primary-light); color: var(--primary); }
-        .quota-badge.premium{ background: #f0fdf4; border-color: #86efac; color: #166534; }
-        .quota-badge.warning{ background: #fff7ed; border-color: #fdba74; color: #9a3412; animation: pulse 1.5s ease-in-out infinite; }
-
-        /* ============================================
-           DEMO BANNER
-           ============================================ */
-        .demo-banner {
-            background: linear-gradient(90deg, #fdf6e3 0%, #fffbeb 100%);
-            border-bottom: 1px solid #fde68a;
-            padding: 7px 20px; font-size: 12px; color: #92400e;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            flex-shrink: 0; text-align: center; flex-wrap: wrap;
-        }
-        .demo-banner a {
-            font-weight: 600; color: var(--primary); text-decoration: underline; cursor: pointer;
-        }
-        .demo-banner.hidden { display: none; }
+        .send-btn svg { width: 16px; height: 16px; }
+        .chat-input-hint { text-align: center; font-size: 10px; color: var(--text-muted); margin-top: 5px; }
 
         /* ============================================
            AUTH MODAL
@@ -329,9 +430,10 @@
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.45);
             display: flex; align-items: center; justify-content: center;
-            z-index: 100; padding: 20px; animation: fadeIn 0.2s ease;
+            z-index: 300; padding: 20px; animation: fadeIn 0.2s ease;
         }
         .modal-overlay.hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-card {
             background: var(--surface); border-radius: 20px;
             padding: 28px 24px; max-width: 380px; width: 100%;
@@ -342,26 +444,34 @@
         .modal-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
         .modal-subtitle { font-size: 13px; color: var(--text-soft); text-align: center; margin-bottom: 20px; line-height: 1.5; }
         .modal-plans { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .modal-plan {
-            border: 1px solid var(--border); border-radius: 12px;
-            padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
-        }
+        .modal-plan { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; }
         .modal-plan.highlight { border-color: var(--primary-light); background: var(--primary-soft); }
         .modal-plan-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
         .modal-plan-info h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
         .modal-plan-info p  { font-size: 12px; color: var(--text-soft); line-height: 1.4; }
         .modal-actions { display: flex; flex-direction: column; gap: 8px; }
-        .modal-btn {
-            width: 100%; padding: 12px; border-radius: 12px; font-size: 14px;
-            font-family: var(--font); font-weight: 600; cursor: pointer;
-            border: none; transition: all 0.2s; text-align: center;
-        }
+        .modal-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-family: var(--font); font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }
         .modal-btn.primary { background: var(--primary); color: white; }
         .modal-btn.primary:hover { background: var(--primary-light); }
         .modal-btn.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
         .modal-btn.secondary:hover { border-color: var(--primary-light); }
         .modal-btn.ghost { background: none; color: var(--text-muted); font-size: 12px; font-weight: 400; padding: 6px; }
         .modal-btn.ghost:hover { color: var(--text-soft); }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 480px) {
+            .chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 90px; }
+            .chat-bubble { right: 16px; bottom: 16px; }
+            .hero { padding: 48px 16px 60px; }
+            .hero-stats { gap: 20px; }
+            .nav { padding: 0 16px; }
+            .section { padding: 40px 16px; }
+            .grants-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -391,87 +501,224 @@
             <div class="modal-actions">
                 <button class="modal-btn primary" onclick="goToAuth('register')">Registrujte se besplatno</button>
                 <button class="modal-btn secondary" onclick="goToAuth('login')">Već imam nalog — Prijava</button>
-                <button class="modal-btn ghost" onclick="closeModal()" id="modalDismiss">Nastavi bez registracije (ostalo: <span id="modalRemaining">0</span>)</button>
+                <button class="modal-btn ghost" onclick="closeModal()" id="modalDismiss">Zatvori</button>
             </div>
         </div>
     </div>
 
-    <!-- ========== HEADER ========== -->
-    <header class="header" role="banner">
-        <div class="header-brand">
-            <div class="header-logo" aria-hidden="true">EU</div>
-            <div>
-                <div class="header-title">FinAssistBH</div>
-                <div class="header-subtitle">AI pretraga EU fondova za BiH</div>
-            </div>
+    <!-- ========== NAV ========== -->
+    <nav class="nav" role="navigation">
+        <div class="nav-brand">
+            <div class="nav-logo" aria-hidden="true">EU</div>
+            <span class="nav-name">FinAssistBH</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-            <button class="quota-badge guest hidden" id="quotaBadge" onclick="showAuthModal('badge')" aria-label="Kvota upita">
-                <span id="quotaText">Demo</span>
-            </button>
-            <div class="header-status" role="status" aria-live="polite" aria-label="Status servera">
+        <div class="nav-right">
+            <div class="nav-status" role="status">
                 <span class="status-dot" id="statusDot" aria-hidden="true"></span>
-                <span id="statusText">Provjera...</span>
+                <span id="statusText" style="display:none"></span>
+            </div>
+            <div id="navAuth">
+                <!-- JS popunjava: gost → Prijava + Registracija; korisnik → ime + Odjava -->
             </div>
         </div>
-    </header>
+    </nav>
 
     <!-- ========== DEMO BANNER ========== -->
     <div class="demo-banner hidden" id="demoBanner" role="alert">
-        <span id="demoBannerText">Demo mod — 3 besplatna pitanja.</span>
-        <a onclick="goToAuth('register')">Registrujte se besplatno za 10 pitanja/dan</a>
+        <span id="demoBannerText"><strong>Demo mod</strong> — isprobajte 3 besplatna pitanja.</span>
+        <a onclick="openChat(); goToAuth('register')">Registrujte se za 10 pitanja/dan →</a>
     </div>
 
-    <!-- ========== CHAT AREA ========== -->
-    <main class="chat-area" id="chatArea" role="main" aria-label="Razgovor sa asistentom">
-        <div class="welcome" id="welcomeScreen">
-            <div class="welcome-icon" aria-hidden="true">🇪🇺</div>
-            <h2>Pronađite EU fondove za vaš projekat</h2>
+    <!-- ========== HERO ========== -->
+    <section class="hero" aria-label="Naslovni ekran">
+        <div class="hero-inner">
+            <div class="hero-badge">
+                <span>🇧🇦</span> AI pretraga za Bosnu i Hercegovinu
+            </div>
+            <h1>Pronađite <span>EU fondove</span><br>za vaš projekat</h1>
             <p>
-                Opišite svoj projekat ili potrebu, a ja ću pretražiti bazu dostupnih
-                EU grantova i fondova za Bosnu i Hercegovinu.
+                Opišite projekat ili potrebu — AI asistent pretražuje bazu aktivnih
+                grantova, lokalnih poticaja i EU fondova dostupnih u BiH.
             </p>
-            <div class="suggestions" role="list" aria-label="Prijedlozi pitanja">
-                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">Poticaji za poljoprivredu u BiH</button>
-                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">EU fondovi za male vrtiće i obrt</button>
-                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">Solarna energija — subvencije</button>
-                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">Grantovi za startupe i digitalizaciju</button>
-                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">IPA III sredstva za civilno društvo</button>
-                <button class="suggestion-btn" role="listitem" onclick="askSuggestion(this)">EU4AGRI — kako aplicirati?</button>
+            <div class="hero-actions">
+                <button class="hero-btn cta" onclick="openChat()">
+                    Pitajte AI asistenta →
+                </button>
+                <button class="hero-btn secondary" onclick="document.getElementById('grants-section').scrollIntoView({behavior:'smooth'})">
+                    Pregledaj grantove
+                </button>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-num">28M</span>
+                    <span class="hero-stat-label">KM FMRPO fondovi 2026</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-num">8</span>
+                    <span class="hero-stat-label">aktivnih poziva (mart 2026)</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-num">AI</span>
+                    <span class="hero-stat-label">Gemini vektorska pretraga</span>
+                </div>
             </div>
         </div>
-    </main>
+    </section>
 
-    <!-- ========== INPUT AREA ========== -->
-    <div class="input-area">
-        <div class="input-container">
-            <label for="userInput" class="sr-only">Unesite pitanje o grantovima</label>
-            <div class="input-wrapper">
-                <textarea
-                    id="userInput"
-                    placeholder="Opišite vaš projekat ili pitajte o grantovima..."
-                    rows="1"
-                    autofocus
-                    aria-label="Unesite pitanje o grantovima"
-                ></textarea>
-            </div>
-            <button
-                class="send-btn"
-                id="sendBtn"
-                onclick="sendMessage()"
-                disabled
-                aria-label="Pošalji poruku"
-                title="Pošalji (Enter)"
-            >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-            </button>
+    <!-- ========== GRANT CARDS SECTION ========== -->
+    <section id="grants-section" class="section">
+        <div class="section-title">Aktivni grantovi — Mart 2026.</div>
+        <div class="section-sub">Pregled najvažnijih otvorenih poziva za BiH privrednike i organizacije</div>
+        <div class="grants-grid" id="grantsGrid">
+            <!-- JS popunjava -->
         </div>
-        <div class="input-hint" aria-hidden="true">
-            FinAssistBH pretražuje bazu EU grantova koristeći AI. Rezultati su informativnog karaktera.
+    </section>
+
+    <!-- ========== HOW IT WORKS ========== -->
+    <div class="how-bg">
+        <section class="section">
+            <div class="section-title">Kako funkcioniše?</div>
+            <div class="section-sub">AI asistent koristi vektorsku pretragu za pronalaženje najrelevantnijih grantova</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>Opišite projekt</h3>
+                    <p>Opišite svoju ideju, sektor ili potrebu na bosanskom ili engleskom.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>AI pretražuje</h3>
+                    <p>Gemini embedding pronalazi semantički najsličnije grantove iz baze.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>Dobijate rezultate</h3>
+                    <p>Rangirani grantovi s iznosom, rokom i izvorom — odmah primjenjivi.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <h3>Aplicirajte</h3>
+                    <p>Direktni linkovi ka zvaničnim stranicama svakog poziva.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ========== PRICING ========== -->
+    <section class="section" style="text-align:center" id="pricing">
+        <div class="section-title">Planovi i cijene</div>
+        <div class="section-sub">Počnite besplatno, nadogradite kad vam zatreba više</div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div>
+                    <div class="pricing-name">Gost</div>
+                    <div class="pricing-price">0 <span>KM/mj</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>3 pitanja/dan</li>
+                    <li>Vektorska pretraga</li>
+                    <li>Svi grantovi vidljivi</li>
+                </ul>
+                <button class="pricing-btn outline" onclick="openChat()">Isprobaj odmah</button>
+            </div>
+            <div class="pricing-card popular">
+                <div>
+                    <div class="pricing-badge">Popularno</div>
+                    <div class="pricing-name">Free nalog</div>
+                    <div class="pricing-price">0 <span>KM/mj</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>10 pitanja/dan</li>
+                    <li>Svi grantovi + lokalni ZDK</li>
+                    <li>Historija pretrage</li>
+                    <li>Email notifikacije (uskoro)</li>
+                </ul>
+                <button class="pricing-btn primary" onclick="goToAuth('register')">Registrujte se besplatno</button>
+            </div>
+            <div class="pricing-card">
+                <div>
+                    <div class="pricing-name">Pro</div>
+                    <div class="pricing-price">29 <span>€/mj</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>Neograničena pitanja</li>
+                    <li>AI generisani odgovori</li>
+                    <li>Export PDF izvještaji</li>
+                    <li>Prioritetna podrška</li>
+                    <li>API pristup</li>
+                </ul>
+                <button class="pricing-btn outline" onclick="goToAuth('register')">Kontaktirajte nas</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="footer-logo">FinAssistBH</div>
+        <p>AI pretraga EU fondova za Bosnu i Hercegovinu &nbsp;·&nbsp; Mart 2026.</p>
+        <p style="margin-top:8px">
+            <a href="auth.html">Prijava</a> &nbsp;·&nbsp;
+            <a href="pitch.html">O projektu</a> &nbsp;·&nbsp;
+            Tešanj, ZDK, BiH
+        </p>
+    </footer>
+
+    <!-- ========== FLOATING CHAT WIDGET ========== -->
+    <button class="chat-bubble" id="chatBubble" onclick="toggleChat()" aria-label="Otvori AI asistenta" title="AI Grant Asistent">
+        <span id="chatBubbleIcon">💬</span>
+        <span class="bubble-badge hidden" id="bubbleBadge"></span>
+    </button>
+
+    <div class="chat-panel" id="chatPanel" role="complementary" aria-label="AI Grant Asistent">
+        <!-- Chat header -->
+        <div class="chat-header">
+            <div class="chat-header-avatar" aria-hidden="true">EU</div>
+            <div class="chat-header-info">
+                <div class="chat-header-title">FinAssistBH AI</div>
+                <div class="chat-header-sub" id="chatHeaderSub">Pretraga EU grantova</div>
+            </div>
+            <div class="chat-header-right">
+                <button class="chat-quota-pill" id="chatQuotaPill" onclick="showAuthModal('badge')"></button>
+                <button class="close-btn" onclick="toggleChat()" aria-label="Zatvori chat">✕</button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-area" id="chatArea" role="main" aria-label="Razgovor">
+            <div class="chat-welcome" id="welcomeScreen">
+                <div class="chat-welcome-icon" aria-hidden="true">🇪🇺</div>
+                <h3>Pronađite grant za vaš projekt</h3>
+                <p id="welcomeDesc">Opišite svoju ideju i pretražit ću bazu dostupnih EU fondova i lokalnih poticaja u BiH.</p>
+                <div class="chat-suggestions">
+                    <button class="chat-suggest-btn" onclick="askSuggestion(this)">Poticaji za poljoprivredu u BiH</button>
+                    <button class="chat-suggest-btn" onclick="askSuggestion(this)">Solarna energija — subvencije</button>
+                    <button class="chat-suggest-btn" onclick="askSuggestion(this)">Grantovi za startupe i IT</button>
+                    <button class="chat-suggest-btn" onclick="askSuggestion(this)">EU4AGRI — kako aplicirati?</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <div class="chat-input-row">
+                <label for="userInput" class="sr-only">Unesite pitanje o grantovima</label>
+                <div class="chat-input-wrapper">
+                    <textarea
+                        id="userInput"
+                        placeholder="Opišite vaš projekat ili pitajte o grantovima..."
+                        rows="1"
+                        aria-label="Unesite pitanje"
+                    ></textarea>
+                </div>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled aria-label="Pošalji">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <div class="chat-input-hint">FinAssistBH pretražuje AI bazu EU grantova. Rezultati su informativnog karaktera.</div>
         </div>
     </div>
 
@@ -486,21 +733,20 @@
             : 'https://eu-funds-and-grants-ai.onrender.com';
         const REQUEST_TIMEOUT = IS_LOCAL ? 15000 : 90000;
         const HEALTH_CHECK_INTERVAL = 5 * 60 * 1000;
-        const GUEST_LIMIT = 3;   // max pitanja za neprijavljene korisnike
+        const GUEST_LIMIT = 3;
 
         // ============================================
-        // AUTH STATE — čitamo iz localStorage
+        // AUTH STATE
         // ============================================
-        const _token     = localStorage.getItem('finassist_token');
-        const _email     = localStorage.getItem('finassist_email');
-        const _plan      = localStorage.getItem('finassist_plan') || 'guest';
-        const isGuest    = !_token;
+        const _token  = localStorage.getItem('finassist_token');
+        const _email  = localStorage.getItem('finassist_email');
+        const _plan   = localStorage.getItem('finassist_plan') || 'guest';
+        const isGuest = !_token;
 
         // ============================================
-        // GUEST COUNTER (localStorage, reset svaki dan)
+        // GUEST COUNTER
         // ============================================
         function _today() { return new Date().toISOString().slice(0, 10); }
-
         function getGuestCount() {
             if (localStorage.getItem('fg_date') !== _today()) {
                 localStorage.setItem('fg_date', _today());
@@ -508,7 +754,6 @@
             }
             return parseInt(localStorage.getItem('fg_count') || '0', 10);
         }
-
         function incrementGuestCount() {
             const n = getGuestCount() + 1;
             localStorage.setItem('fg_count', String(n));
@@ -518,9 +763,10 @@
         // ============================================
         // STATE
         // ============================================
-        let isWaiting = false;
-        let serverOnline = false;
-        let messageCount = 0;
+        let isWaiting     = false;
+        let serverOnline  = false;
+        let messageCount  = 0;
+        let chatOpen      = false;
         let healthCheckTimer = null;
 
         // ============================================
@@ -530,43 +776,62 @@
         const userInput   = document.getElementById('userInput');
         const sendBtn     = document.getElementById('sendBtn');
         const statusDot   = document.getElementById('statusDot');
-        const statusText  = document.getElementById('statusText');
-        const quotaBadge  = document.getElementById('quotaBadge');
-        const quotaText   = document.getElementById('quotaText');
-        const demoBanner  = document.getElementById('demoBanner');
+        const chatPanel   = document.getElementById('chatPanel');
+        const chatBubble  = document.getElementById('chatBubble');
+        const chatQuotaPill = document.getElementById('chatQuotaPill');
         const authModal   = document.getElementById('authModal');
 
         // ============================================
-        // QUOTA BADGE & BANNER
+        // CHAT TOGGLE
         // ============================================
-        function updateQuotaBadge(used, limit, plan) {
-            quotaBadge.classList.remove('hidden');
+        function openChat() {
+            chatOpen = true;
+            chatPanel.classList.add('open');
+            document.getElementById('chatBubbleIcon').textContent = '✕';
+            setTimeout(() => userInput.focus(), 300);
+        }
+        function closeChat() {
+            chatOpen = false;
+            chatPanel.classList.remove('open');
+            document.getElementById('chatBubbleIcon').textContent = '💬';
+        }
+        function toggleChat() {
+            chatOpen ? closeChat() : openChat();
+        }
+
+        // ============================================
+        // QUOTA DISPLAY
+        // ============================================
+        function updateQuota(used, limit, plan) {
+            // Bubble badge (unread indicator)
+            const bb = document.getElementById('bubbleBadge');
 
             if (plan === 'guest' || isGuest) {
-                const remaining = Math.max(0, GUEST_LIMIT - (used || getGuestCount()));
-                const cls = remaining <= 1 ? 'warning' : 'guest';
-                quotaBadge.className = `quota-badge ${cls}`;
-                quotaText.textContent = `Demo: ${remaining}/${GUEST_LIMIT}`;
-                document.getElementById('modalRemaining').textContent = remaining;
-                // Banner
-                demoBanner.classList.remove('hidden');
-                document.getElementById('demoBannerText').textContent =
-                    remaining > 0
-                        ? `Demo mod — još ${remaining} od ${GUEST_LIMIT} pitanja.`
-                        : `Demo mod — limit dostignut.`;
+                const remaining = Math.max(0, GUEST_LIMIT - (used !== undefined ? used : getGuestCount()));
+                const pill = `Demo: ${remaining}/${GUEST_LIMIT}`;
+                chatQuotaPill.textContent = pill;
+                chatQuotaPill.className = 'chat-quota-pill' + (remaining <= 1 ? ' warn' : '');
+                document.getElementById('demoBanner').classList.remove('hidden');
+                document.getElementById('demoBannerText').innerHTML =
+                    `<strong>Demo mod</strong> — još ${remaining} od ${GUEST_LIMIT} besplatnih pitanja.`;
+                // Show quota on bubble when closed
+                if (!chatOpen && remaining < GUEST_LIMIT) {
+                    bb.textContent = remaining; bb.classList.remove('hidden');
+                }
             } else if (plan === 'premium' || plan === 'enterprise') {
-                quotaBadge.className = 'quota-badge premium';
-                quotaText.textContent = `${_email?.split('@')[0] || 'Pro'} | ∞`;
-                demoBanner.classList.add('hidden');
+                chatQuotaPill.textContent = `${_email?.split('@')[0] || 'Pro'} | ∞`;
+                chatQuotaPill.className = 'chat-quota-pill';
+                document.getElementById('demoBanner').classList.add('hidden');
+                bb.classList.add('hidden');
             } else {
                 // free
-                const remaining = limit !== -1 ? Math.max(0, limit - used) : null;
-                const cls = (remaining !== null && remaining <= 2) ? 'warning' : 'free';
-                quotaBadge.className = `quota-badge ${cls}`;
-                quotaText.textContent = remaining !== null
+                const remaining = (limit !== -1 && used !== null) ? Math.max(0, limit - used) : null;
+                chatQuotaPill.textContent = remaining !== null
                     ? `${_email?.split('@')[0] || 'Free'} | ${remaining}/${limit}`
                     : `${_email?.split('@')[0] || 'Free'}`;
-                demoBanner.classList.add('hidden');
+                chatQuotaPill.className = 'chat-quota-pill' + (remaining !== null && remaining <= 2 ? ' warn' : '');
+                document.getElementById('demoBanner').classList.add('hidden');
+                bb.classList.add('hidden');
             }
         }
 
@@ -574,85 +839,47 @@
         // AUTH MODAL
         // ============================================
         function showAuthModal(trigger) {
-            const isLimitHit  = trigger === 'guest_limit' || trigger === 'free_limit';
-            const isUpgrade    = trigger === 'free_limit';
-
-            document.getElementById('modalIcon').textContent     = isUpgrade ? '⭐' : '🔒';
-            document.getElementById('modalTitle').textContent    = isUpgrade
+            const isUpgrade = trigger === 'free_limit';
+            document.getElementById('modalIcon').textContent    = isUpgrade ? '⭐' : '🔒';
+            document.getElementById('modalTitle').textContent   = isUpgrade
                 ? 'Dnevni limit dostignut'
                 : `Iskoristili ste ${GUEST_LIMIT} besplatna pitanja`;
             document.getElementById('modalSubtitle').textContent = isUpgrade
                 ? 'Nadogradite na Pro plan za neograničenu pretragu.'
-                : 'Registrujte se besplatno i nastavite s pretragom.';
-
-            const dismissBtn = document.getElementById('modalDismiss');
-            if (trigger === 'badge') {
-                dismissBtn.textContent = 'Zatvori';
-            } else {
-                const rem = isGuest ? Math.max(0, GUEST_LIMIT - getGuestCount()) : 0;
-                dismissBtn.innerHTML = rem > 0
-                    ? `Nastavi bez registracije (ostalo: <span id="modalRemaining">${rem}</span>)`
-                    : 'Zatvori';
-            }
-
+                : 'Registrujte se besplatno i nastavite pretragu.';
             authModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
-
         function closeModal() {
             authModal.classList.add('hidden');
             document.body.style.overflow = '';
         }
-
-        function goToAuth(tab) {
-            window.location.href = `auth.html?tab=${tab}`;
-        }
-
-        // Zatvori modal klikom na overlay
-        authModal.addEventListener('click', (e) => {
-            if (e.target === authModal) closeModal();
-        });
+        function goToAuth(tab) { window.location.href = `auth.html?tab=${tab}`; }
+        authModal.addEventListener('click', e => { if (e.target === authModal) closeModal(); });
 
         // ============================================
-        // HEALTH CHECK — provjeri backend, ponavljaj svakih 5 min
+        // HEALTH CHECK
         // ============================================
         async function checkHealth() {
             statusDot.className = 'status-dot loading';
-            statusText.textContent = 'Povezivanje...';
-
             try {
-                const controller = new AbortController();
-                const t = setTimeout(() => controller.abort(), 15000);
-
-                const res = await fetch(`${API_BASE}/health`, { signal: controller.signal });
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), 15000);
+                const res = await fetch(`${API_BASE}/health`, { signal: ctrl.signal });
                 clearTimeout(t);
-
-                if (!res.ok) throw new Error('Server error');
-
-                const data = await res.json();
+                if (!res.ok) throw new Error('err');
                 serverOnline = true;
                 statusDot.className = 'status-dot online';
-                statusText.textContent = data.database === 'connected'
-                    ? 'Sistem spreman'
-                    : 'Online (inicijalizacija...)';
-
+                document.getElementById('chatHeaderSub').textContent = 'Sistem spreman';
             } catch (err) {
                 serverOnline = false;
                 statusDot.className = 'status-dot error';
-
                 if (err.name === 'AbortError') {
-                    // Render free tier — server spava, pokušaj ponovo za 30s
-                    statusText.textContent = 'Server se budi...';
+                    document.getElementById('chatHeaderSub').textContent = 'Server se budi...';
                     setTimeout(checkHealth, 30000);
-                    return; // Ne postavljaj timer dok se ne probudi
+                    return;
                 }
-
-                statusText.textContent = IS_LOCAL
-                    ? 'Backend nije pokrenut'
-                    : 'Nije dostupan';
             }
-
-            // Postavi periodičnu provjeru jednom (ne dupliciraj)
             if (!healthCheckTimer) {
                 healthCheckTimer = setInterval(checkHealth, HEALTH_CHECK_INTERVAL);
             }
@@ -665,13 +892,10 @@
             const query = userInput.value.trim();
             if (!query || isWaiting) return;
 
-            // --- GUEST LIMIT CHECK ---
-            if (isGuest) {
-                const used = getGuestCount();
-                if (used >= GUEST_LIMIT) {
-                    showAuthModal('guest_limit');
-                    return;
-                }
+            // Guest limit check
+            if (isGuest && getGuestCount() >= GUEST_LIMIT) {
+                showAuthModal('guest_limit');
+                return;
             }
 
             const ws = document.getElementById('welcomeScreen');
@@ -681,42 +905,34 @@
             userInput.value = '';
             autoResizeInput();
             setWaiting(true);
-
             const loadingId = addLoadingMessage();
 
             try {
                 if (!serverOnline) {
                     updateLoadingText(loadingId, IS_LOCAL
-                        ? 'Čekam odgovor od lokalnog servera...'
-                        : 'Budim server (ovo traje do 60 sekundi prvi put)...'
-                    );
+                        ? 'Čekam lokalni server...'
+                        : 'Budim server (do 60s prvi put)...');
                 }
 
-                const controller = new AbortController();
-                const t = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT);
 
-                // Šaljemo token ako korisnik prijavljen
                 const headers = { 'Content-Type': 'application/json' };
                 if (_token) headers['Authorization'] = `Bearer ${_token}`;
 
                 const res = await fetch(`${API_BASE}/search`, {
-                    method: 'POST',
-                    headers,
+                    method: 'POST', headers,
                     body: JSON.stringify({ query, n_results: 5 }),
-                    signal: controller.signal
+                    signal: ctrl.signal
                 });
-
                 clearTimeout(t);
 
                 if (res.status === 429) {
                     const errData = await res.json().catch(() => ({}));
                     removeMessage(loadingId);
-                    if (isGuest) {
-                        showAuthModal('guest_limit');
-                    } else {
-                        // Free korisnik — limit dostignut
+                    showAuthModal(isGuest ? 'guest_limit' : 'free_limit');
+                    if (!isGuest) {
                         const detail = errData.detail || {};
-                        showAuthModal('free_limit');
                         addErrorMessage(
                             `Dnevni limit od ${detail.limit || 10} pitanja dostignut.`,
                             'Limit se resetuje u ponoć. Nadogradite na Pro za neograničeno.'
@@ -726,23 +942,19 @@
                 }
 
                 if (!res.ok) {
-                    const errData = await res.json().catch(() => ({}));
-                    throw new Error(typeof errData.detail === 'string' ? errData.detail : `Greška ${res.status}`);
+                    const e = await res.json().catch(() => ({}));
+                    throw new Error(typeof e.detail === 'string' ? e.detail : `Greška ${res.status}`);
                 }
 
                 const data = await res.json();
-
                 serverOnline = true;
                 statusDot.className = 'status-dot online';
-                statusText.textContent = 'Sistem spreman';
+                document.getElementById('chatHeaderSub').textContent = 'Sistem spreman';
 
-                // --- Ažuriraj guest counter i badge ---
                 if (isGuest) {
-                    const newCount = incrementGuestCount();
-                    updateQuotaBadge(newCount, GUEST_LIMIT, 'guest');
+                    updateQuota(incrementGuestCount(), GUEST_LIMIT, 'guest');
                 } else if (data.quota) {
-                    updateQuotaBadge(data.quota.used, data.quota.limit, data.quota.plan);
-                    // Ažuriraj plan u localStorage
+                    updateQuota(data.quota.used, data.quota.limit, data.quota.plan);
                     if (data.quota.plan) localStorage.setItem('finassist_plan', data.quota.plan);
                 }
 
@@ -751,27 +963,17 @@
 
             } catch (err) {
                 removeMessage(loadingId);
-
                 if (err.name === 'AbortError') {
-                    addErrorMessage(
-                        'Pretraga je trajala predugo.',
-                        IS_LOCAL
-                            ? 'Provjeri da li je backend pokrenut na portu 8000.'
-                            : 'Server je možda u fazi buđenja. Pokušajte ponovo za 30 sekundi.'
-                    );
+                    addErrorMessage('Pretraga je trajala predugo.', IS_LOCAL
+                        ? 'Provjeri da li je backend pokrenut na portu 8000.'
+                        : 'Server se budi. Pokušajte ponovo za 30 sekundi.');
                 } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-                    addErrorMessage(
-                        'Ne mogu se povezati sa serverom.',
-                        IS_LOCAL
-                            ? 'Pokreni backend: uvicorn main:app --host 0.0.0.0 --port 8000'
-                            : 'Server je možda privremeno nedostupan. Pokušajte za minutu.'
-                    );
+                    addErrorMessage('Ne mogu se povezati sa serverom.',
+                        IS_LOCAL ? 'Pokreni: uvicorn main:app --host 0.0.0.0 --port 8000'
+                                 : 'Server privremeno nedostupan. Pokušajte za minutu.');
                     checkHealth();
                 } else {
-                    addErrorMessage(
-                        `Greška: ${err.message}`,
-                        'Pokušajte ponovo ili preformulirajte pitanje.'
-                    );
+                    addErrorMessage(`Greška: ${err.message}`, 'Pokušajte ponovo ili preformulirajte pitanje.');
                 }
             } finally {
                 setWaiting(false);
@@ -783,193 +985,134 @@
         // ============================================
         function displayResults(query, data) {
             messageCount++;
-
             let results = [];
-            const processingTime = data.processing_time || 0;
-
-            // Format iz main.py: flat lista stringova + metadatas
+            const pt = data.processing_time || 0;
             if (Array.isArray(data.results) && data.results.length > 0) {
-                const metadatas = data.metadatas?.[0] || [];
+                const metas = data.metadatas?.[0] || [];
                 results = data.results.map((text, i) => ({
-                    rank:      i + 1,
-                    title:     metadatas[i]?.title    || `Rezultat ${i + 1}`,
-                    category:  metadatas[i]?.category || '',
-                    text:      text,
-                    relevance: i < 3 ? 'High' : 'Medium'
+                    rank: i + 1,
+                    title: metas[i]?.title || `Rezultat ${i + 1}`,
+                    category: metas[i]?.category || '',
+                    text
                 }));
             }
-
             if (results.length === 0) {
-                addBotMessage(
-                    `Nisam pronašao rezultate za "<strong>${escapeHtml(query)}</strong>". ` +
-                    `Pokušajte sa drugačijim opisom vašeg projekta ili potrebe.`
-                );
+                addBotMessage(`Nisam pronašao rezultate za "<strong>${escapeHtml(query)}</strong>". Pokušajte s drugačijim opisom.`);
                 return;
             }
-
-            const broji = results.length === 1 ? 'i rezultat'
-                        : results.length < 5   ? 'a rezultata'
-                        :                        'ih rezultata';
-
-            let html = `Pronašao sam <strong>${results.length}</strong> relevantn${broji}:`;
+            const b = results.length === 1 ? 'i' : results.length < 5 ? 'a' : 'ih';
+            let html = `Pronašao sam <strong>${results.length}</strong> relevantn${b} rezultata:`;
             html += '<div class="results-wrapper">';
-
             for (const r of results) {
-                const textId    = `gtext-${messageCount}-${r.rank}`;
-                const showMore  = r.text.length > 200;
-                html += `
-                    <div class="grant-card">
-                        <div class="grant-card-header">
-                            <span class="grant-rank">#${r.rank}</span>
-                            ${r.category ? `<span class="grant-category">${escapeHtml(r.category)}</span>` : ''}
-                        </div>
-                        ${r.title !== `Rezultat ${r.rank}` ? `<div class="grant-title">${escapeHtml(r.title)}</div>` : ''}
-                        <div class="grant-text" id="${textId}">${escapeHtml(r.text)}</div>
-                        ${showMore ? `<button class="grant-expand" onclick="toggleExpand('${textId}', this)" aria-expanded="false">Prikaži više</button>` : ''}
+                const tid = `gt-${messageCount}-${r.rank}`;
+                const more = r.text.length > 180;
+                html += `<div class="grant-card">
+                    <div class="grant-card-header">
+                        <span class="grant-rank">#${r.rank}</span>
+                        ${r.category ? `<span class="grant-category">${escapeHtml(r.category)}</span>` : ''}
                     </div>
-                `;
+                    ${r.title !== `Rezultat ${r.rank}` ? `<div class="grant-title">${escapeHtml(r.title)}</div>` : ''}
+                    <div class="grant-text" id="${tid}">${escapeHtml(r.text)}</div>
+                    ${more ? `<button class="grant-expand" onclick="toggleExpand('${tid}',this)" aria-expanded="false">Prikaži više</button>` : ''}
+                </div>`;
             }
-
             html += '</div>';
-            if (processingTime > 0) {
-                html += `<div class="results-meta">Pretraga: ${processingTime.toFixed(2)}s</div>`;
-            }
-
+            if (pt > 0) html += `<div class="results-meta">Pretraga: ${pt.toFixed(2)}s</div>`;
             addBotMessage(html);
         }
 
         // ============================================
-        // DOM HELPER FUNKCIJE
+        // DOM HELPERS
         // ============================================
-
         function addUserMessage(text) {
-            const id   = 'msg-' + Date.now();
-            const time = getTime();
-            const div  = document.createElement('div');
-            div.className = 'message user';
-            div.id = id;
-            div.setAttribute('role', 'article');
-            div.setAttribute('aria-label', 'Vaša poruka');
+            const id = 'msg-' + Date.now(), time = getTime();
+            const div = document.createElement('div');
+            div.className = 'message user'; div.id = id;
+            div.setAttribute('role','article');
             div.innerHTML = `
                 <div class="msg-avatar" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                     </svg>
                 </div>
                 <div class="msg-content">
                     <div class="msg-bubble">${escapeHtml(text)}</div>
                     <div class="msg-time">${time}</div>
-                </div>
-            `;
-            chatArea.appendChild(div);
-            scrollToBottom();
-            return id;
+                </div>`;
+            chatArea.appendChild(div); scrollToBottom(); return id;
         }
 
         function addBotMessage(html) {
-            const id   = 'msg-' + Date.now();
-            const time = getTime();
-            const div  = document.createElement('div');
-            div.className = 'message bot';
-            div.id = id;
-            div.setAttribute('role', 'article');
-            div.setAttribute('aria-label', 'Odgovor asistenta');
+            const id = 'msg-' + Date.now(), time = getTime();
+            const div = document.createElement('div');
+            div.className = 'message bot'; div.id = id;
+            div.setAttribute('role','article');
             div.innerHTML = `
                 <div class="msg-avatar" aria-hidden="true">EU</div>
                 <div class="msg-content">
                     <div class="msg-bubble">${html}</div>
                     <div class="msg-time">${time}</div>
-                </div>
-            `;
-            chatArea.appendChild(div);
-            scrollToBottom();
-            return id;
+                </div>`;
+            chatArea.appendChild(div); scrollToBottom(); return id;
         }
 
         function addLoadingMessage() {
-            const id  = 'loading-' + Date.now();
+            const id = 'loading-' + Date.now();
             const div = document.createElement('div');
-            div.className = 'message bot loading-message';
-            div.id = id;
-            div.setAttribute('aria-live', 'polite');
+            div.className = 'message bot loading-message'; div.id = id;
+            div.setAttribute('aria-live','polite');
             div.innerHTML = `
                 <div class="msg-avatar" aria-hidden="true">EU</div>
                 <div class="msg-content">
                     <div class="msg-bubble">
-                        <div class="typing-dots" aria-hidden="true">
-                            <span></span><span></span><span></span>
-                        </div>
+                        <div class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></div>
                         <span class="loading-text" id="lt-${id}">Pretražujem bazu grantova...</span>
                     </div>
-                </div>
-            `;
-            chatArea.appendChild(div);
-            scrollToBottom();
-            return id;
+                </div>`;
+            chatArea.appendChild(div); scrollToBottom(); return id;
         }
 
-        function updateLoadingText(loadingId, text) {
-            const el = document.getElementById(`lt-${loadingId}`);
+        function updateLoadingText(lid, text) {
+            const el = document.getElementById(`lt-${lid}`);
             if (el) el.textContent = text;
         }
 
-        function addErrorMessage(mainText, hint) {
+        function addErrorMessage(main, hint) {
             const div = document.createElement('div');
-            div.className = 'message bot';
-            div.setAttribute('role', 'alert');
+            div.className = 'message bot'; div.setAttribute('role','alert');
             div.innerHTML = `
                 <div class="msg-avatar" aria-hidden="true">EU</div>
                 <div class="msg-content">
                     <div class="msg-bubble error-bubble">
-                        <div class="error-text">${escapeHtml(mainText)}</div>
+                        <div class="error-text">${escapeHtml(main)}</div>
                         ${hint ? `<div class="error-hint">${escapeHtml(hint)}</div>` : ''}
                     </div>
-                </div>
-            `;
-            chatArea.appendChild(div);
-            scrollToBottom();
+                </div>`;
+            chatArea.appendChild(div); scrollToBottom();
         }
 
-        function removeMessage(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
+        function removeMessage(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+        function toggleExpand(tid, btn) {
+            const el = document.getElementById(tid); if (!el) return;
+            const ex = el.classList.toggle('expanded');
+            btn.textContent = ex ? 'Prikaži manje' : 'Prikaži više';
+            btn.setAttribute('aria-expanded', String(ex));
         }
 
-        function toggleExpand(textId, btn) {
-            const el = document.getElementById(textId);
-            if (!el) return;
-            const expanded = el.classList.toggle('expanded');
-            btn.textContent = expanded ? 'Prikaži manje' : 'Prikaži više';
-            btn.setAttribute('aria-expanded', String(expanded));
-        }
+        function escapeHtml(text) { const d = document.createElement('div'); d.textContent = String(text); return d.innerHTML; }
+        function getTime() { return new Date().toLocaleTimeString('bs-BA', { hour: '2-digit', minute: '2-digit' }); }
+        function scrollToBottom() { requestAnimationFrame(() => { chatArea.scrollTop = chatArea.scrollHeight; }); }
 
-        // ============================================
-        // UTILITY
-        // ============================================
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = String(text);
-            return div.innerHTML;
-        }
-
-        function getTime() {
-            return new Date().toLocaleTimeString('bs-BA', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function scrollToBottom() {
-            requestAnimationFrame(() => { chatArea.scrollTop = chatArea.scrollHeight; });
-        }
-
-        function setWaiting(waiting) {
-            isWaiting = waiting;
-            sendBtn.disabled = waiting || !userInput.value.trim();
-            userInput.disabled = waiting;
-            if (!waiting) userInput.focus();
+        function setWaiting(w) {
+            isWaiting = w;
+            sendBtn.disabled = w || !userInput.value.trim();
+            userInput.disabled = w;
+            if (!w) userInput.focus();
         }
 
         function askSuggestion(btn) {
+            openChat();
             userInput.value = btn.textContent.trim();
             autoResizeInput();
             sendBtn.disabled = false;
@@ -978,59 +1121,95 @@
 
         function autoResizeInput() {
             userInput.style.height = 'auto';
-            userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+            userInput.style.height = Math.min(userInput.scrollHeight, 100) + 'px';
+        }
+
+        // ============================================
+        // GRANT CARDS NA LANDING PAGE
+        // ============================================
+        const LOCAL_GRANTS = [
+            { title: "FMRPO — Novo poduzetništvo 2026", cat: "Federalni", catCls: "cat-fed", budget: "28.000.000 KM (ukupni fond)", deadline: "2026-04-30", urgent: false, note: "Novo poduzetništvo, obrti, MSP, start-upi", url: "https://javnipozivi.fmrpo.gov.ba/" },
+            { title: "EU4CAET — Energetska efikasnost", cat: "EU/GIZ", catCls: "cat-eu", budget: "99.999 – 170.000 EUR", deadline: "2026-03-30", urgent: true, note: "Solarni PV, biomasa, toplotne pumpe. 50–80% troškova.", url: "https://eu4caet.ba/" },
+            { title: "EU4Agri — Ruralni razvoj i poljoprivreda", cat: "EU/UNDP", catCls: "cat-eu", budget: "30.000 – 200.000 KM", deadline: "Varijabilno", urgent: false, note: "Mehanizacija, prerada, certifikacija. ZDK i FBiH.", url: "https://javnipoziv.undp.ba" },
+            { title: "FBiH — Podrška u poljoprivredi 2026", cat: "Federalni", catCls: "cat-fed", budget: "Varijabilno", deadline: "Q2 2026", urgent: false, note: "Nacrt programa u pripremi feb. 2026.", url: "https://fmpvs.gov.ba/" },
+            { title: "ZEDA — Refundacija troškova konkurentnosti", cat: "Kantonalni (ZDK)", catCls: "cat-kanton", budget: "Do 50% refundacija", deadline: "Varijabilno", urgent: false, note: "Direktno relevantno za Tešanj i ZDK kanton.", url: "https://zeda.ba/javni-pozivi/" },
+            { title: "Innovate Bosnia — Grantovi za startupe", cat: "Nacionalni", catCls: "cat-nat", budget: "50.000 KM max", deadline: "2026-03-31", urgent: true, note: "Tech startupe, digitalni proizvodi.", url: "https://javnipozivi.fmrpo.gov.ba/" },
+        ];
+
+        function renderGrantCards() {
+            const grid = document.getElementById('grantsGrid');
+            grid.innerHTML = LOCAL_GRANTS.map(g => `
+                <div class="grant-preview-card">
+                    <div class="grant-preview-top">
+                        <span class="grant-cat-badge ${g.catCls}">${g.cat}</span>
+                        ${g.urgent ? '<span class="grant-urgency">⏰ HITNO</span>' : ''}
+                    </div>
+                    <div class="grant-preview-title">${g.title}</div>
+                    <div class="grant-preview-budget">Iznos: <strong>${g.budget}</strong></div>
+                    <div class="grant-preview-deadline">📅 Rok: ${g.deadline}</div>
+                    <button class="grant-preview-cta" onclick="openChat(); setTimeout(()=>{ userInput.value='${g.title.replace(/'/g, "\\'")}'; autoResizeInput(); sendBtn.disabled=false; sendMessage(); }, 350)">
+                        Pitaj AI asistenta →
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // NAV — prikaz korisnika ili gost linkova
+        // ============================================
+        function renderNav() {
+            const nav = document.getElementById('navAuth');
+            if (isGuest) {
+                nav.innerHTML = `
+                    <button class="nav-btn outline" onclick="goToAuth('login')">Prijava</button>
+                    <button class="nav-btn primary" onclick="goToAuth('register')">Registracija</button>`;
+            } else {
+                const name = _email?.split('@')[0] || 'Korisnik';
+                const planLabel = _plan === 'premium' ? 'Pro' : _plan === 'enterprise' ? 'Enterprise' : 'Free';
+                nav.innerHTML = `
+                    <span class="nav-user">${name} &middot; ${planLabel}</span>
+                    <button class="nav-btn outline" onclick="localStorage.clear(); location.reload();">Odjava</button>`;
+            }
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        function initApp() {
+            renderNav();
+            renderGrantCards();
+
+            if (isGuest) {
+                updateQuota(getGuestCount(), GUEST_LIMIT, 'guest');
+                const wp = document.getElementById('welcomeDesc');
+                if (wp) {
+                    const rem = Math.max(0, GUEST_LIMIT - getGuestCount());
+                    wp.innerHTML = `Demo mod — <strong>${rem} od ${GUEST_LIMIT}</strong> besplatnih pitanja.
+                        <a onclick="goToAuth('register')" style="cursor:pointer;color:var(--accent);font-weight:600">Registrujte se</a> za više.`;
+                }
+            } else if (_plan === 'premium' || _plan === 'enterprise') {
+                updateQuota(null, -1, _plan);
+            } else {
+                updateQuota(0, 10, 'free');
+                fetch(`${API_BASE}/auth/quota`, { headers: { 'Authorization': `Bearer ${_token}` } })
+                    .then(r => r.ok ? r.json() : null)
+                    .then(d => { if (d) updateQuota(d.used_today, d.limit, d.plan); })
+                    .catch(() => {});
+            }
         }
 
         // ============================================
         // EVENT LISTENERS
         // ============================================
-
         userInput.addEventListener('input', () => {
             autoResizeInput();
             sendBtn.disabled = !userInput.value.trim() || isWaiting;
         });
-
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (!sendBtn.disabled) sendMessage();
-            }
+        userInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) sendMessage(); }
         });
 
-        // ============================================
-        // INIT — AUTH STATE + BADGE + WELCOME TEXT
-        // ============================================
-        function initApp() {
-            if (isGuest) {
-                // Prikaži badge i banner za gosta
-                const used = getGuestCount();
-                updateQuotaBadge(used, GUEST_LIMIT, 'guest');
-
-                // Dinamički ažuriraj welcome poruku
-                const wp = document.querySelector('.welcome p');
-                if (wp) {
-                    const remaining = Math.max(0, GUEST_LIMIT - used);
-                    wp.innerHTML = `Opišite svoj projekat ili potrebu, a ja ću pretražiti bazu dostupnih
-                        EU grantova i fondova za Bosnu i Hercegovinu.<br>
-                        <small style="color:var(--accent);font-weight:500">
-                            Demo mod — ${remaining} od ${GUEST_LIMIT} besplatnih pitanja.
-                            <a onclick="goToAuth('register')" style="cursor:pointer;text-decoration:underline;color:var(--primary)">Registrujte se</a> za više.
-                        </small>`;
-                }
-            } else if (_plan === 'premium' || _plan === 'enterprise') {
-                updateQuotaBadge(null, -1, _plan);
-            } else {
-                // Free — inicijalno postavi badge, backend će ažurirati pri prvom upitu
-                updateQuotaBadge(0, 10, 'free');
-                // Fetch tačne kvote
-                fetch(`${API_BASE}/auth/quota`, {
-                    headers: { 'Authorization': `Bearer ${_token}` }
-                }).then(r => r.ok ? r.json() : null).then(d => {
-                    if (d) updateQuotaBadge(d.used_today, d.limit, d.plan);
-                }).catch(() => {});
-            }
-        }
-
+        // Start
         checkHealth();
         initApp();
     </script>
