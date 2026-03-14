@@ -45,10 +45,14 @@ def ingest_real_bih_data():
     ids = [str(uuid.uuid4()) for _ in real_grants]
     
     print(f"🔄 Generišem embeddinge za {len(real_grants)} stvarnih poziva...")
-    embeddings = embedder.embed(real_grants)
-    
+    embeddings = embedder.generate_embeddings(real_grants)  # embed() → generate_embeddings()
+
+    if not embeddings:
+        print("❌ Embedding neuspješan — prekidam.")
+        return
+
     print("💾 Spremanje u bazu...")
-    db.add(documents=real_grants, metadatas=metadatas, ids=ids, embeddings=embeddings)
+    db.add_documents(documents=real_grants, metadatas=metadatas, ids=ids, embeddings=embeddings)  # add() → add_documents()
     print("✅ Baza ažurirana sa BiH podacima!")
 
 if __name__ == "__main__":

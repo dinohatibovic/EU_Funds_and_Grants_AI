@@ -135,6 +135,22 @@ class SearchResponse(BaseModel):
 async def startup_event():
     global embedding_client, chroma_client
     logger.info("🚀 Podižem FinAssistBH AI Sistem...")
+
+    # BUG #3: JWT_SECRET se reset-uje pri svakom restartu ako nije u env-u
+    # → svi korisnici ostanu bez sesije nakon deployu
+    if not os.getenv("JWT_SECRET"):
+        logger.warning(
+            "⚠️  JWT_SECRET nije postavljen! Korisnici će biti odjavljeni "
+            "na svakom Render restartu. Dodaj JWT_SECRET u Render Environment."
+        )
+
+    # BUG #4: users.db je ephemeral na Render free tier — podaci se brišu
+    if not os.getenv("DATABASE_URL"):
+        logger.warning(
+            "⚠️  Korisnici se čuvaju u SQLite (users.db). "
+            "Na Render free tier disk se briše pri restartu — razmisli o Supabase/PostgreSQL."
+        )
+
     init_user_db()
     logger.info("✅ SQLite baza korisnika inicijalizovana.")
     try:
@@ -144,6 +160,9 @@ async def startup_event():
         await auto_ingest_grants()
     except Exception as e:
         logger.critical(f"❌ Kritična greška pri startu: {e}")
+
+
+_EMBED_BATCH_SIZE = 10  # Gemini ima rate limite — šaljemo u manjim grupama
 
 
 async def auto_ingest_grants():
@@ -162,7 +181,14 @@ async def auto_ingest_grants():
         grants = json.load(f)
 
     collection = chroma_client.collection
-    existing_ids = set(collection.get(include=[])["ids"])
+
+    # BUG #7: collection.get(include=[]) može pući na nekim ChromaDB verzijama
+    # → koristimo .get() bez include i pristupamo ["ids"] direktno
+    try:
+        existing_ids = set(collection.get()["ids"])
+    except Exception:
+        existing_ids = set()
+
     grant_ids = {g["id"] for g in grants}
 
     missing = [g for g in grants if g["id"] not in existing_ids]
@@ -178,12 +204,22 @@ async def auto_ingest_grants():
         for g in missing
     ]
 
-    embeddings = embedding_client.generate_embeddings(texts)
-    if not embeddings or len(embeddings) != len(missing):
-        logger.error("❌ Auto-ingestion neuspješan — embeddings nisu generirani.")
+    # BUG #6: slanje svih tekstova odjednom može srušiti Gemini rate limit
+    # → šaljemo u batchovima od _EMBED_BATCH_SIZE
+    all_embeddings: list = []
+    for i in range(0, len(texts), _EMBED_BATCH_SIZE):
+        chunk = texts[i : i + _EMBED_BATCH_SIZE]
+        batch_emb = embedding_client.generate_embeddings(chunk)
+        if not batch_emb:
+            logger.error(f"❌ Embedding batch {i//10 + 1} neuspješan — prekidam ingestion.")
+            return
+        all_embeddings.extend(batch_emb)
+
+    if len(all_embeddings) != len(missing):
+        logger.error("❌ Broj embeddinga ne odgovara broju grantova — prekidam.")
         return
 
-    # Ukloni stare dokumente koji više ne postoje u grants.json
+    # Ukloni stale dokumente koji više nisu u grants.json
     stale = existing_ids - grant_ids
     if stale:
         collection.delete(ids=list(stale))
@@ -202,7 +238,7 @@ async def auto_ingest_grants():
         for g in missing
     ]
 
-    collection.add(ids=ids, embeddings=embeddings, metadatas=metadatas, documents=texts)
+    collection.add(ids=ids, embeddings=all_embeddings, metadatas=metadatas, documents=texts)
     logger.info(f"✅ Auto-ingestion završen — {len(missing)} grantova dodano u ChromaDB.")
 
 # --- 5. API ENDPOINTI ---
@@ -250,9 +286,12 @@ async def search_endpoint(request: SearchRequest):
             raise HTTPException(status_code=500, detail="Greška pri generisanju AI vektora.")
 
         # KORAK 2: Pretraga u Bazi
+        # BUG #2: ChromaDB baca grešku ako n_results > broj dokumenata u kolekciji
+        doc_count = chroma_client.collection.count()
+        safe_n = min(request.n_results, max(doc_count, 1))
         search_results = chroma_client.query(
             query_embeddings=query_vectors,
-            n_results=request.n_results
+            n_results=safe_n
         )
 
         # ChromaDB vraća čudnu strukturu (liste unutar listi), pa je moramo "otpakovati"
