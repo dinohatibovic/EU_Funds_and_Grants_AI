@@ -290,9 +290,111 @@
             .input-area, .header-status, .send-btn { display: none; }
             .chat-area { overflow: visible; }
         }
+
+        /* ============================================
+           QUOTA BADGE
+           ============================================ */
+        .quota-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 12px; font-weight: 500; padding: 4px 10px;
+            border-radius: 20px; border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.2s;
+            background: var(--surface); color: var(--text-soft);
+            white-space: nowrap; text-decoration: none;
+        }
+        .quota-badge:hover { border-color: var(--primary-light); color: var(--primary); }
+        .quota-badge.guest  { background: var(--accent-soft); border-color: var(--accent); color: #92400e; }
+        .quota-badge.free   { background: var(--primary-soft); border-color: var(--primary-light); color: var(--primary); }
+        .quota-badge.premium{ background: #f0fdf4; border-color: #86efac; color: #166534; }
+        .quota-badge.warning{ background: #fff7ed; border-color: #fdba74; color: #9a3412; animation: pulse 1.5s ease-in-out infinite; }
+
+        /* ============================================
+           DEMO BANNER
+           ============================================ */
+        .demo-banner {
+            background: linear-gradient(90deg, #fdf6e3 0%, #fffbeb 100%);
+            border-bottom: 1px solid #fde68a;
+            padding: 7px 20px; font-size: 12px; color: #92400e;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            flex-shrink: 0; text-align: center; flex-wrap: wrap;
+        }
+        .demo-banner a {
+            font-weight: 600; color: var(--primary); text-decoration: underline; cursor: pointer;
+        }
+        .demo-banner.hidden { display: none; }
+
+        /* ============================================
+           AUTH MODAL
+           ============================================ */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; padding: 20px; animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal-card {
+            background: var(--surface); border-radius: 20px;
+            padding: 28px 24px; max-width: 380px; width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: slideUp 0.25s ease;
+        }
+        .modal-icon { font-size: 36px; text-align: center; margin-bottom: 12px; }
+        .modal-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
+        .modal-subtitle { font-size: 13px; color: var(--text-soft); text-align: center; margin-bottom: 20px; line-height: 1.5; }
+        .modal-plans { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .modal-plan {
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
+        }
+        .modal-plan.highlight { border-color: var(--primary-light); background: var(--primary-soft); }
+        .modal-plan-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+        .modal-plan-info h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+        .modal-plan-info p  { font-size: 12px; color: var(--text-soft); line-height: 1.4; }
+        .modal-actions { display: flex; flex-direction: column; gap: 8px; }
+        .modal-btn {
+            width: 100%; padding: 12px; border-radius: 12px; font-size: 14px;
+            font-family: var(--font); font-weight: 600; cursor: pointer;
+            border: none; transition: all 0.2s; text-align: center;
+        }
+        .modal-btn.primary { background: var(--primary); color: white; }
+        .modal-btn.primary:hover { background: var(--primary-light); }
+        .modal-btn.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+        .modal-btn.secondary:hover { border-color: var(--primary-light); }
+        .modal-btn.ghost { background: none; color: var(--text-muted); font-size: 12px; font-weight: 400; padding: 6px; }
+        .modal-btn.ghost:hover { color: var(--text-soft); }
     </style>
 </head>
 <body>
+
+    <!-- ========== AUTH MODAL ========== -->
+    <div class="modal-overlay hidden" id="authModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <div class="modal-icon" id="modalIcon">🔒</div>
+            <div class="modal-title" id="modalTitle">Iskoristili ste besplatna pitanja</div>
+            <div class="modal-subtitle" id="modalSubtitle">Registrujte se besplatno i nastavite pretragu.</div>
+            <div class="modal-plans">
+                <div class="modal-plan highlight">
+                    <div class="modal-plan-icon">✅</div>
+                    <div class="modal-plan-info">
+                        <h4>Besplatna registracija</h4>
+                        <p>10 pitanja/dan &nbsp;·&nbsp; Sve kategorije grantova &nbsp;·&nbsp; ZDK prioriteti</p>
+                    </div>
+                </div>
+                <div class="modal-plan">
+                    <div class="modal-plan-icon">⭐</div>
+                    <div class="modal-plan-info">
+                        <h4>Pro plan &mdash; €29/mj</h4>
+                        <p>Neograničena pitanja &nbsp;·&nbsp; AI odgovori &nbsp;·&nbsp; Export PDF</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn primary" onclick="goToAuth('register')">Registrujte se besplatno</button>
+                <button class="modal-btn secondary" onclick="goToAuth('login')">Već imam nalog — Prijava</button>
+                <button class="modal-btn ghost" onclick="closeModal()" id="modalDismiss">Nastavi bez registracije (ostalo: <span id="modalRemaining">0</span>)</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ========== HEADER ========== -->
     <header class="header" role="banner">
@@ -303,11 +405,22 @@
                 <div class="header-subtitle">AI pretraga EU fondova za BiH</div>
             </div>
         </div>
-        <div class="header-status" role="status" aria-live="polite" aria-label="Status servera">
-            <span class="status-dot" id="statusDot" aria-hidden="true"></span>
-            <span id="statusText">Provjera...</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <button class="quota-badge guest hidden" id="quotaBadge" onclick="showAuthModal('badge')" aria-label="Kvota upita">
+                <span id="quotaText">Demo</span>
+            </button>
+            <div class="header-status" role="status" aria-live="polite" aria-label="Status servera">
+                <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+                <span id="statusText">Provjera...</span>
+            </div>
         </div>
     </header>
+
+    <!-- ========== DEMO BANNER ========== -->
+    <div class="demo-banner hidden" id="demoBanner" role="alert">
+        <span id="demoBannerText">Demo mod — 3 besplatna pitanja.</span>
+        <a onclick="goToAuth('register')">Registrujte se besplatno za 10 pitanja/dan</a>
+    </div>
 
     <!-- ========== CHAT AREA ========== -->
     <main class="chat-area" id="chatArea" role="main" aria-label="Razgovor sa asistentom">
@@ -367,18 +480,40 @@
         // ============================================
         // KONFIGURACIJA
         // ============================================
-
-        // Auto-detekcija: lokalni razvoj ili produkcija
         const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
         const API_BASE = IS_LOCAL
             ? 'http://127.0.0.1:8000'
             : 'https://eu-funds-and-grants-ai.onrender.com';
-
-        // Timeout: lokalno 15s, Render free tier cold start do 90s
         const REQUEST_TIMEOUT = IS_LOCAL ? 15000 : 90000;
-
-        // Periodična provjera statusa svakih 5 minuta
         const HEALTH_CHECK_INTERVAL = 5 * 60 * 1000;
+        const GUEST_LIMIT = 3;   // max pitanja za neprijavljene korisnike
+
+        // ============================================
+        // AUTH STATE — čitamo iz localStorage
+        // ============================================
+        const _token     = localStorage.getItem('finassist_token');
+        const _email     = localStorage.getItem('finassist_email');
+        const _plan      = localStorage.getItem('finassist_plan') || 'guest';
+        const isGuest    = !_token;
+
+        // ============================================
+        // GUEST COUNTER (localStorage, reset svaki dan)
+        // ============================================
+        function _today() { return new Date().toISOString().slice(0, 10); }
+
+        function getGuestCount() {
+            if (localStorage.getItem('fg_date') !== _today()) {
+                localStorage.setItem('fg_date', _today());
+                localStorage.setItem('fg_count', '0');
+            }
+            return parseInt(localStorage.getItem('fg_count') || '0', 10);
+        }
+
+        function incrementGuestCount() {
+            const n = getGuestCount() + 1;
+            localStorage.setItem('fg_count', String(n));
+            return n;
+        }
 
         // ============================================
         // STATE
@@ -396,6 +531,87 @@
         const sendBtn     = document.getElementById('sendBtn');
         const statusDot   = document.getElementById('statusDot');
         const statusText  = document.getElementById('statusText');
+        const quotaBadge  = document.getElementById('quotaBadge');
+        const quotaText   = document.getElementById('quotaText');
+        const demoBanner  = document.getElementById('demoBanner');
+        const authModal   = document.getElementById('authModal');
+
+        // ============================================
+        // QUOTA BADGE & BANNER
+        // ============================================
+        function updateQuotaBadge(used, limit, plan) {
+            quotaBadge.classList.remove('hidden');
+
+            if (plan === 'guest' || isGuest) {
+                const remaining = Math.max(0, GUEST_LIMIT - (used || getGuestCount()));
+                const cls = remaining <= 1 ? 'warning' : 'guest';
+                quotaBadge.className = `quota-badge ${cls}`;
+                quotaText.textContent = `Demo: ${remaining}/${GUEST_LIMIT}`;
+                document.getElementById('modalRemaining').textContent = remaining;
+                // Banner
+                demoBanner.classList.remove('hidden');
+                document.getElementById('demoBannerText').textContent =
+                    remaining > 0
+                        ? `Demo mod — još ${remaining} od ${GUEST_LIMIT} pitanja.`
+                        : `Demo mod — limit dostignut.`;
+            } else if (plan === 'premium' || plan === 'enterprise') {
+                quotaBadge.className = 'quota-badge premium';
+                quotaText.textContent = `${_email?.split('@')[0] || 'Pro'} | ∞`;
+                demoBanner.classList.add('hidden');
+            } else {
+                // free
+                const remaining = limit !== -1 ? Math.max(0, limit - used) : null;
+                const cls = (remaining !== null && remaining <= 2) ? 'warning' : 'free';
+                quotaBadge.className = `quota-badge ${cls}`;
+                quotaText.textContent = remaining !== null
+                    ? `${_email?.split('@')[0] || 'Free'} | ${remaining}/${limit}`
+                    : `${_email?.split('@')[0] || 'Free'}`;
+                demoBanner.classList.add('hidden');
+            }
+        }
+
+        // ============================================
+        // AUTH MODAL
+        // ============================================
+        function showAuthModal(trigger) {
+            const isLimitHit  = trigger === 'guest_limit' || trigger === 'free_limit';
+            const isUpgrade    = trigger === 'free_limit';
+
+            document.getElementById('modalIcon').textContent     = isUpgrade ? '⭐' : '🔒';
+            document.getElementById('modalTitle').textContent    = isUpgrade
+                ? 'Dnevni limit dostignut'
+                : `Iskoristili ste ${GUEST_LIMIT} besplatna pitanja`;
+            document.getElementById('modalSubtitle').textContent = isUpgrade
+                ? 'Nadogradite na Pro plan za neograničenu pretragu.'
+                : 'Registrujte se besplatno i nastavite s pretragom.';
+
+            const dismissBtn = document.getElementById('modalDismiss');
+            if (trigger === 'badge') {
+                dismissBtn.textContent = 'Zatvori';
+            } else {
+                const rem = isGuest ? Math.max(0, GUEST_LIMIT - getGuestCount()) : 0;
+                dismissBtn.innerHTML = rem > 0
+                    ? `Nastavi bez registracije (ostalo: <span id="modalRemaining">${rem}</span>)`
+                    : 'Zatvori';
+            }
+
+            authModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            authModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function goToAuth(tab) {
+            window.location.href = `auth.html?tab=${tab}`;
+        }
+
+        // Zatvori modal klikom na overlay
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) closeModal();
+        });
 
         // ============================================
         // HEALTH CHECK — provjeri backend, ponavljaj svakih 5 min
@@ -449,7 +665,15 @@
             const query = userInput.value.trim();
             if (!query || isWaiting) return;
 
-            // Ukloni welcome screen iz DOM-a (ne samo sakrij — čisti memoriju)
+            // --- GUEST LIMIT CHECK ---
+            if (isGuest) {
+                const used = getGuestCount();
+                if (used >= GUEST_LIMIT) {
+                    showAuthModal('guest_limit');
+                    return;
+                }
+            }
+
             const ws = document.getElementById('welcomeScreen');
             if (ws) ws.remove();
 
@@ -471,18 +695,39 @@
                 const controller = new AbortController();
                 const t = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
+                // Šaljemo token ako korisnik prijavljen
+                const headers = { 'Content-Type': 'application/json' };
+                if (_token) headers['Authorization'] = `Bearer ${_token}`;
+
                 const res = await fetch(`${API_BASE}/search`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers,
                     body: JSON.stringify({ query, n_results: 5 }),
                     signal: controller.signal
                 });
 
                 clearTimeout(t);
 
+                if (res.status === 429) {
+                    const errData = await res.json().catch(() => ({}));
+                    removeMessage(loadingId);
+                    if (isGuest) {
+                        showAuthModal('guest_limit');
+                    } else {
+                        // Free korisnik — limit dostignut
+                        const detail = errData.detail || {};
+                        showAuthModal('free_limit');
+                        addErrorMessage(
+                            `Dnevni limit od ${detail.limit || 10} pitanja dostignut.`,
+                            'Limit se resetuje u ponoć. Nadogradite na Pro za neograničeno.'
+                        );
+                    }
+                    return;
+                }
+
                 if (!res.ok) {
                     const errData = await res.json().catch(() => ({}));
-                    throw new Error(errData.detail || `Greška ${res.status}`);
+                    throw new Error(typeof errData.detail === 'string' ? errData.detail : `Greška ${res.status}`);
                 }
 
                 const data = await res.json();
@@ -490,6 +735,16 @@
                 serverOnline = true;
                 statusDot.className = 'status-dot online';
                 statusText.textContent = 'Sistem spreman';
+
+                // --- Ažuriraj guest counter i badge ---
+                if (isGuest) {
+                    const newCount = incrementGuestCount();
+                    updateQuotaBadge(newCount, GUEST_LIMIT, 'guest');
+                } else if (data.quota) {
+                    updateQuotaBadge(data.quota.used, data.quota.limit, data.quota.plan);
+                    // Ažuriraj plan u localStorage
+                    if (data.quota.plan) localStorage.setItem('finassist_plan', data.quota.plan);
+                }
 
                 removeMessage(loadingId);
                 displayResults(query, data);
@@ -743,9 +998,41 @@
         });
 
         // ============================================
-        // POKRETANJE
+        // INIT — AUTH STATE + BADGE + WELCOME TEXT
         // ============================================
+        function initApp() {
+            if (isGuest) {
+                // Prikaži badge i banner za gosta
+                const used = getGuestCount();
+                updateQuotaBadge(used, GUEST_LIMIT, 'guest');
+
+                // Dinamički ažuriraj welcome poruku
+                const wp = document.querySelector('.welcome p');
+                if (wp) {
+                    const remaining = Math.max(0, GUEST_LIMIT - used);
+                    wp.innerHTML = `Opišite svoj projekat ili potrebu, a ja ću pretražiti bazu dostupnih
+                        EU grantova i fondova za Bosnu i Hercegovinu.<br>
+                        <small style="color:var(--accent);font-weight:500">
+                            Demo mod — ${remaining} od ${GUEST_LIMIT} besplatnih pitanja.
+                            <a onclick="goToAuth('register')" style="cursor:pointer;text-decoration:underline;color:var(--primary)">Registrujte se</a> za više.
+                        </small>`;
+                }
+            } else if (_plan === 'premium' || _plan === 'enterprise') {
+                updateQuotaBadge(null, -1, _plan);
+            } else {
+                // Free — inicijalno postavi badge, backend će ažurirati pri prvom upitu
+                updateQuotaBadge(0, 10, 'free');
+                // Fetch tačne kvote
+                fetch(`${API_BASE}/auth/quota`, {
+                    headers: { 'Authorization': `Bearer ${_token}` }
+                }).then(r => r.ok ? r.json() : null).then(d => {
+                    if (d) updateQuotaBadge(d.used_today, d.limit, d.plan);
+                }).catch(() => {});
+            }
+        }
+
         checkHealth();
+        initApp();
     </script>
 </body>
 </html>

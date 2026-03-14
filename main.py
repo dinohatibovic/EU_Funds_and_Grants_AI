@@ -62,8 +62,16 @@ _EMAIL_RE = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 
 # --- 2a. SQLite baza korisnika ---
 
+PLAN_LIMITS: Dict[str, int] = {
+    "free":       10,   # upita/dan
+    "premium":    -1,   # neograničeno
+    "enterprise": -1,   # neograničeno
+}
+GUEST_LIMIT = 3   # informativno (enforcement je na frontendu)
+
+
 def init_user_db():
-    """Kreira tabelu korisnika ako ne postoji."""
+    """Kreira tabele korisnika i dnevnih kvota ako ne postoje."""
     with sqlite3.connect(DB_PATH) as db:
         db.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -74,7 +82,59 @@ def init_user_db():
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS query_counts (
+                email TEXT NOT NULL,
+                date  TEXT NOT NULL,
+                count INTEGER DEFAULT 0,
+                PRIMARY KEY (email, date)
+            )
+        """)
         db.commit()
+
+
+def _get_daily_count(email: str) -> int:
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    with sqlite3.connect(DB_PATH) as db:
+        row = db.execute(
+            "SELECT count FROM query_counts WHERE email=? AND date=?", (email, today)
+        ).fetchone()
+    return row[0] if row else 0
+
+
+def _increment_daily_count(email: str) -> int:
+    """Uveća dnevni broj upita i vraća novi count."""
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    with sqlite3.connect(DB_PATH) as db:
+        db.execute(
+            "INSERT INTO query_counts (email, date, count) VALUES (?,?,1) "
+            "ON CONFLICT(email, date) DO UPDATE SET count = count + 1",
+            (email, today)
+        )
+        db.commit()
+        row = db.execute(
+            "SELECT count FROM query_counts WHERE email=? AND date=?", (email, today)
+        ).fetchone()
+    return row[0] if row else 1
+
+
+def _get_user_plan(email: str) -> str:
+    with sqlite3.connect(DB_PATH) as db:
+        row = db.execute("SELECT plan FROM users WHERE email=?", (email,)).fetchone()
+    return row[0] if row else "free"
+
+
+def _decode_token_optional(request: Request) -> Optional[str]:
+    """Čita JWT iz Authorization headera, vraća email ili None (ne baca grešku)."""
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return None
+    token = auth.split(" ", 1)[1]
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload.get("sub")
+    except jwt.PyJWTError:
+        return None
 
 
 def hash_password(password: str) -> str:
@@ -158,15 +218,22 @@ class SearchRequest(BaseModel):
     query: str = Field(..., min_length=3, description="Korisnički upit, npr. 'startups in BiH'")
     n_results: int = Field(default=5, ge=1, le=20, description="Broj rezultata za vratiti")
 
+class QuotaInfo(BaseModel):
+    plan: str
+    used: Optional[int] = None
+    limit: Optional[int] = None   # -1 = neograničeno
+    remaining: Optional[int] = None
+
 class SearchResponse(BaseModel):
     """
     Format odgovora koji Frontend očekuje.
     """
-    results: List[str] # Jednostavna lista za prikaz na karticama
-    documents: List[List[str]] # Raw dokumenti iz ChromaDB (za debug)
-    metadatas: List[List[Dict[str, Any]]] # Metapodaci (Izvor, Godina, Kategorija)
+    results: List[str]
+    documents: List[List[str]]
+    metadatas: List[List[Dict[str, Any]]]
     request_id: str
     processing_time: float
+    quota: Optional[QuotaInfo] = None   # uključeno ako je korisnik prijavljen
 
 class AIAnswerRequest(BaseModel):
     """Zahtjev za AI odgovor (RAG + Gemini generacija)."""
@@ -358,13 +425,12 @@ def health_check():
     }
 
 @app.post("/search", response_model=SearchResponse)
-async def search_endpoint(request: SearchRequest):
+async def search_endpoint(http_request: Request, request: SearchRequest):
     """
     Glavni endpoint za pretragu.
-    1. Prima tekst.
-    2. Pretvara ga u vektor (Gemini 3072-dim).
-    3. Traži u bazi (Chroma).
-    4. Vraća rezultate.
+    - Gost (bez tokena): pretraga radi, kvota=None (frontend broji)
+    - Free korisnik: 10 upita/dan, backend broji i blokira
+    - Premium/Enterprise: neograničeno
     """
     start_time = time.time()
     req_id = str(uuid.uuid4())
@@ -373,16 +439,44 @@ async def search_endpoint(request: SearchRequest):
     if not embedding_client or not chroma_client:
         raise HTTPException(status_code=503, detail="Sistem se još inicijalizuje, pokušajte za 10 sekundi.")
 
+    # --- Kvota provjera za prijavljene korisnike ---
+    quota_info: Optional[QuotaInfo] = None
+    email = _decode_token_optional(http_request)
+
+    if email:
+        plan = _get_user_plan(email)
+        limit = PLAN_LIMITS.get(plan, 10)
+
+        if limit != -1:  # -1 = neograničeno (premium/enterprise)
+            used = _get_daily_count(email)
+            if used >= limit:
+                remaining_secs = (
+                    datetime.utcnow().replace(hour=23, minute=59, second=59) - datetime.utcnow()
+                ).seconds
+                raise HTTPException(
+                    status_code=429,
+                    detail={
+                        "code": "QUOTA_EXCEEDED",
+                        "plan": plan,
+                        "used": used,
+                        "limit": limit,
+                        "reset_in_seconds": remaining_secs,
+                        "message": f"Dnevni limit od {limit} upita je dostignut. Reset u ponoć.",
+                    }
+                )
+            new_count = _increment_daily_count(email)
+            quota_info = QuotaInfo(
+                plan=plan, used=new_count, limit=limit, remaining=max(0, limit - new_count)
+            )
+            logger.info(f"📊 [{email}] plan={plan} | used={new_count}/{limit}")
+        else:
+            quota_info = QuotaInfo(plan=plan, used=None, limit=-1, remaining=None)
+
     try:
-        # KORAK 1: Embedding Upita
         query_vectors = embedding_client.generate_embeddings([request.query])
-        
         if not query_vectors:
-            logger.error(f"❌ [ID: {req_id}] Embedding nije uspio.")
             raise HTTPException(status_code=500, detail="Greška pri generisanju AI vektora.")
 
-        # KORAK 2: Pretraga u Bazi
-        # BUG #2: ChromaDB baca grešku ako n_results > broj dokumenata u kolekciji
         doc_count = chroma_client.collection.count()
         safe_n = min(request.n_results, max(doc_count, 1))
         search_results = chroma_client.query(
@@ -390,24 +484,24 @@ async def search_endpoint(request: SearchRequest):
             n_results=safe_n
         )
 
-        # ChromaDB vraća čudnu strukturu (liste unutar listi), pa je moramo "otpakovati"
         documents = search_results['documents'] if search_results else []
         metadatas = search_results['metadatas'] if search_results else []
-        
-        # Za frontend kompatibilnost (tvoj trenutni JS očekuje listu stringova u 'results')
         flat_results = documents[0] if documents else []
 
         duration = time.time() - start_time
-        logger.info(f"✅ [ID: {req_id}] Pretraga završena za {duration:.2f}s. Nađeno {len(flat_results)} rezultata.")
+        logger.info(f"✅ [ID: {req_id}] {len(flat_results)} rezultata za {duration:.2f}s")
 
         return SearchResponse(
             results=flat_results,
             documents=documents,
             metadatas=metadatas,
             request_id=req_id,
-            processing_time=duration
+            processing_time=duration,
+            quota=quota_info,
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"🔥 [ID: {req_id}] Neočekivana greška: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -658,6 +752,33 @@ async def auth_me(request: Request):
     if not row:
         raise HTTPException(status_code=404, detail="Korisnik ne postoji.")
     return {"email": row["email"], "plan": row["plan"], "created_at": row["created_at"]}
+
+
+@app.get("/auth/quota")
+async def auth_quota(request: Request):
+    """
+    Vraća dnevnu kvotu za prijavljenog korisnika.
+    Frontend koristi ovaj endpoint da prikaže badge (npr. 'Free: 7/10').
+    """
+    email = _decode_token_optional(request)
+    if not email:
+        raise HTTPException(status_code=401, detail="Token nije proslijeđen.")
+    plan = _get_user_plan(email)
+    limit = PLAN_LIMITS.get(plan, 10)
+    used = _get_daily_count(email) if limit != -1 else None
+    remaining = max(0, limit - used) if (limit != -1 and used is not None) else None
+    midnight = datetime.utcnow().replace(hour=0, minute=0, second=0).replace(
+        day=(datetime.utcnow().day + 1) if datetime.utcnow().hour >= 0 else datetime.utcnow().day
+    )
+    return {
+        "email": email,
+        "plan": plan,
+        "used_today": used,
+        "limit": limit,            # -1 = neograničeno
+        "remaining": remaining,
+        "guest_limit": GUEST_LIMIT,
+        "reset_at": midnight.strftime("%Y-%m-%dT00:00:00Z"),
+    }
 
 
 # --- 7. STRIPE WEBHOOK (za primanje uplata) ---
