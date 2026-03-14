@@ -188,5 +188,38 @@
     "deadline": "2026-12-31",
     "relevance": "High",
     "url": "https://zeda.ba/javni-pozivi/"
+  },
+  {
+    "id": "local_grant_006",
+    "title": "Fond za zaštitu okoliša FBiH — Energetska efikasnost 2026",
+    "category": "Specijalni (FBiH)",
+    "description": "Fond za zaštitu okoliša Federacije BiH raspisuje pozive za projekte energetske efikasnosti i obnovljivih izvora energije. Prihvatljive aktivnosti: ugradnja solarnih panela, biomasa kotlovnice, energetska sanacija zgrada i fasada, zamjena zastarjelih sistema grijanja. Namijenjeno javnim institucijama, stambenim zajednicama i privrednim subjektima.",
+    "budget": "Varijabilno",
+    "deadline": "2026-06-15",
+    "relevance": "Medium",
+    "url": "https://fzofbih.org.ba/",
+    "note": "Solarni paneli, energetska sanacija, biomasa."
+  },
+  {
+    "id": "local_grant_007",
+    "title": "Innovate Bosnia — Grantovi za startupe 2026",
+    "category": "Nacionalni",
+    "description": "Program poticaja za tech startupe registrovane u Bosni i Hercegovini. Maksimalno finansiranje 50.000 KM po projektu. Fokus na digitalne proizvode, softverska rješenja i inovativne poslovne modele. Prijave putem FMRPO portala za javne pozive. Rok: 31. mart 2026.",
+    "budget": "50.000 KM max",
+    "deadline": "2026-03-31",
+    "relevance": "High",
+    "url": "https://javnipozivi.fmrpo.gov.ba/",
+    "note": "Tech startupe, digitalni proizvodi. HITNO — uskoro ističe."
+  },
+  {
+    "id": "local_grant_008",
+    "title": "FIPA Poticaji — IT sektor 2026",
+    "category": "Nacionalni",
+    "description": "Agencija za strane investicije u BiH (FIPA) nudi poticaje do 150.000 KM za investicije u IT sektoru. Namijenjeno privrednim subjektima koji ulažu u informatičku infrastrukturu, softverski razvoj i digitalnu transformaciju poslovanja u Bosni i Hercegovini.",
+    "budget": "150.000 KM max",
+    "deadline": "2026-04-15",
+    "relevance": "Medium",
+    "url": "https://fipa.gov.ba/",
+    "note": "Za investicije u IT sektor u BiH."
   }
 ]
