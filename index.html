@@ -381,6 +381,14 @@
         const HEALTH_CHECK_INTERVAL = 5 * 60 * 1000;
 
         // ============================================
+        // AUTH GUARD — redirect na auth.html ako nema tokena
+        // ============================================
+        const _token = localStorage.getItem('finassist_token');
+        if (!_token) {
+            window.location.href = 'auth.html';
+        }
+
+        // ============================================
         // STATE
         // ============================================
         let isWaiting = false;
@@ -473,7 +481,10 @@
 
                 const res = await fetch(`${API_BASE}/search`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('finassist_token')}`
+                    },
                     body: JSON.stringify({ query, n_results: 5 }),
                     signal: controller.signal
                 });
