@@ -7,6 +7,7 @@ import sqlite3
 import hashlib
 import secrets
 import re
+import sys
 import contextlib
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -23,6 +24,12 @@ from embeddings.embedding_client import EmbeddingClient
 from vector_db.chroma_client import ChromaDBClient
 
 # --- 1. KONFIGURACIJA LOGOVANJA (Enterprise Level) ---
+# Windows fix: cp1252 ne podržava emoji — force UTF-8 na stdout/stderr
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
