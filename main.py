@@ -11,6 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
@@ -97,6 +98,22 @@ def create_jwt(email: str) -> str:
         "exp": datetime.utcnow() + timedelta(days=JWT_EXPIRE_DAYS)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+_http_bearer = HTTPBearer()
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(_http_bearer),
+) -> str:
+    """JWT dependency — provjera Bearer tokena na zaštićenim endpointima."""
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token je istekao.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Neispravan token.")
+    return payload["sub"]
+
 
 app = FastAPI(
     title="FinAssistBH AI Platform API",
@@ -358,7 +375,7 @@ def health_check():
     }
 
 @app.post("/search", response_model=SearchResponse)
-async def search_endpoint(request: SearchRequest):
+async def search_endpoint(request: SearchRequest, current_user: str = Depends(get_current_user)):
     """
     Glavni endpoint za pretragu.
     1. Prima tekst.
@@ -415,7 +432,7 @@ async def search_endpoint(request: SearchRequest):
 # --- 5b. AI ANSWER ENDPOINT (RAG + Gemini generacija) ---
 
 @app.post("/ai-answer", response_model=AIAnswerResponse)
-async def ai_answer_endpoint(request: AIAnswerRequest):
+async def ai_answer_endpoint(request: AIAnswerRequest, current_user: str = Depends(get_current_user)):
     """
     AI odgovor koji kombinuje RAG pretragu + Gemini 2.0 Flash generaciju.
     Vraća strukturirani odgovor na bosanskom ili engleskom jeziku.
