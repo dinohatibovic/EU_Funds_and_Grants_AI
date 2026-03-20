@@ -7,6 +7,7 @@ import sqlite3
 import hashlib
 import secrets
 import re
+import contextlib
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
@@ -32,12 +33,58 @@ logger = logging.getLogger("eu_grants_api")
 embedding_client = None
 chroma_client = None
 
-# JWT tajni ključ — postavi JWT_SECRET u Render environment za produkciju
-JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_hex(32))
+# JWT tajni ključ — MORA biti postavljen u Render environment za produkciju
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    if os.getenv("RENDER"):  # Render automatski postavlja RENDER=true
+        raise RuntimeError(
+            "JWT_SECRET environment variable nije postavljen! "
+            "Render Dashboard → Environment → Add Environment Variable: JWT_SECRET"
+        )
+    JWT_SECRET = secrets.token_hex(32)  # Lokalni razvoj — ephemeral key je OK
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_DAYS = 30
 
 DB_PATH = os.getenv("DB_PATH", "users.db")
+DATABASE_URL = os.getenv("DATABASE_URL")   # PostgreSQL / Supabase connection string
+_PH = "%s" if DATABASE_URL else "?"        # SQL parameter placeholder
+
+
+@contextlib.contextmanager
+def _db_ctx():
+    """Konekcija ka bazi — PostgreSQL (Supabase) ili SQLite (lokalno)."""
+    if DATABASE_URL:
+        import psycopg2
+        import psycopg2.extras
+        conn = psycopg2.connect(DATABASE_URL)
+        try:
+            yield conn, psycopg2.extras.RealDictCursor
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+    else:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        try:
+            yield conn, None
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+
+def _db_exec(conn, cf, sql: str, params: tuple = ()):
+    """Izvršava SQL upit za PostgreSQL ili SQLite."""
+    if cf:  # PostgreSQL — koristi cursor
+        cur = conn.cursor(cursor_factory=cf)
+        cur.execute(sql, params)
+        return cur
+    return conn.execute(sql, params)
 
 # --- Rate Limiter (in-memory, per-IP) ---
 _rate_limit_store: Dict[str, List[float]] = defaultdict(list)
@@ -64,18 +111,18 @@ _EMAIL_RE = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 # --- 2a. SQLite baza korisnika ---
 
 def init_user_db():
-    """Kreira tabelu korisnika ako ne postoji."""
-    with sqlite3.connect(DB_PATH) as db:
-        db.execute("""
+    """Kreira tabelu korisnika ako ne postoji (PostgreSQL ili SQLite)."""
+    _id_col = "id SERIAL PRIMARY KEY" if DATABASE_URL else "id INTEGER PRIMARY KEY AUTOINCREMENT"
+    with _db_ctx() as (conn, cf):
+        _db_exec(conn, cf, f"""
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                {_id_col},
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 plan TEXT DEFAULT 'free',
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        db.commit()
 
 
 def hash_password(password: str) -> str:
@@ -630,14 +677,15 @@ async def register(req: RegisterRequest):
     """Registracija novog korisnika. Validacija emaila i lozinke je u Pydantic modelu."""
     email = req.email  # već normalizovan u validator-u
     try:
-        with sqlite3.connect(DB_PATH) as db:
-            db.execute(
-                "INSERT INTO users (email, password_hash) VALUES (?, ?)",
+        with _db_ctx() as (conn, cf):
+            _db_exec(conn, cf,
+                f"INSERT INTO users (email, password_hash) VALUES ({_PH}, {_PH})",
                 (email, hash_password(req.password))
             )
-            db.commit()
-    except sqlite3.IntegrityError:
-        raise HTTPException(status_code=409, detail="Korisnik s ovim emailom već postoji.")
+    except Exception as e:
+        if isinstance(e, sqlite3.IntegrityError) or "unique" in str(e).lower() or "duplicate" in str(e).lower():
+            raise HTTPException(status_code=409, detail="Korisnik s ovim emailom već postoji.")
+        raise
     logger.info(f"✅ Novi korisnik registrovan: {email}")
     return AuthResponse(token=create_jwt(email), email=email, plan="free")
 
@@ -646,9 +694,8 @@ async def register(req: RegisterRequest):
 async def login(req: LoginRequest):
     """Prijava korisnika."""
     email = req.email.strip().lower()
-    with sqlite3.connect(DB_PATH) as db:
-        db.row_factory = sqlite3.Row
-        row = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    with _db_ctx() as (conn, cf):
+        row = _db_exec(conn, cf, f"SELECT * FROM users WHERE email = {_PH}", (email,)).fetchone()
     if not row or not verify_password(req.password, row["password_hash"]):
         raise HTTPException(status_code=401, detail="Pogrešan email ili lozinka.")
     logger.info(f"🔑 Korisnik ulogovan: {email}")
@@ -669,9 +716,8 @@ async def auth_me(request: Request):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Neispravan token.")
     email = payload["sub"]
-    with sqlite3.connect(DB_PATH) as db:
-        db.row_factory = sqlite3.Row
-        row = db.execute("SELECT email, plan, created_at FROM users WHERE email = ?", (email,)).fetchone()
+    with _db_ctx() as (conn, cf):
+        row = _db_exec(conn, cf, f"SELECT email, plan, created_at FROM users WHERE email = {_PH}", (email,)).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Korisnik ne postoji.")
     return {"email": row["email"], "plan": row["plan"], "created_at": row["created_at"]}

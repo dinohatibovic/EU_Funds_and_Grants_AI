@@ -9,6 +9,7 @@ requests
 python-multipart
 stripe
 PyJWT>=2.8.0
+psycopg2-binary>=2.9.0
 # BUG #8: url_monitor.py koristi aiohttp — nedostajalo u requirements
 aiohttp>=3.9.0
 # BUG #9: pdf_loader.py koristi pdfplumber
