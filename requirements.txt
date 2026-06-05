@@ -14,3 +14,6 @@ psycopg2-binary>=2.9.0
 aiohttp>=3.9.0
 # BUG #9: pdf_loader.py koristi pdfplumber
 pdfplumber>=0.10.0
+PyJWT
+PyJWT[crypto]
+PyJWT[crypto]
