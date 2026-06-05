@@ -68,3 +68,15 @@ patch_core.py
 __pycache__/
 *.pyc
 runtime.txt
+# local artifacts
+installed.txt
+local.sha
+local.txt
+remote.sha
+remote.txt
+
+# local helper scripts (ako ne želiš u repo)
+api_test.sh
+start_backend.sh
+compare_code.sh
+github_check.sh
