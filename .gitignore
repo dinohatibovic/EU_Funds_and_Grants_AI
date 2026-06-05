@@ -80,3 +80,26 @@ api_test.sh
 start_backend.sh
 compare_code.sh
 github_check.sh
+# local env and runtime
+venv/
+vector_db/chroma_db_data/
+users.db
+embeddings/
+*.bak
+render_routes.txt
+main.py.bak
+patch_core.py
+__pycache__/
+*.pyc
+runtime.txt
+
+# local artifacts
+installed.txt
+local.sha
+local.txt
+remote.sha
+remote.txt
+api_test.sh
+start_backend.sh
+compare_code.sh
+github_check.sh
