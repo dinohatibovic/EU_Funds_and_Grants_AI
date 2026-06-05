@@ -29,3 +29,6 @@ vector_db/chroma_db_data/
 # BUG #4: SQLite baza korisnika — ne commituj lične podatke!
 users.db
 *.db
+
+vector_db/chroma_db_data/
+
