@@ -32,3 +32,39 @@ users.db
 
 vector_db/chroma_db_data/
 
+# ChromaDB
+vector_db/chroma_db_data/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local backups
+*.bak
+
+# Local debug scripts
+patch_core.py
+render_routes.txt
+
+# Local DB
+users.db
+
+# Local embeddings
+embeddings/
+
+# Local runtime
+runtime.txt
+
+venv/
+# local env and runtime
+venv/
+vector_db/chroma_db_data/
+users.db
+embeddings/
+*.bak
+render_routes.txt
+main.py.bak
+patch_core.py
+__pycache__/
+*.pyc
+runtime.txt
