@@ -31,11 +31,6 @@ VAŽNE ČINJENICE:
 - Oznake: ✅ VISOKA | ⚠️ SREDNJA | ❌ NEPOTVRĐENO
 - Nikad ne navoditi rokove bez provjere
 
-AKTIVNI HITNI POZIVI (mart 2026.):
-- EU4CAET: rok 30.03.2026. (energetika, 99K–170K EUR, 50–80% pokriće) ⚠️ HITNO
-- Innovate Bosnia: rok 31.03.2026. (startupi, max 50K KM) ⚠️ HITNO
-- FMRPO: ~30.04.2026. (novo poduzetništvo, obrti, MSP)
-- FIPA IT: 15.04.2026. (IT sektor, max 150K KM)
 """
 
 
