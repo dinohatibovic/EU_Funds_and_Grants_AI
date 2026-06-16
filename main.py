@@ -436,6 +436,7 @@ def health_check():
         "status": "healthy",
         "version": "v2.2.0",
         "database": "connected" if chroma_client else "disconnected",
+        "db_type": "postgresql" if DATABASE_URL else "sqlite",
         "ai_engine": "ready" if embedding_client else "offline",
         "grants_total": len(_grants_cache),
         "grants_in_vector_db": chroma_docs,
