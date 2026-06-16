@@ -10,7 +10,7 @@ import re
 import sys
 import contextlib
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -149,7 +149,7 @@ def verify_password(password: str, stored: str) -> bool:
 def create_jwt(email: str) -> str:
     payload = {
         "sub": email,
-        "exp": datetime.utcnow() + timedelta(days=JWT_EXPIRE_DAYS)
+        "exp": datetime.now(timezone.utc) + timedelta(days=JWT_EXPIRE_DAYS)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
@@ -192,6 +192,7 @@ app.add_middleware(ProductionSecurityMiddleware)
 # CORS — samo dozvoljeni domeni
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:8000",
     "http://localhost:8080",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5500",   # VS Code Live Server
@@ -201,7 +202,7 @@ ALLOWED_ORIGINS = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Authorization"],
 )
@@ -423,7 +424,7 @@ def health_check():
     except Exception:
         pass
 
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
     urgent = [
         g for g in _grants_cache
         if g.get("deadline") and g["deadline"] != "N/A"
@@ -439,8 +440,25 @@ def health_check():
         "grants_total": len(_grants_cache),
         "grants_in_vector_db": chroma_docs,
         "grants_urgent_30d": len(urgent),
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
+
+@app.post("/ingest")
+async def manual_ingest(current_user: str = Depends(get_current_user)):
+    """Manualni re-ingest grantova u ChromaDB bez restarta servera."""
+    if not embedding_client or not chroma_client:
+        raise HTTPException(status_code=503, detail="AI sistem nije spreman.")
+    try:
+        await auto_ingest_grants()
+        return {
+            "status": "ok",
+            "triggered_by": current_user,
+            "grants_in_db": chroma_client.collection.count(),
+        }
+    except Exception as e:
+        logger.error(f"❌ Manualni ingest greška: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/search", response_model=SearchResponse)
 async def search_endpoint(request: SearchRequest, current_user: str = Depends(get_current_user)):
@@ -667,7 +685,7 @@ def list_urgent_grants(days: int = 30):
     """
     Vraća grantove čiji rok ističe unutar zadanog broja dana (default: 30).
     """
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
     urgent = []
     for g in _grants_cache:
         deadline_str = g.get("deadline", "")
