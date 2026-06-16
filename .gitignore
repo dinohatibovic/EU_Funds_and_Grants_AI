@@ -103,3 +103,4 @@ api_test.sh
 start_backend.sh
 compare_code.sh
 github_check.sh
+requirements.freeze.txt
