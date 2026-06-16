@@ -20,7 +20,6 @@ class EmbeddingClient:
             return
 
         self.model_name = "models/gemini-embedding-001"
-        self.dimension = 768
 
         # Inicijalizacija Gemini klijenta verzije 1.0+
         try:
