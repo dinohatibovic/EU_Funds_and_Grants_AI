@@ -70,13 +70,6 @@ EU_Funds_and_Grants_AI/
 ├── embeddings/                ← Gemini embedding klijent
 ├── vector_db/                 ← ChromaDB klijent
 ├── ingestion/                 ← Učitavanje podataka
-├── archived_code/eu_funds_ai/ ← Arhivirani napredni moduli
-│   ├── url_monitor.py         ← Scraping 15+ BiH/EU izvora
-│   ├── eligibility_engine.py  ← Procjena podobnosti
-│   ├── notification_system.py ← Email/SMS upozorenja za rokove
-│   ├── subscription_manager.py← Upravljanje pretplatama
-│   ├── analytics_dashboard.py ← Izvještaji i vizualizacije
-│   └── data_pipeline.py       ← Procesiranje podataka
 └── tests/                     ← Unit testovi
 ```
 
