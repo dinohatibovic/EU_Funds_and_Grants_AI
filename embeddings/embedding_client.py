@@ -83,15 +83,6 @@ class EmbeddingClient:
 
     # --- Aliasi koji se koriste u ingestion skriptama ---
 
-    def embed_batch(self, texts: list) -> list:
-        """Alias za generate_embeddings — kompatibilnost sa ingestion skriptama."""
-        return self.generate_embeddings(texts)
-
-    def embed_single(self, text: str) -> list:
-        """Vraća jedan vektor za jedan tekst."""
-        results = self.generate_embeddings([text])
-        return results[0] if results else []
-
     def embed(self, texts: list) -> list:
         """Alias za generate_embeddings — kompatibilnost sa starim skriptama."""
         return self.generate_embeddings(texts)
@@ -101,16 +92,3 @@ class EmbeddingClient:
 
     def embed_batch(self, texts: list) -> list:
         return self.generate_embeddings(texts)
-    
-    def embed_single(self, text: str) -> list:
-        return self.generate_embeddings([text])[0]
-
-    def embed_batch(self, texts: list) -> list:
-        return self.generate_embeddings(texts)
-    
-    def embed_single(self, text: str) -> list:
-        return self.generate_embeddings([text])[0]
-
-    def embed_batch(self, texts: list) -> list:
-        return self.generate_embeddings(texts)
-    
