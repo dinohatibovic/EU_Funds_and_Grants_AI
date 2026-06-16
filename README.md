@@ -28,7 +28,7 @@
 | AI / Embeddings | Google Gemini 2.0 Flash + `gemini-embedding-001` |
 | Vector DB | ChromaDB (lokalno, perzistentno) |
 | Frontend | HTML + Tailwind CSS + Chart.js |
-| Deployment | Docker, Render / Heroku |
+| Deployment | Docker, Render.com |
 
 ---
 
@@ -70,7 +70,7 @@ EU_Funds_and_Grants_AI/
 ├── embeddings/                ← Gemini embedding klijent
 ├── vector_db/                 ← ChromaDB klijent
 ├── ingestion/                 ← Učitavanje podataka
-├── eu_funds_ai/               ← Napredni moduli
+├── archived_code/eu_funds_ai/ ← Arhivirani napredni moduli
 │   ├── url_monitor.py         ← Scraping 15+ BiH/EU izvora
 │   ├── eligibility_engine.py  ← Procjena podobnosti
 │   ├── notification_system.py ← Email/SMS upozorenja za rokove
