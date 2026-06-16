@@ -63,7 +63,16 @@ def _db_ctx():
     if DATABASE_URL:
         import psycopg2
         import psycopg2.extras
-        conn = psycopg2.connect(DATABASE_URL)
+        import urllib.parse
+        parsed = urllib.parse.urlparse(DATABASE_URL)
+        conn = psycopg2.connect(
+            host=parsed.hostname,
+            port=parsed.port or 5432,
+            database=parsed.path.lstrip('/'),
+            user=urllib.parse.unquote(parsed.username or ''),
+            password=urllib.parse.unquote(parsed.password or ''),
+            sslmode='require'
+        )
         try:
             yield conn, psycopg2.extras.RealDictCursor
             conn.commit()
