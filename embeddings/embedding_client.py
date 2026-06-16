@@ -95,3 +95,22 @@ class EmbeddingClient:
     def embed(self, texts: list) -> list:
         """Alias za generate_embeddings — kompatibilnost sa starim skriptama."""
         return self.generate_embeddings(texts)
+
+    def embed_single(self, text: str) -> list:
+        return self.generate_embeddings([text])[0]
+
+    def embed_batch(self, texts: list) -> list:
+        return self.generate_embeddings(texts)
+    
+    def embed_single(self, text: str) -> list:
+        return self.generate_embeddings([text])[0]
+
+    def embed_batch(self, texts: list) -> list:
+        return self.generate_embeddings(texts)
+    
+    def embed_single(self, text: str) -> list:
+        return self.generate_embeddings([text])[0]
+
+    def embed_batch(self, texts: list) -> list:
+        return self.generate_embeddings(texts)
+    
