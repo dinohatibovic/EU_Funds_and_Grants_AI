@@ -19,7 +19,7 @@ class GrantScraper:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
 
-    def scrape_and_store(self, url: str):
+    def scrape_and_store(self, url: str, title=None, category="Ostalo", deadline=None):
         print(f"\n🌐 Povezujem se na: {url} ...")
         
         try:
@@ -33,29 +33,36 @@ class GrantScraper:
             soup = BeautifulSoup(response.content, 'html.parser')
             
             # Čišćenje: Uzimamo naslov i tekstove paragrafa
-            title = soup.title.string if soup.title else "Nepoznat naslov"
-            
+            scraped_title = soup.title.string if soup.title else "Nepoznat naslov"
+
             # Trik: Uzimamo sve <p> (paragrafe) i <li> (liste) jer tu bude tekst konkursa
             text_blocks = [p.get_text().strip() for p in soup.find_all(['p', 'li', 'h1', 'h2', 'h3']) if len(p.get_text().strip()) > 50]
-            
+
             # Spajamo u veće cjeline (chunks) da ne embedamo svaku rečenicu posebno
             full_text = "\n".join(text_blocks)
-            
-            # Ako je tekst predug, uzimamo prvih 2000 karaktera (radi štednje i brzine)
+
+            # Ako je tekst predug, uzimamo prvih 4000 karaktera (radi štednje i brzine)
             # U naprednoj verziji bi ovo sjeckali na dijelove (chunking)
-            final_content = f"IZVOR: {title} ({url})\n\nSADRŽAJ:\n{full_text[:4000]}"
-            
+            final_content = f"IZVOR: {scraped_title} ({url})\n\nSADRŽAJ:\n{full_text[:4000]}"
+
             if len(full_text) < 100:
                 print("⚠️ Upozorenje: Pronađeno premalo teksta. Možda stranica koristi JavaScript zaštitu.")
                 return
 
-            print(f"📄 Uspješno skinuto! Naslov: {title}")
+            print(f"📄 Uspješno skinuto! Naslov: {scraped_title}")
             print(f"📊 Veličina teksta: {len(final_content)} karaktera")
 
             # --- RAG PROCES ---
             # 1. Priprema podataka
             doc_id = str(uuid.uuid4())
-            metadata = {"source": url, "title": title, "type": "scraped_web"}
+            page_title = title or scraped_title
+            metadata = {
+                "source": url,
+                "title": page_title,
+                "type": "scraped_web",
+                "category": category,
+                "deadline": deadline,
+            }
             
             print("🔄 Generisanje vektora (Geminija)...")
             embedding = self.embedder.generate_embeddings([final_content])
@@ -68,7 +75,7 @@ class GrantScraper:
                 embeddings=embedding
             )
             
-            print("✅ USJPJEŠNO! Ovaj link je sada dio 'mozga' tvog AI agenta.")
+            print("✅ USPJEŠNO! Ovaj link je sada dio 'mozga' tvog AI agenta.")
 
         except Exception as e:
             print(f"❌ Kritična greška: {e}")
