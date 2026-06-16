@@ -312,8 +312,18 @@ async def startup_event():
             "Na Render free tier disk se briše pri restartu — razmisli o Supabase/PostgreSQL."
         )
 
-    init_user_db()
-    logger.info("✅ SQLite baza korisnika inicijalizovana.")
+    try:
+        init_user_db()
+        logger.info("✅ Baza korisnika inicijalizovana.")
+    except Exception as e:
+        global DATABASE_URL, _PH
+        logger.warning(
+            f"⚠️  DB konekcija nije uspjela ({e}) — prelazim na SQLite fallback."
+        )
+        DATABASE_URL = None
+        _PH = "?"
+        init_user_db()
+        logger.info("✅ SQLite fallback baza korisnika inicijalizovana.")
 
     # Učitaj grants.json u memorijski cache
     grants_path = os.path.join(os.path.dirname(__file__), "data", "grants.json")
