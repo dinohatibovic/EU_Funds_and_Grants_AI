@@ -1,9 +1,18 @@
+# DEV_ONLY — lažni testni podaci, NE pokretati u produkciji
+
 """
 INGESTION PROCESS - Local ONNX Embeddings
 ==========================================
 """
 
+import os
 import logging
+
+if os.getenv("ALLOW_SAMPLE") != "1":
+    raise RuntimeError(
+        "ingest_sample.py sadrži lažne testne podatke i ne smije se pokretati u produkciji. "
+        "Postavi ALLOW_SAMPLE=1 ako namjerno pokrećeš u dev okruženju."
+    )
 from embeddings.embedding_client import EmbeddingClient
 from vector_db.chroma_client import ChromaDBClient
 
