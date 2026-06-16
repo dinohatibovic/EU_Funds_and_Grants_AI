@@ -65,7 +65,6 @@ class RAGPipeline:
         """Get pipeline statistics."""
         return {
             "total_documents": self.collection.count(),
-            "embedding_dimension": self.embedding_client.dimension,
             "model": self.embedding_client.model_name
         }
 
