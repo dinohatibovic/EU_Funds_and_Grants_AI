@@ -12,7 +12,18 @@
 - Naziv: EU_Funds_and_Grants_AI (FinAssistBH)
 - Stack: FastAPI + ChromaDB + Google Gemini Embeddings + RAG
 - Frontend: https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/
-- OS: Ubuntu 24.04.1 LTS (WSL2) | Python 3.12.3
+- OS: Ubuntu 24.04.1 LTS (WSL2) | Python 3.13
+
+---
+
+## STATUS — Jun 2026.
+
+- Verzija: v2.2.0 — sistem radi stabilno
+- Baza korisnika: SQLite (aktivan) — migracija na Render PostgreSQL u toku
+- ChromaDB: 22 verificirana granta učitana u kolekciju `eu_grants`
+- DB fallback: implementiran — server se pokreće i bez PostgreSQL veze
+- CORS: whitelist konfigurisan za produkciju
+- Obrisani duplikati: `agent/main_agent.py`, `ingestion/ingest_real_data.py`
 
 ---
 
@@ -304,26 +315,14 @@ FMRPO grant pozivi:
 
 ## Poznati bugovi (popravi kad dođeš)
 
-1. `ingestion/ingest_sample.py:138` — kolekcija je `"grants"` umjesto `"eu_grants"`
-2. `main.py:34` — `allow_origins=["*"]` zamijeni whitelist-om
-
----
-
-## Fajlovi za brisanje (duplikati / dead code)
-
-| Fajl | Zašto izbaciti |
-|---|---|
-| `ingest_sample.py` (root) | Duplikat od `ingestion/ingest_sample.py` |
-| `newindex.html` | Zastarjela verzija, zamijenjena s `index.html` |
-| `api/server.py` | Duplikat od `main.py` — koristi samo jedan |
-| `project_report.json` | Prazan template, nikad popunjen |
-| `frontend/index.html` | Minimalna verzija, zastarjela |
+1. `ingestion/ingest_sample.py` — sadrži testne (izmišljene) podatke na engleskom; nije dio produkcijskog toka
 
 ---
 
 ## Servisi koji nedostaju (TODO lista)
 
-- [ ] `.env.example` fajl (GEMINI_API_KEY template)
+- [x] `.env.example` fajl (GEMINI_API_KEY template)
+- [x] Graceful DB fallback na startupu
 - [ ] PostgreSQL ili Supabase (za persistence korisnika)
 - [ ] Stripe integracija (pretplate)
 - [ ] SMTP konfiguracija (notifikacije)

@@ -1,7 +1,7 @@
 # FinAssistBH — AI platforma za EU grantove u BiH
 
 ![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)
-![Python](https://img.shields.io/badge/Python-3.12-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.13-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)
 
 **FinAssistBH** je AI alat koji agregira sve EU i domaće BiH fondove na jednom mjestu, te pomaže firmama, NVO-ima i privatnim osobama da pronađu i apliciraju za grantove koji odgovaraju njihovom profilu.
@@ -24,7 +24,7 @@
 
 | Sloj | Tehnologija |
 |---|---|
-| Backend | Python 3.12, FastAPI |
+| Backend | Python 3.13, FastAPI |
 | AI / Embeddings | Google Gemini 2.0 Flash + `gemini-embedding-001` |
 | Vector DB | ChromaDB (lokalno, perzistentno) |
 | Frontend | HTML + Tailwind CSS + Chart.js |
@@ -47,8 +47,7 @@ cp .env.example .env
 # Unesi GEMINI_API_KEY u .env
 
 # 4. Učitaj podatke u vector bazu
-python ingestion/ingest_sample.py
-python ingestion/ingest_real_data.py
+python ingestion/ingest_local_grants.py
 
 # 5. Pokreni server
 uvicorn main:app --reload
@@ -65,7 +64,7 @@ EU_Funds_and_Grants_AI/
 ├── main.py                    ← FastAPI server (entry point)
 ├── index.html                 ← Glavni dashboard
 ├── pitch.html                 ← Stranica za investitore
-├── data/grants.json           ← 14 verificiranih grantova
+├── data/grants.json           ← 22 verificiranih grantova
 ├── agent/                     ← AI agent (RAG + Gemini)
 ├── rag/                       ← RAG pipeline
 ├── embeddings/                ← Gemini embedding klijent
