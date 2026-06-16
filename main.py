@@ -39,6 +39,7 @@ logger = logging.getLogger("eu_grants_api")
 # --- 2. GLOBALNE VARIJABLE ---
 embedding_client = None
 chroma_client = None
+genai_client = None
 
 # JWT tajni ključ — MORA biti postavljen u Render environment za produkciju
 JWT_SECRET = os.getenv("JWT_SECRET")
@@ -294,7 +295,7 @@ async def rate_limit_middleware(request: Request, call_next):
 
 @app.on_event("startup")
 async def startup_event():
-    global embedding_client, chroma_client, _grants_cache
+    global embedding_client, chroma_client, genai_client, _grants_cache
     logger.info("🚀 Podižem FinAssistBH AI Sistem...")
 
     # BUG #3: JWT_SECRET se reset-uje pri svakom restartu ako nije u env-u
@@ -337,6 +338,8 @@ async def startup_event():
     try:
         embedding_client = EmbeddingClient()
         chroma_client = ChromaDBClient()
+        from agent.genai_client import GenAIClient
+        genai_client = GenAIClient()
         logger.info("✅ Klijenti za Gemini AI i ChromaDB su spremni.")
         await auto_ingest_grants()
     except Exception as e:
@@ -547,14 +550,8 @@ async def ai_answer_endpoint(request: AIAnswerRequest, current_user: str = Depen
     req_id = str(uuid.uuid4())
     logger.info(f"🤖 [ID: {req_id}] AI upit: '{request.query}' | lang={request.language}")
 
-    if not embedding_client or not chroma_client:
+    if not embedding_client or not chroma_client or not genai_client:
         raise HTTPException(status_code=503, detail="Sistem se još inicijalizuje, pokušajte za 10 sekundi.")
-
-    try:
-        from agent.agent import EUFundsAgent
-    except ImportError as e:
-        logger.error(f"❌ [ID: {req_id}] Agent import greška: {e}")
-        raise HTTPException(status_code=500, detail="AI agent nije dostupan.")
 
     try:
         # Pretraga relevantnih grantova
@@ -617,8 +614,6 @@ INSTRUKCIJE:
 - Završi s preporukom sljedećeg koraka (npr. koji URL posjetiti)
 """
 
-        from agent.genai_client import GenAIClient
-        genai_client = GenAIClient()
         answer = genai_client.generate(prompt)
 
         if not answer:
