@@ -1,0 +1,12 @@
+{
+  "name": "finassistbh-frontend",
+  "version": "2.2.0",
+  "description": "FinAssistBH — statični frontend (chat, auth, investor pitch) za GitHub Pages",
+  "private": true,
+  "scripts": {
+    "serve": "python3 -m http.server 3000 --directory src",
+    "serve:node": "npx serve src -l 3000"
+  },
+  "author": "Dino Hatibović",
+  "license": "SEE LICENSE IN ../LICENSE"
+}

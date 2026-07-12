@@ -1,0 +1,51 @@
+name: Security Audit
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # svakog ponedjeljka u 06:00 UTC
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  dependency-audit:
+    name: Skeniranje ranjivosti zavisnosti (pip-audit)
+    runs-on: ubuntu-latest
+    # Informativno — CVE u transitivnim zavisnostima ne smije blokirati hitne fixeve
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          pip install -r requirements.txt
+          pip install pip-audit
+      - name: pip-audit
+        run: pip-audit
+
+  static-security-scan:
+    name: Statička sigurnosna analiza (Bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bandit
+        run: pip install bandit
+      - name: Bandit scan (medium+ severity)
+        # B104 (bind 0.0.0.0) je namjeran — server mora slušati na svim interfejsima u containeru
+        run: bandit -r ai_core backend sdk -ll --skip B104
+
+  secret-scan:
+    name: Provjera hardkodiranih tajni
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
