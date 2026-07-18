@@ -1,21 +1,37 @@
 # Security Policy
 
-## Supported Versions
+## Podržane verzije
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+| Verzija | Podržana |
+| ------- | -------- |
+| 2.2.x   | ✅ |
+| < 2.2   | ❌ |
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Prijava ranjivosti
 
-## Reporting a Vulnerability
+**Kritične ranjivosti** (pristup podacima korisnika, API ključevima, auth bypass)
+prijavi **privatno** — ne otvaraj javni issue:
 
-Use this section to tell people how to report a vulnerability.
+```
+Dino Hatibović — vlasnik projekta
+Tešanj, Zeničko-dobojski kanton, BiH
+Telefon: +387 62 564 303
+GitHub: @dinohatibovic (Private Vulnerability Reporting / DM)
+```
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+**Ostale sigurnosne probleme** prijavi kroz GitHub issue šablon
+[`security_incident.md`](.github/ISSUE_TEMPLATE/security_incident.md).
+
+Očekivani odgovor: potvrda prijema u roku 72h; status update sedmično dok se
+ranjivost ne riješi ili odbaci s obrazloženjem.
+
+## Automatizovane provjere
+
+- `security-audit.yml` workflow: **pip-audit** (CVE u zavisnostima, sedmično),
+  **Bandit** (statička analiza), **gitleaks** (hardkodirane tajne).
+- Tajne se drže isključivo u env varijablama (`.env` je u `.gitignore`).
+
+## Poznata sigurnosna ograničenja (roadmap)
+
+- Password hashing je SHA256+salt — planirana migracija na bcrypt/argon2.
+- Rate limiter je in-memory (per-proces) — Redis planiran za skaliranje.

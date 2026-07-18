@@ -1,107 +1,35 @@
-# Python
-venv/
+# ── Python ──────────────────────────────────────────────
 __pycache__/
-*.pyc
-*.pyo
+*.py[co]
 *.egg-info/
+venv/
+.venv/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
 
-# Environment (TAJNE!)
+# ── Environment / tajne (NIKAD ne commitati!) ───────────
 .env
 .env.local
 .env.*.local
 
-# OS
+# ── Baze podataka ────────────────────────────────────────
+users.db
+*.sqlite3
+vector_db/chroma_db_data/
+chroma_db_data/
+
+# ── Frontend ─────────────────────────────────────────────
+node_modules/
+
+# ── OS / IDE ─────────────────────────────────────────────
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 
-# Logs
+# ── Logovi i lokalni artefakti ───────────────────────────
 *.log
 logs/
-# Vector DB (ne commituj bazu podataka!)
-vector_db/chroma_db_data/
-*.sqlite3
-*.bin
-
-# BUG #4: SQLite baza korisnika — ne commituj lične podatke!
-users.db
-*.db
-
-vector_db/chroma_db_data/
-
-# ChromaDB
-vector_db/chroma_db_data/
-
-# Python cache
-__pycache__/
-*.pyc
-
-# Local backups
 *.bak
-
-# Local debug scripts
-patch_core.py
-render_routes.txt
-
-# Local DB
-users.db
-
-# Local embeddings
-embeddings/
-
-# Local runtime
-runtime.txt
-
-venv/
-# local env and runtime
-venv/
-vector_db/chroma_db_data/
-users.db
-embeddings/
-*.bak
-render_routes.txt
-main.py.bak
-patch_core.py
-__pycache__/
-*.pyc
-runtime.txt
-# local artifacts
-installed.txt
-local.sha
-local.txt
-remote.sha
-remote.txt
-
-# local helper scripts (ako ne želiš u repo)
-api_test.sh
-start_backend.sh
-compare_code.sh
-github_check.sh
-# local env and runtime
-venv/
-vector_db/chroma_db_data/
-users.db
-embeddings/
-*.bak
-render_routes.txt
-main.py.bak
-patch_core.py
-__pycache__/
-*.pyc
-runtime.txt
-
-# local artifacts
-installed.txt
-local.sha
-local.txt
-remote.sha
-remote.txt
-api_test.sh
-start_backend.sh
-compare_code.sh
-github_check.sh
-requirements.freeze.txt
 requirements.freeze.txt

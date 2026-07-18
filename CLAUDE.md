@@ -313,9 +313,20 @@ FMRPO grant pozivi:
 
 ---
 
+## Struktura repozitorija (od jula 2026. — enterprise slojevi)
+
+- `ai_core/` — AI sloj: embeddings/, vector_store/, rag_pipeline/ (+ ingestion/), agent/
+- `backend/app/` — FastAPI: api/, core/, services/, main.py — start: `uvicorn backend.app.main:app`
+- `frontend/src/` — index.html, auth.html, pitch.html (GitHub Pages)
+- `infrastructure/` — docker-compose.yml, render/, k8s/, scripts/verify_sync.py
+- `docs/` — architecture/BLUEPRINT.md, forensics/, regulatory/, PROJECT_REPORT.md
+- `tests/` — backend_tests/ + ai_pipeline_tests/ (pokretanje: `make test`, `make ai-test`)
+
+---
+
 ## Poznati bugovi (popravi kad dođeš)
 
-1. `ingestion/ingest_sample.py` — sadrži testne (izmišljene) podatke na engleskom; nije dio produkcijskog toka
+1. `ai_core/rag_pipeline/ingestion/ingest_sample.py` — sadrži testne (izmišljene) podatke na engleskom; nije dio produkcijskog toka (guard: ALLOW_SAMPLE=1)
 
 ---
 
