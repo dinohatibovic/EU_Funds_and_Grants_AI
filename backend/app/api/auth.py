@@ -23,7 +23,7 @@ async def register(req: RegisterRequest):
     try:
         with db_ctx() as (conn, cf):
             db_exec(conn, cf,
-                f"INSERT INTO users (email, password_hash) VALUES ({ph()}, {ph()})",
+                f"INSERT INTO users (email, password_hash) VALUES ({ph()}, {ph()})",  # nosec B608 — ph() je samo placeholder (?/%s), vrijednosti su parametrizovane
                 (email, hash_password(req.password))
             )
     except Exception as e:
@@ -39,7 +39,7 @@ async def login(req: LoginRequest):
     """Prijava korisnika."""
     email = req.email.strip().lower()
     with db_ctx() as (conn, cf):
-        row = db_exec(conn, cf, f"SELECT * FROM users WHERE email = {ph()}", (email,)).fetchone()
+        row = db_exec(conn, cf, f"SELECT * FROM users WHERE email = {ph()}", (email,)).fetchone()  # nosec B608 — ph() je placeholder, upit je parametrizovan
     if not row or not verify_password(req.password, row["password_hash"]):
         raise HTTPException(status_code=401, detail="Pogrešan email ili lozinka.")
     logger.info(f"🔑 Korisnik ulogovan: {email}")
@@ -56,7 +56,7 @@ async def auth_me(request: Request):
     payload = decode_jwt(token)
     email = payload["sub"]
     with db_ctx() as (conn, cf):
-        row = db_exec(conn, cf, f"SELECT email, plan, created_at FROM users WHERE email = {ph()}", (email,)).fetchone()
+        row = db_exec(conn, cf, f"SELECT email, plan, created_at FROM users WHERE email = {ph()}", (email,)).fetchone()  # nosec B608 — ph() je placeholder, upit je parametrizovan
     if not row:
         raise HTTPException(status_code=404, detail="Korisnik ne postoji.")
     return {"email": row["email"], "plan": row["plan"], "created_at": row["created_at"]}
