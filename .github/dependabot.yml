@@ -1,4 +1,6 @@
 # Dependabot — automatski PR-ovi za update zavisnosti (sedmično)
+# `groups` spaja sve update-e jednog ekosistema u JEDAN zbirni PR
+# (umjesto zasebnog PR-a i grane za svaku biblioteku)
 version: 2
 updates:
   - package-ecosystem: pip
@@ -6,21 +8,37 @@ updates:
     schedule:
       interval: weekly
     labels: ["dependencies", "ai-core"]
+    groups:
+      ai-core-dependencies:
+        patterns: ["*"]
 
   - package-ecosystem: pip
     directory: "/backend"
     schedule:
       interval: weekly
     labels: ["dependencies", "backend"]
+    groups:
+      backend-dependencies:
+        patterns: ["*"]
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
     labels: ["dependencies", "ci"]
+    groups:
+      github-actions:
+        patterns: ["*"]
 
   - package-ecosystem: docker
     directory: "/backend"
     schedule:
       interval: weekly
     labels: ["dependencies", "docker"]
+    # Major bump baznog Python image-a (npr. 3.12 → 3.14) traži ručnu odluku
+    ignore:
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
+    groups:
+      docker:
+        patterns: ["*"]
