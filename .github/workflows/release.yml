@@ -1,0 +1,67 @@
+name: Release
+
+# Okida se na push git taga (npr. v2.2.0):
+#   git tag -a v2.2.0 -m "FinAssistBH v2.2.0" && git push origin v2.2.0
+# Automatski: kreira GitHub Release + objavi Docker image na GHCR (Packages)
+
+on:
+  push:
+    tags: ["v*"]
+  # Ručno pokretanje (Actions → Release → Run workflow) — kreira i tag i release
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag za release (npr. v2.2.0)"
+        required: true
+        default: "v2.2.0"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  github-release:
+    name: Kreiraj GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag_name || github.ref_name }}
+          generate_release_notes: true
+          body: |
+            **FinAssistBH — AI platforma za EU fondove u BiH**
+
+            Detalji verzije: vidi [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)
+
+            Docker image: `docker pull ghcr.io/${{ github.repository_owner }}/finassistbh-backend:latest`
+
+  docker-package:
+    name: Objavi Docker image (GHCR Packages)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login na GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker metadata (tagovi iz git taga)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/finassistbh-backend
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=${{ inputs.tag_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=raw,value=latest
+      - name: Build i push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

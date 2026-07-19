@@ -1,0 +1,12 @@
+# Sponsor dugme na repozitoriju (Settings → General → Sponsorships mora biti uključeno)
+#
+# NAPOMENA: GitHub Sponsors program (github: [dinohatibovic]) zahtijeva da je
+# zemlja isplate podržana kroz Stripe Connect — BiH trenutno nije na listi, pa
+# koristimo custom linkove. Ako otvoriš Ko-fi/BuyMeACoffee račun s isplatom
+# (npr. preko Payoneer/Wise), samo odkomentariši liniju ispod.
+
+# ko_fi: dinohatibovic
+# buy_me_a_coffee: dinohatibovic
+
+custom:
+  - "https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/pitch.html"
