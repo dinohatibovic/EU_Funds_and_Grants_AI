@@ -1,37 +1,37 @@
 # Security Policy
 
-## Podržane verzije
+## Supported versions
 
-| Verzija | Podržana |
-| ------- | -------- |
+| Version | Supported |
+| ------- | --------- |
 | 2.2.x   | ✅ |
 | < 2.2   | ❌ |
 
-## Prijava ranjivosti
+## Reporting a vulnerability
 
-**Kritične ranjivosti** (pristup podacima korisnika, API ključevima, auth bypass)
-prijavi **privatno** — ne otvaraj javni issue:
+**Critical vulnerabilities** (access to user data, API keys, auth bypass)
+must be reported **privately** — do not open a public issue:
 
 ```
-Dino Hatibović — vlasnik projekta
-Tešanj, Zeničko-dobojski kanton, BiH
-Telefon: +387 62 564 303
+Dino Hatibović — project owner
+Tešanj, Zenica-Doboj Canton, Bosnia and Herzegovina
+Email: holdin.genesis@gmail.com
 GitHub: @dinohatibovic (Private Vulnerability Reporting / DM)
 ```
 
-**Ostale sigurnosne probleme** prijavi kroz GitHub issue šablon
+**Other security issues** can be reported through the GitHub issue template
 [`security_incident.md`](.github/ISSUE_TEMPLATE/security_incident.md).
 
-Očekivani odgovor: potvrda prijema u roku 72h; status update sedmično dok se
-ranjivost ne riješi ili odbaci s obrazloženjem.
+Expected response: acknowledgement within 72 hours; weekly status updates
+until the vulnerability is resolved or declined with an explanation.
 
-## Automatizovane provjere
+## Automated checks
 
-- `security-audit.yml` workflow: **pip-audit** (CVE u zavisnostima, sedmično),
-  **Bandit** (statička analiza), **gitleaks** (hardkodirane tajne).
-- Tajne se drže isključivo u env varijablama (`.env` je u `.gitignore`).
+- `security-audit.yml` workflow: **pip-audit** (dependency CVEs, weekly),
+  **Bandit** (static analysis), **gitleaks** (hardcoded secrets).
+- Secrets are kept exclusively in environment variables (`.env` is gitignored).
 
-## Poznata sigurnosna ograničenja (roadmap)
+## Known security limitations (roadmap)
 
-- Password hashing je SHA256+salt — planirana migracija na bcrypt/argon2.
-- Rate limiter je in-memory (per-proces) — Redis planiran za skaliranje.
+- Password hashing is SHA256+salt — migration to bcrypt/argon2 is planned.
+- The rate limiter is in-memory (per process) — Redis is planned for scaling.

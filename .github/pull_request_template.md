@@ -1,17 +1,17 @@
-# Opis izmjene
+# Description
 
-<!-- Šta i zašto? Ako postoji povezani issue, referenciraj ga: Closes #XX -->
+<!-- What and why? Reference any related issue: Closes #XX -->
 
-## Tip izmjene
+## Type of change
 
 - [ ] 🐛 Bug fix
-- [ ] ✨ Nova funkcionalnost
-- [ ] ♻️ Refactor (bez promjene ponašanja)
-- [ ] 📝 Dokumentacija
-- [ ] 🔒 Sigurnost
-- [ ] 🏗️ Infrastruktura / CI
+- [ ] ✨ New feature
+- [ ] ♻️ Refactor (no behavior change)
+- [ ] 📝 Documentation
+- [ ] 🔒 Security
+- [ ] 🏗️ Infrastructure / CI
 
-## Pogođeni sloj
+## Affected layer
 
 - [ ] `ai_core/` (AI/RAG)
 - [ ] `backend/` (API)
@@ -21,7 +21,7 @@
 
 ## Checklist
 
-- [ ] Testovi prolaze lokalno (`make test` i `make ai-test`)
-- [ ] Lint prolazi (`make lint`)
-- [ ] Nema tajni/ključeva u kodu
-- [ ] CHANGELOG.md ažuriran (ako je user-facing izmjena)
+- [ ] Tests pass locally (`make test` and `make ai-test`)
+- [ ] Lint passes (`make lint`)
+- [ ] No secrets/keys in the code
+- [ ] CHANGELOG.md updated (for user-facing changes)

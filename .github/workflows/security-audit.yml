@@ -2,16 +2,16 @@ name: Security Audit
 
 on:
   schedule:
-    - cron: "0 6 * * 1"   # svakog ponedjeljka u 06:00 UTC
+    - cron: "0 6 * * 1"   # every Monday at 06:00 UTC
   push:
     branches: [main]
   workflow_dispatch:
 
 jobs:
   dependency-audit:
-    name: Skeniranje ranjivosti zavisnosti (pip-audit)
+    name: Dependency vulnerability scan (pip-audit)
     runs-on: ubuntu-latest
-    # Informativno — CVE u transitivnim zavisnostima ne smije blokirati hitne fixeve
+    # Informational — a CVE in transitive dependencies must not block urgent fixes
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7
@@ -23,12 +23,12 @@ jobs:
           pip install -r requirements.txt
           pip install pip-audit
       - name: pip-audit
-        # PYSEC-2026-311 (chromadb 1.5.9): još ne postoji verzija s popravkom —
-        # ukloniti ignore čim fix verzija izađe (pratiti pip-audit izvještaj)
+        # PYSEC-2026-311 (chromadb 1.5.9): no fixed version exists yet —
+        # remove the ignore as soon as one ships (watch the pip-audit report)
         run: pip-audit --ignore-vuln PYSEC-2026-311
 
   static-security-scan:
-    name: Statička sigurnosna analiza (Bandit)
+    name: Static security analysis (Bandit)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -38,11 +38,11 @@ jobs:
       - name: Install bandit
         run: pip install bandit
       - name: Bandit scan (medium+ severity)
-        # B104 (bind 0.0.0.0) je namjeran — server mora slušati na svim interfejsima u containeru
+        # B104 (bind 0.0.0.0) is intentional — the server must listen on all interfaces in a container
         run: bandit -r ai_core backend sdk -ll --skip B104
 
   secret-scan:
-    name: Provjera hardkodiranih tajni
+    name: Hardcoded secrets scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

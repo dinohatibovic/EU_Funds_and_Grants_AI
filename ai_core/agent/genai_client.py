@@ -1,5 +1,5 @@
 """
-GENAI CLIENT - Communication with Gemini 2.0 Flash
+GENAI CLIENT - Communication with Google Gemini (default: gemini-2.5-flash)
 ===================================================
 Corrected for google-genai v1.62.0
 """
@@ -17,7 +17,7 @@ env_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
 load_dotenv(env_path)
 
 class GenAIClient:
-    """Client for Gemini 2.0 Flash."""
+    """Client for Google Gemini text generation."""
     
     def __init__(self, temperature: float = 0.7):
         """Initialize GenAIClient."""
@@ -28,7 +28,8 @@ class GenAIClient:
         
         try:
             self.client = genai.Client(api_key=api_key)
-            self.model = "gemini-2.0-flash"
+            # gemini-2.0-flash je ukinut — default je 2.5; promjenjivo bez koda
+            self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
             self.temperature = temperature
             logger.info(f"✅ GenAIClient initialized: {self.model}")
         except Exception as e:

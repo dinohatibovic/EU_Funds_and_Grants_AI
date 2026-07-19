@@ -1,31 +1,38 @@
 # Render Deployment
 
-Render Blueprint (`render.yaml`) **mora živjeti u root-u repozitorija** — Render
-ga isključivo tamo traži. Zato je autoritativni fajl [`/render.yaml`](../../render.yaml),
-a ovaj direktorij služi kao dokumentacija deployment sloja.
+The Render Blueprint (`render.yaml`) **must live in the repository root** —
+Render only looks for it there. The authoritative file is therefore
+[`/render.yaml`](../../render.yaml); this directory documents the deployment
+layer.
 
-## Konfiguracija
+## Configuration
 
-| Postavka | Vrijednost |
+| Setting | Value |
 |---|---|
 | Service | `finassistbh-api` (web, Python runtime) |
 | Build | `pip install -r requirements.txt` |
 | Start | `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT` |
 | Health check | `/health` |
 
-## Environment varijable (Render Dashboard → Environment)
+> ⚠️ If the service was created manually (not via the Blueprint), `render.yaml`
+> is ignored — the Start Command must be updated by hand in the Render
+> Dashboard → Settings whenever it changes.
 
-| Varijabla | Obavezna | Opis |
+## Environment variables (Render Dashboard → Environment)
+
+| Variable | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | ✅ | Google Gemini API ključ |
-| `JWT_SECRET` | ✅ | Stabilan tajni ključ (inače se korisnici odjavljuju pri svakom restartu) |
-| `DATABASE_URL` | ⬜ | PostgreSQL/Supabase connection string (bez njega → SQLite fallback) |
-| `DB_PATH` | ⬜ | SQLite putanja (default `users.db`) |
-| `CHROMA_DB_PATH` | ⬜ | Putanja ChromaDB store-a (default `vector_db/chroma_db_data`) |
+| `GEMINI_API_KEY` | ✅ | Google Gemini API key |
+| `JWT_SECRET` | ✅ | Stable secret (otherwise users get logged out on every restart) |
+| `GEMINI_MODEL` | ⬜ | Generation model (default `gemini-2.5-flash`) |
+| `DATABASE_URL` | ⬜ | PostgreSQL/Supabase connection string (SQLite fallback without it) |
+| `DB_PATH` | ⬜ | SQLite path (default `users.db`) |
+| `CHROMA_DB_PATH` | ⬜ | ChromaDB store path (default `vector_db/chroma_db_data`) |
 | `RATE_LIMIT_REQUESTS` / `RATE_LIMIT_WINDOW` | ⬜ | Rate limiting (default 30/60s) |
 
-## Poznata ograničenja free tier-a
+## Known free-tier limitations
 
-- **Cold start 50–75s** — frontend (`auth.html`) ima ugrađen progress UX za ovo.
-- **Ephemeral disk** — `users.db` i ChromaDB se brišu pri restartu; auto-ingest
-  na startupu ponovo puni vektorsku bazu iz `data/grants.json`.
+- **Cold start 50–75s** — the frontend (`auth.html`) has a built-in progress
+  UX for this.
+- **Ephemeral disk** — `users.db` and ChromaDB are wiped on restart; startup
+  auto-ingest repopulates the vector DB from `data/grants.json`.

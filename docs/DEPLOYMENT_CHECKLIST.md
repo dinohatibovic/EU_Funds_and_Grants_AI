@@ -1,34 +1,38 @@
 # Deployment Checklist
 
-## Pre-Deployment
-- [ ] Python verzija 3.10+
-- [ ] Virtual environment aktiviran
-- [ ] Svi paketi instalirani
-- [ ] .env datoteka sa API ključem
-- [ ] ChromaDB baza inicijalizirana
-- [ ] Ingestion proces uspio
-- [ ] Sve testove prošle
+## Pre-deployment
+- [ ] Python version 3.12+
+- [ ] Virtual environment activated
+- [ ] All packages installed (`pip install -r requirements.txt`)
+- [ ] `.env` file with the API key
+- [ ] ChromaDB initialized (startup auto-ingest or `make ingest`)
+- [ ] All tests green (`make test`, `make ai-test`)
 
-## API Provjera
-- [ ] EmbeddingClient radi
-- [ ] GenAIClient radi
-- [ ] ChromaDB pretraga radi
-- [ ] Nema hardkodiranih ključeva
+## API checks
+- [ ] EmbeddingClient works
+- [ ] GenAIClient works (`GEMINI_MODEL` valid)
+- [ ] ChromaDB search works
+- [ ] No hardcoded keys
 
-## Git Provjera
-- [ ] Sve datoteke komitovane
-- [ ] .env u .gitignore
-- [ ] Nema merge konflikata
-- [ ] Remote je postavljen
+## Git checks
+- [ ] All files committed
+- [ ] `.env` in `.gitignore`
+- [ ] No merge conflicts
+- [ ] Remote configured
 
-## Sigurnost
-- [ ] API ključ nije u kodu
-- [ ] .env nije u git-u
-- [ ] Nema osjetljivih podataka
-- [ ] Permisije su ispravne
+## Render (production)
+- [ ] Start Command: `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
+- [ ] Env variables set: `GEMINI_API_KEY`, `JWT_SECRET`
+- [ ] Health check path: `/health`
+- [ ] GitHub connection active (deploys not failing with clone 403)
 
-## Dokumentacija
-- [ ] README.md ažuriran
-- [ ] Komentari u kodu
-- [ ] Docstrings su prisutni
-- [ ] Primjeri su dostupni
+## Security
+- [ ] API key not in code
+- [ ] `.env` not in git
+- [ ] No sensitive data
+- [ ] Security Audit workflow green
+
+## Documentation
+- [ ] README.md up to date
+- [ ] CHANGELOG.md entry for the release
+- [ ] Docstrings present

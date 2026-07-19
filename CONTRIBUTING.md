@@ -1,42 +1,44 @@
-# Doprinošenje projektu
+# Contributing
 
-> ⚠️ FinAssistBH je vlasnički softver (vidi [LICENSE](./LICENSE)) — vanjski
-> doprinosi su mogući samo uz prethodni dogovor s vlasnikom.
+> ⚠️ FinAssistBH is proprietary software (see [LICENSE](./LICENSE)) — external
+> contributions are only possible by prior agreement with the owner.
 
 ## Workflow
 
-1. **Grana po izmjeni** — nikad direktno na `main`:
+1. **One branch per change** — never commit directly to `main`:
    ```bash
-   git checkout -b feat/kratki-opis   # ili fix/, docs/, chore/
+   git checkout -b feat/short-description   # or fix/, docs/, chore/
    ```
-2. **Razvoj** — prati postojeću strukturu slojeva (vidi
+2. **Development** — follow the existing layer structure (see
    [docs/architecture/BLUEPRINT.md](./docs/architecture/BLUEPRINT.md)):
-   API logika u `backend/app/api/`, AI logika u `ai_core/`, nikad obrnuto.
-3. **Prije PR-a** obavezno:
+   API logic goes in `backend/app/api/`, AI logic in `ai_core/`, never the
+   other way around.
+3. **Before opening a PR**, always run:
    ```bash
-   make lint      # ruff — kritične greške
-   make test      # backend testovi
-   make ai-test   # AI pipeline testovi
+   make lint      # ruff — critical errors
+   make test      # backend tests
+   make ai-test   # AI pipeline tests
    ```
-4. **PR prema `main`** — popuni šablon; CI mora biti zelen prije merge-a.
-5. **Release** — nakon merge-a značajnih izmjena: ažuriraj `CHANGELOG.md`,
-   podigni verziju i pušaj tag:
+4. **PR to `main`** — fill in the template; CI must be green before merging.
+5. **Release** — after merging significant changes: update `CHANGELOG.md`,
+   bump the version and push a tag:
    ```bash
    git tag -a v2.3.0 -m "FinAssistBH v2.3.0" && git push origin v2.3.0
    ```
-   Release workflow automatski kreira GitHub Release + GHCR Docker image.
+   The Release workflow automatically creates a GitHub Release and publishes
+   the GHCR Docker image.
 
-## Konvencije
+## Conventions
 
-- **Commit poruke:** `tip: kratki opis` (feat/fix/refactor/docs/chore/test)
-- **Jezik:** kod i identifikatori engleski; komentari, docstringi i
-  user-facing poruke bosanski
-- **Tajne:** isključivo env varijable — nikad u kodu ili commitima
-- **Podaci o grantovima:** svaki unos u `data/grants.json` mora imati izvor
-  (URL) i oznaku pouzdanosti; rokovi bez potvrde iz izvora → `null`
-  (pravila u [CLAUDE.md](./CLAUDE.md))
+- **Commit messages:** `type: short description` (feat/fix/refactor/docs/chore/test)
+- **Language:** code and identifiers in English; user-facing product strings
+  in Bosnian (the product language); repository documentation in English
+- **Secrets:** environment variables only — never in code or commits
+- **Grant data:** every entry in `data/grants.json` must have a source (URL)
+  and a reliability label; deadlines not confirmed by a source → `null`
+  (rules in [CLAUDE.md](./CLAUDE.md))
 
-## Prijava problema
+## Reporting issues
 
-- Bug: [issue šablon](./.github/ISSUE_TEMPLATE/bug_report.md)
-- Sigurnost: [SECURITY.md](./SECURITY.md) — kritično privatno, ne javno!
+- Bugs: [issue template](./.github/ISSUE_TEMPLATE/bug_report.md)
+- Security: [SECURITY.md](./SECURITY.md) — critical issues privately, never publicly!

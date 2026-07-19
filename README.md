@@ -8,186 +8,193 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Render](https://img.shields.io/badge/Render-Deployed-informational?logo=render)](https://render.com/)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
-[![Sponsor](https://img.shields.io/badge/♥-Podrži_projekat-ea4aaa)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/pitch.html)
+[![Sponsor](https://img.shields.io/badge/♥-Support_the_project-ea4aaa)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/pitch.html)
 
-Modularni AI sistem s **Retrieval-Augmented Generation (RAG)** arhitekturom za
-analizu, indeksiranje i pametno pretraživanje EU i BiH fondova i grantova —
-s posebnim fokusom na **ZDK kanton i Tešanj**.
+A modular AI system with a **Retrieval-Augmented Generation (RAG)** architecture
+for analyzing, indexing and intelligently searching EU and Bosnian grant &
+funding programs — with a special focus on the **Zenica-Doboj Canton (ZDK) and
+Tešanj**.
 
-> Bosna i Hercegovina koristi manje od 30% dostupnih EU sredstava.
-> FinAssistBH to mijenja.
+> Bosnia and Herzegovina uses less than 30% of the EU funds available to it.
+> FinAssistBH is changing that.
 
 **Live:** [Frontend (GitHub Pages)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/) ·
 [API (Render)](https://eu-funds-and-grants-ai.onrender.com/health)
 
 ---
 
-## 🏗️ Arhitektura sistema
+## 🏗️ System architecture
 
-Sistem je dizajniran s maksimalnim fokusom na modularnost i izolaciju slojeva:
+The system is designed for maximum modularity and layer isolation:
 
 - **AI Layer** (`ai_core/`) — RAG pipeline, Google Gemini embeddings
-  (`gemini-embedding-001`), Gemini 2.0 Flash generacija, ChromaDB vektorska
-  pohrana, ingestion (JSON / web scraping / PDF / API).
-- **Backend** (`backend/`) — FastAPI API gateway: pretraga, AI odgovori,
+  (`gemini-embedding-001`), Gemini 2.5 Flash generation, ChromaDB vector
+  store, ingestion (JSON / web scraping / PDF / API).
+- **Backend** (`backend/`) — FastAPI API gateway: search, AI answers,
   grants REST, JWT auth, rate limiting, Stripe webhook.
-- **Frontend** (`frontend/`) — statična web aplikacija (chat, auth, investor
-  pitch) hostana na GitHub Pages.
-- **Infrastructure** (`infrastructure/`) — Docker Compose za lokalni razvoj,
-  Render blueprint za produkciju, opcionalni Kubernetes manifesti.
+- **Frontend** (`frontend/`) — static web app (chat, auth, investor pitch)
+  hosted on GitHub Pages. *UI language: Bosnian (product language).*
+- **Infrastructure** (`infrastructure/`) — Docker Compose for local dev,
+  Render blueprint for production, optional Kubernetes manifests.
 
-Detaljan blueprint s matricom zavisnosti: [`docs/architecture/BLUEPRINT.md`](./docs/architecture/BLUEPRINT.md)
+Full blueprint with the dependency matrix: [`docs/architecture/BLUEPRINT.md`](./docs/architecture/BLUEPRINT.md)
 
-### Struktura repozitorija
+### Repository layout
 
 ```text
 EU_Funds_and_Grants_AI/
-├── .github/               # CI/CD workflows + issue šabloni
+├── .github/               # CI/CD workflows + issue/PR templates
 ├── ai_core/               # Layer 2: Core Intelligence Stack
-│   ├── embeddings/        #   Google Gemini embedding klijent
-│   ├── vector_store/      #   ChromaDB menadžment
-│   ├── rag_pipeline/      #   Pretraga, normalizacija, ingestion
+│   ├── embeddings/        #   Google Gemini embedding client
+│   ├── vector_store/      #   ChromaDB management
+│   ├── rag_pipeline/      #   Search, normalization, ingestion
 │   └── agent/             #   EUFundsAgent (RAG + Gemini, bs/en)
 ├── backend/               # Layer 3: API & Orchestration
 │   └── app/
-│       ├── api/           #   FastAPI rute (REST endpoints)
+│       ├── api/           #   FastAPI routes (REST endpoints)
 │       ├── core/          #   Config, DB, JWT, rate limiting
-│       ├── services/      #   Most prema AI sloju
+│       ├── services/      #   Bridge to the AI layer
 │       └── main.py        #   Entry point
 ├── frontend/              # Layer 4: User Interface (GitHub Pages)
 │   └── src/               #   index.html, auth.html, pitch.html
 ├── infrastructure/        # Layer 5: DevOps
-│   ├── render/            #   Render deployment dokumentacija
-│   ├── k8s/               #   Kubernetes manifesti (opcionalno)
-│   ├── scripts/           #   verify_sync.py (produkcija ↔ kod audit)
-│   └── docker-compose.yml #   Lokalno orkestriranje
-├── docs/                  # Arhitektura, forenzika, regulatorni okvir
-├── data/grants.json       # Izvor istine — 22 BiH/EU granta
-├── sdk/                   # Javni Python SDK za API
+│   ├── render/            #   Render deployment docs
+│   ├── k8s/               #   Kubernetes manifests (optional)
+│   ├── scripts/           #   verify_sync.py (prod ↔ code audit)
+│   └── docker-compose.yml #   Local orchestration
+├── docs/                  # Architecture, forensics, regulatory
+├── data/grants.json       # Source of truth — 19 BiH/EU grants
+├── sdk/                   # Public Python SDK for the API
 ├── tests/                 # backend_tests/ + ai_pipeline_tests/
 ├── Makefile               # make up / test / ingest ...
-├── render.yaml            # Render blueprint (mora biti u root-u)
+├── render.yaml            # Render blueprint (must stay in root)
 └── README.md
 ```
 
 ---
 
-## 🚀 Brzi start (lokalno okruženje)
+## 🚀 Quick start (local environment)
 
-### Preduslovi
+### Prerequisites
 
-- Docker + Docker Compose (ili Python 3.12+ za razvoj bez Dockera)
-- [Gemini API ključ](https://aistudio.google.com/app/apikey)
+- Docker + Docker Compose (or Python 3.12+ for a non-Docker setup)
+- A [Gemini API key](https://aistudio.google.com/app/apikey)
 
-### Instalacija i pokretanje
+### Install & run
 
-1. **Kloniranje repozitorija:**
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/dinohatibovic/EU_Funds_and_Grants_AI.git
    cd EU_Funds_and_Grants_AI
    ```
 
-2. **Konfiguracija okruženja** — kopiraj šablon i unesi API ključeve:
+2. **Configure the environment** — copy the template and add your API keys:
    ```bash
    cp .env.example .env
    ```
 
-3. **Pokretanje putem Makefile-a:**
+3. **Run via Makefile:**
    ```bash
-   make up        # Docker: backend na :8000, frontend na :3000
-   # ili bez Dockera:
+   make up        # Docker: backend on :8000, frontend on :3000
+   # or without Docker:
    pip install -r requirements.txt
    make dev       # uvicorn backend.app.main:app --reload
    ```
 
-   *API dokumentacija (Swagger): http://localhost:8000/docs*
+   *API docs (Swagger): http://localhost:8000/docs*
 
-4. **Testovi:**
+4. **Tests:**
    ```bash
    pip install pytest httpx
-   make test      # backend testovi
-   make ai-test   # AI pipeline testovi
+   make test      # backend tests
+   make ai-test   # AI pipeline tests
    ```
 
-### Gotov Docker image (GitHub Packages)
+### Prebuilt Docker image (GitHub Packages)
 
-Svaki release automatski objavljuje backend image na GHCR:
+Every release automatically publishes the backend image to GHCR:
 
 ```bash
 docker pull ghcr.io/dinohatibovic/finassistbh-backend:latest
 docker run --env-file .env -p 8000:8000 ghcr.io/dinohatibovic/finassistbh-backend:latest
 ```
 
-Novi developer? Kreni od [docs/onboarding.md](./docs/onboarding.md) —
-od nule do pokrenutog sistema za 15 minuta.
+New to the project? Start with [docs/onboarding.md](./docs/onboarding.md) —
+from zero to a running system in 15 minutes.
 
 ---
 
-## 🔌 API pregled
+## 🔌 API overview
 
-| Endpoint | Metoda | Auth | Opis |
+| Endpoint | Method | Auth | Description |
 |---|---|---|---|
-| `/health` | GET | — | Status sistema, broj grantova, hitni rokovi |
-| `/search` | POST | JWT | Semantička (vektorska) pretraga grantova |
-| `/ai-answer` | POST | JWT | RAG + Gemini AI odgovor (bosanski/engleski) |
-| `/grants` | GET | — | Lista grantova (filteri + paginacija) |
-| `/grants/local` | GET | — | ZDK/Tešanj prioritetni pozivi |
-| `/grants/urgent` | GET | — | Rokovi koji ističu unutar N dana |
-| `/auth/register` `/auth/login` | POST | — | JWT registracija/prijava |
-| `/ingest` | POST | JWT | Manualni re-ingest vektorske baze |
+| `/health` | GET | — | System status, grant counts, urgent deadlines |
+| `/search` | POST | JWT | Semantic (vector) grant search |
+| `/ai-answer` | POST | JWT | RAG + Gemini AI answer (Bosnian/English) |
+| `/grants` | GET | — | Grant list (filters + pagination) |
+| `/grants/local` | GET | — | ZDK/Tešanj priority calls |
+| `/grants/urgent` | GET | — | Deadlines expiring within N days |
+| `/auth/register` `/auth/login` | POST | — | JWT registration/login |
+| `/ingest` | POST | JWT | Manual vector DB re-ingest |
 
 Python SDK: [`sdk/client.py`](./sdk/client.py) —
-`EUGrantsClient().login(email, pass)` → `client.query("poticaji za MSP u ZDK")`
+`EUGrantsClient().login(email, pass)` → `client.query("SME incentives in ZDK")`
 
 ---
 
-## 🛡️ Sigurnost i regulatorna usklađenost
+## 🛡️ Security & regulatory compliance
 
-- **Automatizovani audit:** sedmični [security-audit workflow](./.github/workflows/security-audit.yml)
-  — pip-audit (CVE), Bandit (statička analiza), gitleaks (tajne u kodu).
-- **Bez tajni u repou:** svi ključevi u env varijablama; `.env` u `.gitignore`.
-- **Forenzička transparentnost:** revizije i sistemske analize se arhiviraju u
-  [`docs/forensics/`](./docs/forensics/); produkcijski drift se provjerava
-  skriptom `infrastructure/scripts/verify_sync.py`.
-- **EU AI Act & GDPR:** status usklađenosti i eskalacijske procedure su
-  dokumentovani u [`docs/regulatory/`](./docs/regulatory/README.md) —
-  AI odgovori uvijek navode izvore, a podaci nose oznake pouzdanosti.
-- Prijava ranjivosti: [SECURITY.md](./SECURITY.md)
+- **Automated audits:** weekly [security-audit workflow](./.github/workflows/security-audit.yml)
+  — pip-audit (CVEs), Bandit (static analysis), gitleaks (secrets in code).
+- **No secrets in the repo:** all keys live in environment variables; `.env`
+  is gitignored.
+- **Forensic transparency:** audits and system analyses are archived in
+  [`docs/forensics/`](./docs/forensics/); production drift is checked by
+  `infrastructure/scripts/verify_sync.py`.
+- **EU AI Act & GDPR:** compliance status and escalation procedures are
+  documented in [`docs/regulatory/`](./docs/regulatory/README.md) —
+  AI answers always cite sources, and data entries carry reliability labels.
+- Vulnerability reporting: [SECURITY.md](./SECURITY.md)
 
-## 🛠️ CI/CD Pipeline
+## 🛠️ CI/CD pipeline
 
 GitHub Actions ([ci-cd-pipeline.yml](./.github/workflows/ci-cd-pipeline.yml)):
 
-1. **Lint** — ruff statička analiza (kritične greške).
-2. **Test** — izolovani unit testovi za Backend i AI slojeve (mockirani vanjski servisi).
-3. **Deploy backend** — automatski deploy na **Render** nakon zelenih testova
-   na `main` (deploy hook ili Render auto-deploy).
-4. **Deploy frontend** — `frontend/src/` na **GitHub Pages**
-   (jednokratno: Settings → Pages → Source: *GitHub Actions*).
+1. **Lint** — ruff static analysis (critical errors).
+2. **Test** — isolated unit tests for the Backend and AI layers (external
+   services mocked).
+3. **Deploy backend** — automatic deploy to **Render** after green tests on
+   `main` (deploy hook or Render auto-deploy).
+4. **Deploy frontend** — `frontend/src/` to **GitHub Pages**
+   (one-time setup: Settings → Pages → Source: *GitHub Actions*).
+
+Releases: pushing a `v*` tag (or manually running the
+[Release workflow](./.github/workflows/release.yml)) creates a GitHub Release
+and publishes the Docker image to GHCR.
 
 ---
 
-## 💰 Model cijena (SaaS)
+## 💰 Pricing (SaaS)
 
-| Plan | Cijena | Za koga |
+| Plan | Price | Audience |
 |---|---|---|
-| Starter | €29/mj | Mala preduzeća, osnovna pretraga |
-| Pro | €149/mj | MSP — notifikacije, AI matching |
-| Agency | €299/mj | Konzultanti — white-label, API |
-| Enterprise | €799/mj | Kantoni, vlade, korporacije |
+| Starter | €29/mo | Small businesses, basic search |
+| Pro | €149/mo | SMEs — notifications, AI matching |
+| Agency | €299/mo | Consultants — white-label, API |
+| Enterprise | €799/mo | Cantons, governments, corporations |
 
-## 📞 Kontakt
+## 📞 Contact
 
-**Dino Hatibović** — Tešanj, Zeničko-dobojski kanton, BiH
-Telefon: +387 62 564 303 ·
+**Dino Hatibović** — Tešanj, Zenica-Doboj Canton, Bosnia and Herzegovina
+Email: holdin.genesis@gmail.com ·
 [GitHub](https://github.com/dinohatibovic) ·
 [LinkedIn](https://linkedin.com/in/dinohatibovic)
 
-## 📄 Licenca
+## 📄 License
 
-Copyright © 2026 Dino Hatibović. Sva prava zadržana.
-Ograničen pristup i distribucija u skladu s [vlasničkom licencom](./LICENSE).
+Copyright © 2026 Dino Hatibović. All rights reserved.
+Restricted access and distribution under the [proprietary license](./LICENSE).
 
 ---
 
-*Razvijeno u Tešnju, BiH — za EU tržište.*
+*Built in Tešanj, BiH — for the EU market.*

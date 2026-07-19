@@ -63,9 +63,17 @@ class SystemAuditor:
             self.flag_failure("Persistence Layer Malfunction: Database unstable.")
         if ai_engine != "ready":
             self.flag_failure("AI Inference Engine Failure: Subsystem down.")
-        if total_grants != 22:
-            self.flag_failure(f"Payload Cardinality Drift: Found {total_grants} documents, expected 22.")
+        expected = self._expected_grant_count()
+        if expected is not None and total_grants != expected:
+            self.flag_failure(f"Payload Cardinality Drift: Found {total_grants} documents, expected {expected}.")
         return version
+
+    def _expected_grant_count(self):
+        try:
+            with open(self.local_data, "r", encoding="utf-8") as stream:
+                return len(json.load(stream))
+        except Exception:
+            return None
 
     def extract_remote_routes(self) -> Set[str]:
         logger.info("Starting Phase 2: Production Routing Topology Extraction...")

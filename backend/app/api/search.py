@@ -100,7 +100,7 @@ async def search_endpoint(request: SearchRequest, current_user: str = Depends(ge
 @router.post("/ai-answer", response_model=AIAnswerResponse)
 async def ai_answer_endpoint(request: AIAnswerRequest, current_user: str = Depends(get_current_user)):
     """
-    AI odgovor koji kombinuje RAG pretragu + Gemini 2.0 Flash generaciju.
+    AI odgovor koji kombinuje RAG pretragu + Gemini generaciju (gemini-2.5-flash).
     Vraća strukturirani odgovor na bosanskom ili engleskom jeziku.
     """
     start_time = time.time()
