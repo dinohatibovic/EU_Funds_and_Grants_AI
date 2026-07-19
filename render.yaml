@@ -1,13 +1,15 @@
+# Render Blueprint — MORA ostati u root-u repozitorija (Render ga tu traži).
+# Dokumentacija deployment sloja: infrastructure/render/README.md
 services:
   - type: web
     name: finassistbh-api
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GEMINI_API_KEY
         sync: false
-      # BUG #3: JWT_SECRET mora biti stabilan između restartova
+      # JWT_SECRET mora biti stabilan između restartova
       # Generiši: python3 -c "import secrets; print(secrets.token_hex(32))"
       - key: JWT_SECRET
         sync: false

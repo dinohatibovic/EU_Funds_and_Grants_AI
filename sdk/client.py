@@ -16,9 +16,25 @@ import os
 class EUGrantsClient:
     """Jednostavan HTTP klijent za FinAssistBH pretragu grantova."""
 
-    def __init__(self, base_url: str = None):
+    def __init__(self, base_url: str = None, token: str = None):
         # Dozvoli override baze URL-a (npr. za testove ili staging)
         self.base_url = (base_url or os.getenv("FINASSIST_API_URL", "https://eu-funds-and-grants-ai.onrender.com")).rstrip("/")
+        # /search endpoint zahtijeva JWT — dobij ga preko login() ili proslijedi direktno
+        self.token = token or os.getenv("FINASSIST_API_TOKEN", "")
+
+    def login(self, email: str, password: str) -> bool:
+        """Prijava na API — sprema JWT token za naredne query() pozive."""
+        try:
+            resp = requests.post(
+                f"{self.base_url}/auth/login",
+                json={"email": email, "password": password},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            self.token = resp.json().get("token", "")
+            return bool(self.token)
+        except Exception:
+            return False
 
     def query(self, text: str, n_results: int = 5) -> str:
         """
@@ -34,10 +50,14 @@ class EUGrantsClient:
         if not text or not text.strip():
             return "Upit ne može biti prazan."
 
+        if not self.token:
+            return "Greška: /search zahtijeva prijavu. Pozovi client.login(email, password) ili postavi FINASSIST_API_TOKEN."
+
         try:
             resp = requests.post(
                 f"{self.base_url}/search",
                 json={"query": text.strip(), "n_results": n_results},
+                headers={"Authorization": f"Bearer {self.token}"},
                 timeout=30,
             )
             resp.raise_for_status()
