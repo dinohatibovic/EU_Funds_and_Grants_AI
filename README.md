@@ -2,10 +2,13 @@
 
 [![CI/CD Pipeline](https://img.shields.io/github/actions/workflow/status/dinohatibovic/EU_Funds_and_Grants_AI/ci-cd-pipeline.yml?branch=main&label=CI%2FCD)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/actions)
 [![Security Audit](https://img.shields.io/github/actions/workflow/status/dinohatibovic/EU_Funds_and_Grants_AI/security-audit.yml?branch=main&label=Security%20Audit)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/actions)
+[![Release](https://img.shields.io/github/v/release/dinohatibovic/EU_Funds_and_Grants_AI?label=Release&color=success)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/releases)
+[![Docker](https://img.shields.io/badge/GHCR-finassistbh--backend-2496ED?logo=docker&logoColor=white)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/pkgs/container/finassistbh-backend)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg?logo=python)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Render](https://img.shields.io/badge/Render-Deployed-informational?logo=render)](https://render.com/)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
+[![Sponsor](https://img.shields.io/badge/♥-Podrži_projekat-ea4aaa)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/pitch.html)
 
 Modularni AI sistem s **Retrieval-Augmented Generation (RAG)** arhitekturom za
 analizu, indeksiranje i pametno pretraživanje EU i BiH fondova i grantova —
@@ -105,6 +108,18 @@ EU_Funds_and_Grants_AI/
    make test      # backend testovi
    make ai-test   # AI pipeline testovi
    ```
+
+### Gotov Docker image (GitHub Packages)
+
+Svaki release automatski objavljuje backend image na GHCR:
+
+```bash
+docker pull ghcr.io/dinohatibovic/finassistbh-backend:latest
+docker run --env-file .env -p 8000:8000 ghcr.io/dinohatibovic/finassistbh-backend:latest
+```
+
+Novi developer? Kreni od [docs/onboarding.md](./docs/onboarding.md) —
+od nule do pokrenutog sistema za 15 minuta.
 
 ---
 
