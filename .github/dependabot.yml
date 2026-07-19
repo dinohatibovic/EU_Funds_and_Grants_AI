@@ -1,24 +1,17 @@
 # Dependabot — automatski PR-ovi za update zavisnosti (sedmično)
-# `groups` spaja sve update-e jednog ekosistema u JEDAN zbirni PR
-# (umjesto zasebnog PR-a i grane za svaku biblioteku)
+# `groups` + `directories` spajaju sve pip update-e (ai_core + backend) u JEDAN
+# zbirni PR → sedmično stiže maksimalno 3 PR-a (pip, actions, docker)
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: "/ai_core"
+    directories:
+      - "/ai_core"
+      - "/backend"
     schedule:
       interval: weekly
-    labels: ["dependencies", "ai-core"]
+    labels: ["dependencies", "python"]
     groups:
-      ai-core-dependencies:
-        patterns: ["*"]
-
-  - package-ecosystem: pip
-    directory: "/backend"
-    schedule:
-      interval: weekly
-    labels: ["dependencies", "backend"]
-    groups:
-      backend-dependencies:
+      python-dependencies:
         patterns: ["*"]
 
   - package-ecosystem: github-actions
