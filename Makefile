@@ -14,7 +14,7 @@ down:
 logs:
 	$(COMPOSE) logs -f backend
 
-# Lokalni razvoj bez Dockera (zahtijeva pip install -r requirements.txt)
+# Local development without Docker (requires pip install -r requirements.txt)
 dev:
 	uvicorn backend.app.main:app --reload
 

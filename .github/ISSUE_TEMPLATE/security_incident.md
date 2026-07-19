@@ -1,35 +1,35 @@
 ---
-name: 🔒 Sigurnosni incident
-about: Prijavi sigurnosnu ranjivost ili incident (za kritične ranjivosti koristi privatni kanal iz SECURITY.md)
+name: 🔒 Security incident
+about: Report a security vulnerability or incident (for critical vulnerabilities use the private channel from SECURITY.md)
 title: "[SECURITY] "
 labels: security
 assignees: dinohatibovic
 ---
 
-> ⚠️ **VAŽNO:** Ako ranjivost omogućava pristup podacima korisnika ili API ključevima,
-> NE objavljuj detalje javno — kontaktiraj vlasnika direktno (vidi SECURITY.md).
+> ⚠️ **IMPORTANT:** If the vulnerability exposes user data or API keys,
+> do NOT post details publicly — contact the owner directly (see SECURITY.md).
 
-## Tip incidenta
+## Incident type
 
-- [ ] Ranjivost u kodu (injection, XSS, auth bypass...)
-- [ ] Ranjivost u zavisnosti (CVE)
-- [ ] Izloženi podaci / tajne
-- [ ] Zloupotreba API-ja
-- [ ] Ostalo
+- [ ] Code vulnerability (injection, XSS, auth bypass...)
+- [ ] Dependency vulnerability (CVE)
+- [ ] Exposed data / secrets
+- [ ] API abuse
+- [ ] Other
 
-## Opis
+## Description
 
-Opiši ranjivost i potencijalni uticaj.
+Describe the vulnerability and its potential impact.
 
-## Pogođena komponenta
+## Affected component
 
-- Sloj: [frontend / backend API / AI pipeline / infrastruktura]
-- Fajl/endpoint:
+- Layer: [frontend / backend API / AI pipeline / infrastructure]
+- File/endpoint:
 
-## Koraci za reprodukciju (Proof of Concept)
+## Steps to reproduce (Proof of Concept)
 
-Minimalni koraci za demonstraciju.
+Minimal steps to demonstrate the issue.
 
-## Predložena mitigacija
+## Suggested mitigation
 
-Ako imaš prijedlog popravke.
+If you have a fix proposal.

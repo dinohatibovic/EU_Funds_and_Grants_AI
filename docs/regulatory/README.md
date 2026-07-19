@@ -1,42 +1,43 @@
-# Regulatorni okvir — usklađenost i eskalacija
+# Regulatory framework — compliance and escalation
 
-Ovaj direktorij prati regulatornu usklađenost FinAssistBH platforme.
-**Status: okvir u pripremi** — dokumenti ispod označavaju šta je implementirano,
-a šta je na roadmapi. Ništa ovdje nije pravni savjet.
+This directory tracks the regulatory compliance of the FinAssistBH platform.
+**Status: framework in progress** — the documents below mark what is
+implemented and what is on the roadmap. Nothing here is legal advice.
 
-## GDPR / Zaštita ličnih podataka
+## GDPR / personal data protection
 
-| Stavka | Status |
+| Item | Status |
 |---|---|
-| Minimalna kolekcija podataka (samo email + hash lozinke) | ✅ implementirano |
-| Lozinke se nikad ne čuvaju u plaintextu (SHA256+salt) | ✅ implementirano |
-| `.env` tajne van repozitorija | ✅ implementirano |
-| Pravo na brisanje (delete account endpoint) | 🔜 roadmap |
-| DPA (Data Processing Agreement) za Supabase/Render/Google | 🔜 roadmap |
-| Politika privatnosti na frontendu | 🔜 roadmap |
+| Minimal data collection (email + password hash only) | ✅ implemented |
+| Passwords never stored in plaintext (SHA256+salt) | ✅ implemented |
+| `.env` secrets kept out of the repository | ✅ implemented |
+| Right to erasure (delete-account endpoint) | 🔜 roadmap |
+| DPAs (Data Processing Agreements) for Supabase/Render/Google | 🔜 roadmap |
+| Privacy policy on the frontend | 🔜 roadmap |
 
-## EU AI Act — transparentnost AI sistema
+## EU AI Act — AI system transparency
 
-FinAssistBH je informativni RAG asistent (limited-risk kategorija):
+FinAssistBH is an informational RAG assistant (limited-risk category):
 
-| Stavka | Status |
+| Item | Status |
 |---|---|
-| Korisniku je jasno da razgovara s AI sistemom | ✅ (UI označen kao AI) |
-| Odgovori navode izvore (URL grantova) | ✅ implementirano |
-| Oznake pouzdanosti podataka (✅/⚠️/❌, status "neprovjereno") | ✅ u grants.json |
-| Logovanje RAG upita za audit (docs/forensics/) | 🔜 roadmap |
-| Dokumentovan model provider (Google Gemini) i verzije | ✅ u BLUEPRINT.md |
+| Users clearly know they are talking to an AI system | ✅ (UI labeled as AI) |
+| Answers cite sources (grant URLs) | ✅ implemented |
+| Data reliability labels (✅/⚠️/❌, "unverified" status) | ✅ in grants.json |
+| RAG query logging for audits (docs/forensics/) | 🔜 roadmap |
+| Documented model provider (Google Gemini) and versions | ✅ in BLUEPRINT.md |
 
-## Prijava i eskalacija sigurnosnih incidenata
+## Security incident reporting and escalation
 
-1. **Kritične ranjivosti** — privatno vlasniku (kontakt u root `SECURITY.md`).
-2. **Ostali incidenti** — GitHub issue kroz šablon `security_incident.md`.
-3. Ranjivosti zavisnosti se automatski skeniraju sedmično
+1. **Critical vulnerabilities** — privately to the owner (contact in the root
+   `SECURITY.md`).
+2. **Other incidents** — GitHub issue via the `security_incident.md` template.
+3. Dependency vulnerabilities are scanned automatically every week
    (`.github/workflows/security-audit.yml` — pip-audit, Bandit, gitleaks).
 
-## Eskalacijski kontakti
+## Escalation contacts
 
 ```
-Vlasnik/DPO: Dino Hatibović — Tešanj, BiH — +387 62 564 303
-Regulator (BiH): Agencija za zaštitu ličnih podataka BiH — azlp.ba
+Owner/DPO: Dino Hatibović — Tešanj, BiH — holdin.genesis@gmail.com
+Regulator (BiH): Personal Data Protection Agency of BiH — azlp.ba
 ```

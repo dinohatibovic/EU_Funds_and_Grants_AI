@@ -1,47 +1,69 @@
 # Changelog
 
-Sve značajne izmjene FinAssistBH platforme. Format prati
-[Keep a Changelog](https://keepachangelog.com/), verzije prate [SemVer](https://semver.org/).
+All notable changes to the FinAssistBH platform. The format follows
+[Keep a Changelog](https://keepachangelog.com/); versions follow [SemVer](https://semver.org/).
+
+## [Unreleased]
+
+### Changed
+- Gemini generation model switched from the discontinued `gemini-2.0-flash`
+  to `gemini-2.5-flash` (overridable via the `GEMINI_MODEL` env variable)
+- LICENSE translated to English; contact changed from phone number to email
+- Repository documentation translated to English (frontend stays Bosnian —
+  product language)
+- `.env.example` aligned with the actual config (`DATABASE_URL`,
+  `CHROMA_DB_PATH`, `RATE_LIMIT_*`, `GEMINI_MODEL`); unused `SUPABASE_*`
+  placeholders removed
+
+### Fixed
+- Removed duplicate grants from `data/grants.json` (Innovate Bosnia, FIPA IT,
+  Environment Fund — 22 → 19 entries); duplicates were skewing RAG search
+- `verify_sync.py` now derives the expected grant count from the local data
+  file instead of a hardcoded value
 
 ## [2.2.0] — 2026-07-19
 
-### Dodano
-- **Enterprise slojevita struktura repozitorija**: `ai_core/` (AI sloj),
+### Added
+- **Enterprise layered repository structure**: `ai_core/` (AI layer),
   `backend/app/` (api/core/services), `frontend/src/`, `infrastructure/`, `docs/`
-- CI/CD pipeline (GitHub Actions): lint → testovi → Render deploy → GitHub Pages deploy
-- Security Audit workflow: pip-audit, Bandit, gitleaks (sedmično + na push)
-- Release workflow: automatski GitHub Release + Docker image na GHCR pri git tagu
-- Docker Compose za lokalni razvoj, Kubernetes manifesti (opcionalno)
+- CI/CD pipeline (GitHub Actions): lint → tests → Render deploy → GitHub Pages deploy
+- Security Audit workflow: pip-audit, Bandit, gitleaks (weekly + on push)
+- Release workflow: a git tag automatically creates a GitHub Release +
+  publishes the Docker image to GHCR
+- Docker Compose for local development, Kubernetes manifests (optional)
 - Makefile (`make up/dev/test/ai-test/lint/ingest`)
-- Dependabot, issue/PR šabloni, FUNDING, CONTRIBUTING, onboarding dokumentacija
-- Arhitekturni blueprint s matricom zavisnosti (`docs/architecture/BLUEPRINT.md`)
-- Regulatorni okvir — GDPR / EU AI Act status (`docs/regulatory/`)
-- Testovi: 31 (backend + AI pipeline + integritet podataka)
+- Dependabot, issue/PR templates, FUNDING, CONTRIBUTING, onboarding docs
+- Architecture blueprint with a dependency matrix (`docs/architecture/BLUEPRINT.md`)
+- Regulatory framework — GDPR / EU AI Act status (`docs/regulatory/`)
+- Tests: 31 (backend + AI pipeline + data integrity)
 
-### Popravljeno
-- SDK (`sdk/client.py`): `/search` zahtijeva JWT — dodan `login()` i Authorization header
-- `web_scraper.py`: ChromaDB ne prima `None` metadata (deadline fallback na `""`)
-- `api_loader.py`: dodan timeout na HTTP pozive
-- Bandit B608 lažne uzbune označene (parametrizovani upiti)
-- `.gitignore` očišćen (duplikati, pogrešan ignore `embeddings/`)
+### Fixed
+- SDK (`sdk/client.py`): `/search` requires JWT — added `login()` and the
+  Authorization header
+- `web_scraper.py`: ChromaDB does not accept `None` metadata (deadline falls
+  back to `""`)
+- `api_loader.py`: added a timeout to HTTP calls
+- Bandit B608 false positives annotated (parameterized queries)
+- `.gitignore` cleaned up (duplicates, wrong `embeddings/` ignore)
 
-### Promijenjeno
+### Changed
 - Entry point: `uvicorn main:app` → `uvicorn backend.app.main:app`
-- ChromaDB putanja konfigurabilna preko `CHROMA_DB_PATH`
-- `data/grants.json`: neprovjereni unosi eksplicitno označeni, istekli rokovi → `null`
+- ChromaDB path configurable via `CHROMA_DB_PATH`
+- `data/grants.json`: unverified entries explicitly labeled, expired
+  deadlines → `null`
 
 ## [2.1.0] — 2026-06
 
-### Dodano
-- `/ai-answer` endpoint (RAG + Gemini 2.0 Flash generacija, bs/en)
-- `/grants`, `/grants/local`, `/grants/urgent` REST endpointi
-- Rate limiting (30 req/60s po IP), email validacija, JWT auth
-- Graceful DB fallback (PostgreSQL → SQLite) na startupu
-- CORS whitelist za produkciju
+### Added
+- `/ai-answer` endpoint (RAG + Gemini generation, bs/en)
+- `/grants`, `/grants/local`, `/grants/urgent` REST endpoints
+- Rate limiting (30 req/60s per IP), email validation, JWT auth
+- Graceful DB fallback (PostgreSQL → SQLite) on startup
+- CORS whitelist for production
 
 ## [2.0.0] — 2026-03
 
-### Dodano
-- Prva produkcijska verzija: FastAPI + ChromaDB + Gemini embeddings (RAG)
-- Frontend (chat, auth, investor pitch) na GitHub Pages
-- Deployment na Render.com s auto-ingest grantova pri startu
+### Added
+- First production version: FastAPI + ChromaDB + Gemini embeddings (RAG)
+- Frontend (chat, auth, investor pitch) on GitHub Pages
+- Deployment to Render.com with grant auto-ingest on startup

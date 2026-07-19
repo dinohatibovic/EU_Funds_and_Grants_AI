@@ -1,17 +1,17 @@
 name: Release
 
-# Okida se na push git taga (npr. v2.2.0):
+# Triggered by pushing a git tag (e.g. v2.2.0):
 #   git tag -a v2.2.0 -m "FinAssistBH v2.2.0" && git push origin v2.2.0
-# Automatski: kreira GitHub Release + objavi Docker image na GHCR (Packages)
+# Automatically: creates a GitHub Release + publishes the Docker image to GHCR (Packages)
 
 on:
   push:
     tags: ["v*"]
-  # Ručno pokretanje (Actions → Release → Run workflow) — kreira i tag i release
+  # Manual trigger (Actions → Release → Run workflow) — creates both the tag and the release
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Tag za release (npr. v2.2.0)"
+        description: "Release tag (e.g. v2.2.0)"
         required: true
         default: "v2.2.0"
 
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   github-release:
-    name: Kreiraj GitHub Release
+    name: Create GitHub Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -31,24 +31,24 @@ jobs:
           tag_name: ${{ inputs.tag_name || github.ref_name }}
           generate_release_notes: true
           body: |
-            **FinAssistBH — AI platforma za EU fondove u BiH**
+            **FinAssistBH — AI platform for EU grants in BiH**
 
-            Detalji verzije: vidi [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)
+            Version details: see [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)
 
             Docker image: `docker pull ghcr.io/${{ github.repository_owner }}/finassistbh-backend:latest`
 
   docker-package:
-    name: Objavi Docker image (GHCR Packages)
+    name: Publish Docker image (GHCR Packages)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Login na GitHub Container Registry
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Docker metadata (tagovi iz git taga)
+      - name: Docker metadata (tags from the git tag)
         id: meta
         uses: docker/metadata-action@v6
         with:
@@ -57,7 +57,7 @@ jobs:
             type=semver,pattern={{version}}
             type=raw,value=${{ inputs.tag_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
             type=raw,value=latest
-      - name: Build i push
+      - name: Build and push
         uses: docker/build-push-action@v7
         with:
           context: .

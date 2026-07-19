@@ -1,9 +1,9 @@
-# Sponsor dugme na repozitoriju (Settings → General → Sponsorships mora biti uključeno)
+# Sponsor button on the repository (Settings → General → Sponsorships must be enabled)
 #
-# NAPOMENA: GitHub Sponsors program (github: [dinohatibovic]) zahtijeva da je
-# zemlja isplate podržana kroz Stripe Connect — BiH trenutno nije na listi, pa
-# koristimo custom linkove. Ako otvoriš Ko-fi/BuyMeACoffee račun s isplatom
-# (npr. preko Payoneer/Wise), samo odkomentariši liniju ispod.
+# NOTE: The GitHub Sponsors program (github: [dinohatibovic]) requires a payout
+# country supported by Stripe Connect — BiH is currently not on the list, so we
+# use custom links. If you open a Ko-fi/BuyMeACoffee account with a payout
+# method (e.g. via Payoneer/Wise), just uncomment the line below.
 
 # ko_fi: dinohatibovic
 # buy_me_a_coffee: dinohatibovic

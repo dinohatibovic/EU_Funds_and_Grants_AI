@@ -1,7 +1,7 @@
 {
   "name": "finassistbh-frontend",
   "version": "2.2.0",
-  "description": "FinAssistBH — statični frontend (chat, auth, investor pitch) za GitHub Pages",
+  "description": "FinAssistBH — static frontend (chat, auth, investor pitch) for GitHub Pages; UI language: Bosnian",
   "private": true,
   "scripts": {
     "serve": "python3 -m http.server 3000 --directory src",

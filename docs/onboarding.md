@@ -1,12 +1,12 @@
-# Onboarding — pokreni FinAssistBH za 15 minuta
+# Onboarding — run FinAssistBH in 15 minutes
 
-Vodič za novog developera (ili tebe na novoj mašini).
+A guide for a new developer (or yourself on a new machine).
 
-## 1. Preduslovi (5 min)
+## 1. Prerequisites (5 min)
 
-- Python 3.12+ (ili Docker + Docker Compose)
+- Python 3.12+ (or Docker + Docker Compose)
 - Git
-- [Gemini API ključ](https://aistudio.google.com/app/apikey) — besplatan
+- A [Gemini API key](https://aistudio.google.com/app/apikey) — free
 
 ## 2. Setup (5 min)
 
@@ -15,56 +15,56 @@ git clone https://github.com/dinohatibovic/EU_Funds_and_Grants_AI.git
 cd EU_Funds_and_Grants_AI
 
 cp .env.example .env
-# → u .env unesi GEMINI_API_KEY (ostalo je opcionalno za lokalni rad)
+# → put your GEMINI_API_KEY into .env (everything else is optional locally)
 ```
 
-**Opcija A — Docker (preporučeno):**
+**Option A — Docker (recommended):**
 ```bash
 make up          # backend :8000 + frontend :3000
-make logs        # prati backend logove
+make logs        # follow backend logs
 ```
 
-**Opcija B — bez Dockera:**
+**Option B — without Docker:**
 ```bash
 pip install -r requirements.txt
 make dev         # uvicorn backend.app.main:app --reload
-# frontend: otvori frontend/src/index.html u browseru
+# frontend: open frontend/src/index.html in a browser
 ```
 
-## 3. Provjera da sve radi (2 min)
+## 3. Verify everything works (2 min)
 
 ```bash
 curl http://localhost:8000/health
-# očekuješ: "status": "healthy", "grants_total": 22
+# expect: "status": "healthy", "grants_total": 19
 ```
 
 Swagger UI: http://localhost:8000/docs
 
-## 4. Testovi (3 min)
+## 4. Tests (3 min)
 
 ```bash
 pip install pytest httpx
-make test        # backend (mockirani vanjski servisi — ne troši API kvotu)
-make ai-test     # AI pipeline + integritet grants.json
+make test        # backend (external services mocked — no API quota used)
+make ai-test     # AI pipeline + grants.json integrity
 make lint
 ```
 
-## Gdje je šta — mentalna mapa
+## Where things live — a mental map
 
-| Želim promijeniti... | Idem u... |
+| I want to change... | Go to... |
 |---|---|
-| API endpoint / rutu | `backend/app/api/` |
-| Auth, rate limit, config | `backend/app/core/` |
-| RAG pretragu / embeddinge | `ai_core/rag_pipeline/`, `ai_core/embeddings/` |
-| AI prompt / ponašanje agenta | `ai_core/agent/agent.py` + `backend/app/api/search.py` |
-| Podatke o grantovima | `data/grants.json` (pravila u `CLAUDE.md`!) |
-| UI | `frontend/src/` |
+| An API endpoint / route | `backend/app/api/` |
+| Auth, rate limiting, config | `backend/app/core/` |
+| RAG search / embeddings | `ai_core/rag_pipeline/`, `ai_core/embeddings/` |
+| The AI prompt / agent behavior | `ai_core/agent/agent.py` + `backend/app/api/search.py` |
+| Grant data | `data/grants.json` (rules in `CLAUDE.md`!) |
+| The UI | `frontend/src/` |
 | CI/CD | `.github/workflows/` |
 
-Detaljna arhitektura: [architecture/BLUEPRINT.md](./architecture/BLUEPRINT.md)
+Detailed architecture: [architecture/BLUEPRINT.md](./architecture/BLUEPRINT.md)
 
-## Česti problemi
+## Common problems
 
-- **`GEMINI_API_KEY not found`** → nisi kopirao `.env.example` u `.env` ili ključ fali
-- **Server radi ali pretraga vraća 503** → AI klijenti se inicijalizuju ~10s nakon starta
-- **Render produkcija spora prvi put** → free tier cold start (50–75s), normalno
+- **`GEMINI_API_KEY not found`** → you did not copy `.env.example` to `.env`, or the key is missing
+- **Server runs but search returns 503** → AI clients initialize ~10s after startup
+- **Render production slow on first hit** → free-tier cold start (50–75s), normal

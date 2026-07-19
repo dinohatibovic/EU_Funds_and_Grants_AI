@@ -3,74 +3,72 @@ PROPRIETARY SOFTWARE LICENSE
 Copyright (c) 2026 Dino Hatibović. All Rights Reserved.
 
 OWNER: Dino Hatibović
-CONTACT: +387 62 564 303
-LOCATION: Tešanj, Zeničko-dobojski kanton, Bosna i Hercegovina
+CONTACT: holdin.genesis@gmail.com
+LOCATION: Tešanj, Zenica-Doboj Canton, Bosnia and Herzegovina
 
 ================================================================================
 
-1. VLASNIŠTVO
+1. OWNERSHIP
 
-Sav izvorni kod, dokumentacija, dizajn, algoritmi, baze podataka, logotipi i
-svi drugi materijali sadržani u ovom repozitoriju isključivo su vlasništvo
-Dino Hatibović ("Vlasnik") i zaštićeni su zakonima o autorskim pravima Bosne i
-Hercegovine, Europske unije i međunarodnim konvencijama o intelektualnom
-vlasništvu.
+All source code, documentation, designs, algorithms, databases, logos and any
+other materials contained in this repository are the exclusive property of
+Dino Hatibović (the "Owner") and are protected by the copyright laws of
+Bosnia and Herzegovina, the European Union, and international intellectual
+property conventions.
 
-2. ZABRANJENA UPOTREBA
+2. PROHIBITED USE
 
-Bez prethodne pisane dozvole Vlasnika, strogo je zabranjeno:
+Without the prior written permission of the Owner, it is strictly forbidden to:
 
-  a) Kopirati, reproducirati ili distribuirati bilo koji dio ovog softvera
-  b) Modificirati, adaptirati, prevoditi ili izrađivati izvedena djela
-  c) Koristiti softver u komercijalne svrhe ili za ostvarivanje prihoda
-  d) Sublicencirati, prodavati, iznajmljivati ili prenositi prava trećim
-     stranama
-  e) Uklanjati, mijenjati ili prikrivati ovu licencu ili obavijesti o
-     autorskim pravima
-  f) Koristiti naziv "FinAssistBH", logotip ili brendiranje Vlasnika
-  g) Obrnuto inženjeriti (reverse engineer) ili dekompilirati softver
-  h) Koristiti softver za izgradnju konkurentskog proizvoda ili usluge
+  a) Copy, reproduce or distribute any part of this software
+  b) Modify, adapt, translate or create derivative works
+  c) Use the software for commercial purposes or to generate revenue
+  d) Sublicense, sell, rent or transfer any rights to third parties
+  e) Remove, alter or obscure this license or any copyright notices
+  f) Use the name "FinAssistBH", the logo or the Owner's branding
+  g) Reverse engineer or decompile the software
+  h) Use the software to build a competing product or service
 
-3. OGRANIČENA DOZVOLA ZA PREGLED
+3. LIMITED PERMISSION TO VIEW
 
-Jedina dozvoljena radnja bez pisane dozvole je pregled (čitanje) javno
-dostupnog izvornog koda isključivo u edukativne svrhe, bez prava na
-reprodukciju, distribuciju ili komercijalnu upotrebu.
+The only action permitted without written permission is viewing (reading) the
+publicly available source code strictly for educational purposes, without any
+right of reproduction, distribution or commercial use.
 
-4. BEZ GARANCIJE
+4. NO WARRANTY
 
-Softver se pruža "KAKAV JEST" (AS IS), bez ikakvih garancija, izričitih ili
-podrazumijevanih. Vlasnik ne odgovara za bilo kakvu štetu nastalu korištenjem
-ili nemogućnošću korištenja softvera.
+The software is provided "AS IS", without warranties of any kind, express or
+implied. The Owner shall not be liable for any damage arising from the use of,
+or the inability to use, the software.
 
-5. KRŠENJE LICENCE
+5. LICENSE VIOLATION
 
-Svako neovlašteno korištenje ovog softvera smatra se kršenjem autorskih prava
-i može rezultirati:
+Any unauthorized use of this software constitutes copyright infringement and
+may result in:
 
-  - Građanskom tužbom za naknadu štete
-  - Kaznenom prijavom prema važećim zakonima BiH i EU
-  - Zahtjevom za hitnom zabranom korištenja (privremena mjera)
+  - A civil lawsuit for damages
+  - Criminal charges under the applicable laws of BiH and the EU
+  - A request for an immediate injunction (interim measure)
 
-6. KOMERCIJALNE LICENCE
+6. COMMERCIAL LICENSES
 
-Za komercijalnu upotrebu, white-label integraciju, API pristup ili partnerstvo,
-obratite se Vlasniku:
+For commercial use, white-label integration, API access or partnership,
+contact the Owner:
 
   Dino Hatibović
-  Tešanj, Zeničko-dobojski kanton, BiH
-  Telefon: +387 62 564 303
+  Tešanj, Zenica-Doboj Canton, Bosnia and Herzegovina
+  Email: holdin.genesis@gmail.com
   GitHub: https://github.com/dinohatibovic
 
-  Dostupni planovi: Starter (€29/mj) | Pro (€149/mj) |
-                    Agency (€299/mj) | Enterprise (€799/mj)
+  Available plans: Starter (€29/mo) | Pro (€149/mo) |
+                   Agency (€299/mo) | Enterprise (€799/mo)
 
-7. MJERODAVNO PRAVO
+7. GOVERNING LAW
 
-Ova licenca podliježe zakonima Bosne i Hercegovine. Za sve sporove nadležan
-je sud u Zenici, Bosna i Hercegovina.
+This license is governed by the laws of Bosnia and Herzegovina. The court in
+Zenica, Bosnia and Herzegovina, shall have jurisdiction over all disputes.
 
 ================================================================================
 
-FinAssistBH — AI platforma za EU grantove
-© 2026 Dino Hatibović. Sva prava zadržana.
+FinAssistBH — AI platform for EU grants
+© 2026 Dino Hatibović. All rights reserved.

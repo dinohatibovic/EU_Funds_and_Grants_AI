@@ -20,7 +20,7 @@
 
 - Verzija: v2.2.0 — sistem radi stabilno
 - Baza korisnika: SQLite (aktivan) — migracija na Render PostgreSQL u toku
-- ChromaDB: 22 verificirana granta učitana u kolekciju `eu_grants`
+- ChromaDB: 19 grantova učitano u kolekciju `eu_grants` (duplikati uklonjeni jula 2026.)
 - DB fallback: implementiran — server se pokreće i bez PostgreSQL veze
 - CORS: whitelist konfigurisan za produkciju
 - Obrisani duplikati: `agent/main_agent.py`, `ingestion/ingest_real_data.py`

@@ -1,80 +1,85 @@
-# FinAssistBH — Arhitekturni Blueprint
+# FinAssistBH — Architecture Blueprint
 
-**Verzija:** 2.2.0 | **Vlasnik:** Dino Hatibović | Tešanj, BiH
+**Version:** 2.2.0 | **Owner:** Dino Hatibović | Tešanj, BiH
 
-Sistem je organizovan u strogo odvojene slojeve. Svaki sloj ima vlastiti
-direktorij, vlastite zavisnosti i može se testirati/deployati izolovano.
+The system is organized into strictly separated layers. Each layer has its
+own directory, its own dependencies, and can be tested/deployed in isolation.
 
-## Slojevi
+## Layers
 
 ```
 ┌────────────────────────────────────────────────────────┐
 │  Layer 4: FRONTEND (frontend/)                          │
-│  Statični HTML/CSS/JS — GitHub Pages                    │
+│  Static HTML/CSS/JS — GitHub Pages                      │
 │  index.html (chat) │ auth.html (JWT) │ pitch.html       │
 └──────────────────────┬─────────────────────────────────┘
                        │ HTTPS / JSON (CORS whitelist)
 ┌──────────────────────▼─────────────────────────────────┐
 │  Layer 3: BACKEND — API Gateway (backend/app/)          │
-│  ├── api/       FastAPI rute (system, search, grants,   │
-│  │              auth, webhooks) + Pydantic šeme         │
+│  ├── api/       FastAPI routes (system, search, grants, │
+│  │              auth, webhooks) + Pydantic schemas      │
 │  ├── core/      config, database, security (JWT),       │
 │  │              rate_limit                              │
-│  ├── services/  ai.py — most prema AI sloju             │
+│  ├── services/  ai.py — bridge to the AI layer          │
 │  └── main.py    app factory, middleware, startup        │
 └──────────────────────┬─────────────────────────────────┘
                        │ Python import (backend → ai_core)
 ┌──────────────────────▼─────────────────────────────────┐
 │  Layer 2: AI CORE — Intelligence Stack (ai_core/)       │
-│  ├── embeddings/    Gemini embedding-001 klijent        │
-│  ├── vector_store/  ChromaDB perzistentni klijent       │
-│  ├── rag_pipeline/  pretraga, normalizacija, ingestion  │
+│  ├── embeddings/    Gemini embedding-001 client         │
+│  ├── vector_store/  ChromaDB persistent client          │
+│  ├── rag_pipeline/  search, normalization, ingestion    │
 │  │                  (JSON, web scraping, PDF, API)      │
-│  └── agent/         EUFundsAgent — RAG + Gemini 2.0     │
-│                     Flash generacija (bs/en)            │
+│  └── agent/         EUFundsAgent — RAG + Gemini 2.5     │
+│                     Flash generation (bs/en)            │
 └──────────────────────┬─────────────────────────────────┘
                        │
         ┌──────────────┴──────────────┐
         ▼                             ▼
   Google Gemini API            ChromaDB (disk)
-  (embeddings + generacija)    kolekcija `eu_grants`
+  (embeddings + generation)    collection `eu_grants`
 
 ┌────────────────────────────────────────────────────────┐
 │  Layer 5: INFRASTRUCTURE (infrastructure/)              │
-│  render/ (produkcija) │ k8s/ (opcionalno) │             │
-│  docker-compose.yml (lokalni razvoj) │ scripts/         │
+│  render/ (production) │ k8s/ (optional) │               │
+│  docker-compose.yml (local dev) │ scripts/              │
 └────────────────────────────────────────────────────────┘
 ```
 
-## Matrica zavisnosti (ko smije importovati koga)
+## Dependency matrix (who may import whom)
 
-| Sloj | smije importovati | NE smije importovati |
+| Layer | may import | must NOT import |
 |---|---|---|
-| `frontend/` | — (HTTP only) | bilo šta Python |
-| `backend/app/api/` | `backend/app/core`, `backend/app/services`, šeme | `ai_core` direktno |
+| `frontend/` | — (HTTP only) | any Python |
+| `backend/app/api/` | `backend/app/core`, `backend/app/services`, schemas | `ai_core` directly |
 | `backend/app/services/` | `backend/app/core`, `ai_core` | `backend/app/api` |
-| `backend/app/core/` | stdlib, vanjske biblioteke | `ai_core`, `api`, `services` |
-| `ai_core/*` | drugi `ai_core` moduli | `backend`, `frontend` |
-| `sdk/` | — (HTTP only) | interne module |
+| `backend/app/core/` | stdlib, external libraries | `ai_core`, `api`, `services` |
+| `ai_core/*` | other `ai_core` modules | `backend`, `frontend` |
+| `sdk/` | — (HTTP only) | internal modules |
 
-Pravilo: **zavisnosti teku prema dolje** (api → services → ai_core). AI sloj ne
-zna da backend postoji — može se koristiti samostalno (skripte, notebook, CLI).
+Rule: **dependencies flow downward** (api → services → ai_core). The AI layer
+does not know the backend exists — it can be used standalone (scripts,
+notebooks, CLI).
 
-## Tok podataka
+## Data flow
 
-1. **Ingestion:** `data/grants.json` → auto-ingest pri startupu (full refresh) →
-   Gemini embeddings (batch po 10) → ChromaDB kolekcija `eu_grants`.
-2. **Pretraga (`POST /search`):** upit → embedding → ChromaDB top-N → sirovi
-   rezultati + metadata.
-3. **AI odgovor (`POST /ai-answer`):** upit → RAG kontekst (top 5) → Gemini 2.0
-   Flash prompt s BiH domenskim znanjem → strukturirani odgovor + izvori.
+1. **Ingestion:** `data/grants.json` → auto-ingest on startup (full refresh) →
+   Gemini embeddings (batches of 10) → ChromaDB collection `eu_grants`.
+2. **Search (`POST /search`):** query → embedding → ChromaDB top-N → raw
+   results + metadata.
+3. **AI answer (`POST /ai-answer`):** query → RAG context (top 5) → Gemini 2.5
+   Flash prompt with BiH domain knowledge → structured answer + sources.
 
-## Ključne odluke i ograničenja
+## Key decisions and constraints
 
-- **ChromaDB lokalno, ne managed** — trošak 0, dovoljno za <10K dokumenata;
-  na Render free tier disk je ephemeral pa auto-ingest rekonstruiše bazu.
-- **SQLite fallback za korisnike** — server se podiže i bez PostgreSQL veze;
-  `DATABASE_URL` (Supabase) je preporučen za produkciju.
-- **In-memory rate limiter** — dovoljan za jedan proces; kod horizontalnog
-  skaliranja zamijeniti Redis-om.
-- **JWT HS256, 30 dana** — `JWT_SECRET` mora biti stabilan env var u produkciji.
+- **ChromaDB local, not managed** — zero cost, sufficient below ~10K
+  documents; the Render free-tier disk is ephemeral, so auto-ingest rebuilds
+  the database on startup.
+- **SQLite fallback for users** — the server boots even without a PostgreSQL
+  connection; `DATABASE_URL` (Supabase) is recommended for production.
+- **In-memory rate limiter** — fine for a single process; replace with Redis
+  when scaling horizontally.
+- **JWT HS256, 30 days** — `JWT_SECRET` must be a stable env variable in
+  production.
+- **Gemini model** — default `gemini-2.5-flash`, overridable via the
+  `GEMINI_MODEL` env variable (the 2.0 model was discontinued).

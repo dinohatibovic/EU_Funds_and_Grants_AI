@@ -1,36 +1,36 @@
 ---
-name: 🐛 Prijava buga
-about: Prijavi problem u radu FinAssistBH platforme
+name: 🐛 Bug report
+about: Report a problem with the FinAssistBH platform
 title: "[BUG] "
 labels: bug
 assignees: dinohatibovic
 ---
 
-## Opis problema
+## Problem description
 
-Jasno i sažeto opiši šta ne radi.
+A clear and concise description of what is broken.
 
-## Koraci za reprodukciju
+## Steps to reproduce
 
-1. Idi na '...'
-2. Klikni na '...'
-3. Pošalji upit '...'
-4. Greška se pojavi
+1. Go to '...'
+2. Click on '...'
+3. Send the query '...'
+4. The error appears
 
-## Očekivano ponašanje
+## Expected behavior
 
-Šta je trebalo da se desi.
+What should have happened.
 
-## Stvarno ponašanje
+## Actual behavior
 
-Šta se stvarno desilo (poruka greške, screenshot, HTTP status).
+What actually happened (error message, screenshot, HTTP status).
 
-## Okruženje
+## Environment
 
-- Sloj: [frontend / backend API / AI pipeline / deployment]
-- Browser/klijent:
-- `request_id` iz API odgovora (ako postoji):
+- Layer: [frontend / backend API / AI pipeline / deployment]
+- Browser/client:
+- `request_id` from the API response (if available):
 
-## Dodatni kontekst
+## Additional context
 
-Logovi, screenshotovi, primjer upita.
+Logs, screenshots, example query.

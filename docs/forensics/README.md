@@ -1,26 +1,26 @@
-# Forenzički logovi i sistemske analize
+# Forensic logs and system analyses
 
-Ovaj direktorij čuva artefakte tehničkih revizija sistema — trajni zapis za
-audit trail, odvojeno od koda.
+This directory stores artifacts of technical system audits — a durable audit
+trail kept separate from the code.
 
-## Šta ide ovdje
+## What belongs here
 
-- Izvještaji revizija koda i arhitekture (datirani, immutable)
-- Analize incidenata (postmortem dokumenti)
-- Rezultati `infrastructure/scripts/verify_sync.py` audita
+- Code and architecture audit reports (dated, immutable)
+- Incident analyses (postmortem documents)
+- Results of `infrastructure/scripts/verify_sync.py` audits
   (route parity, data drift, security headers)
-- Snapshot analize performansi i sigurnosnih skenova
+- Performance snapshots and security scan results
 
-## Konvencija imenovanja
+## Naming convention
 
 ```
-YYYY-MM-DD_<tip>_<kratki-opis>.md
-npr. 2026-07-12_audit_repo-restructure.md
+YYYY-MM-DD_<type>_<short-description>.md
+e.g. 2026-07-12_audit_repo-restructure.md
 ```
 
-## Napomena o runtime logovima
+## A note on runtime logs
 
-Aplikacijski runtime logovi (uvicorn/FastAPI) se NE commituju ovdje — oni žive
-u hosting platformi (Render Logs). Ovdje idu samo analizirani, sažeti nalazi.
-Automatsko logovanje svih RAG upita u ovaj direktorij je na roadmapi
-(vidi docs/regulatory/README.md — EU AI Act transparentnost).
+Application runtime logs (uvicorn/FastAPI) are NOT committed here — they live
+in the hosting platform (Render Logs). Only analyzed, summarized findings go
+here. Automatic logging of all RAG queries into this directory is on the
+roadmap (see docs/regulatory/README.md — EU AI Act transparency).

@@ -33,28 +33,6 @@
     "status": "neprovjereno"
   },
   {
-    "id": "grant_004",
-    "title": "Innovate Bosnia: Grantovi za startupe",
-    "category": "National Grant",
-    "description": "📌 STATUS: NEPROVJERENO — program i rok nisu potvrđeni iz zvaničnog izvora. Mnogi EU programi su za velike konzorcije/institucije, ne nužno za male BiH subjekte. Provjeriti prije oslanjanja. Maksimalno finansiranje: 50.000 KM. Za tech startupe registrovane u Bosni i Hercegovini. Aplicirati putem FIPA portala.",
-    "budget": "50.000 KM",
-    "deadline": null,
-    "relevance": "High",
-    "url": "https://fipa.gov.ba/",
-    "status": "neprovjereno"
-  },
-  {
-    "id": "grant_005",
-    "title": "FIPA podsticaji: IT sektor",
-    "category": "National Grant",
-    "description": "📌 STATUS: NEPROVJERENO — program i rok nisu potvrđeni iz zvaničnog izvora. Mnogi EU programi su za velike konzorcije/institucije, ne nužno za male BiH subjekte. Provjeriti prije oslanjanja. Do 150.000 KM za investicije u IT sektoru. Namijenjeno privrednicima koji ulažu u informatičku opremu i softverska rješenja.",
-    "budget": "150.000 KM",
-    "deadline": null,
-    "relevance": "Medium",
-    "url": "https://fipa.gov.ba/",
-    "status": "neprovjereno"
-  },
-  {
     "id": "grant_006",
     "title": "Fond za regionalni razvoj",
     "category": "Additional",
@@ -63,17 +41,6 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://www.vijeceministara.gov.ba/",
-    "status": "neprovjereno"
-  },
-  {
-    "id": "grant_007",
-    "title": "Fond za zaštitu okoliša FBiH",
-    "category": "Specialized",
-    "description": "📌 STATUS: NEPROVJERENO — program i rok nisu potvrđeni iz zvaničnog izvora. Mnogi EU programi su za velike konzorcije/institucije, ne nužno za male BiH subjekte. Provjeriti prije oslanjanja. Energetska efikasnost i projekti obnovljive energije. Podrška za solarni paneli, biomasa, toplotne pumpe i izolaciju zgrada.",
-    "budget": "Varijabilno",
-    "deadline": null,
-    "relevance": "High",
-    "url": "http://fondzzopfbih.ba/",
     "status": "neprovjereno"
   },
   {
