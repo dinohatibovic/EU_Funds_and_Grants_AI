@@ -1,7 +1,7 @@
 # FinAssistBH Backend — build context je ROOT repozitorija:
 #   docker build -f backend/Dockerfile .
 # (docker-compose u infrastructure/ to već radi ispravno)
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 WORKDIR /app
 
