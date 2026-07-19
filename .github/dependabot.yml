@@ -28,10 +28,14 @@ updates:
     schedule:
       interval: weekly
     labels: ["dependencies", "docker"]
-    # Major bump baznog Python image-a (npr. 3.12 → 3.14) traži ručnu odluku
+    # Bump baznog Python image-a (npr. 3.12 → 3.14) traži ručnu odluku.
+    # Napomena: 3.12 → 3.14 je tehnički SEMVER-MINOR (major ostaje "3"),
+    # pa moramo ignorisati i minor update-e, ne samo major.
     ignore:
       - dependency-name: "python"
-        update-types: ["version-update:semver-major"]
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
     groups:
       docker:
         patterns: ["*"]
