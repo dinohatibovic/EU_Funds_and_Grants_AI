@@ -21,6 +21,14 @@ Tešanj**.
 **Live:** [Frontend (GitHub Pages)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/) ·
 [API (Render)](https://eu-funds-and-grants-ai.onrender.com/health)
 
+## Proof summary
+
+- **Live product:** GitHub Pages frontend and Render API health endpoint are linked above.
+- **Deployment evidence:** README badges link to CI/CD, Security Audit, release, GHCR package, Python, FastAPI, Render, and license status.
+- **Architecture evidence:** documented RAG system with `ai_core/`, `backend/`, `frontend/`, `infrastructure/`, `docs/`, `sdk/`, and tests.
+- **Operational evidence:** GitHub Actions workflows cover CI/CD, release, and security audit checks.
+- **Product focus:** grant discovery and AI-assisted search for Bosnia and Herzegovina, with priority coverage for ZDK and Tešanj.
+
 ---
 
 ## 🏗️ System architecture
