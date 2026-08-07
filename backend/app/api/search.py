@@ -28,10 +28,12 @@ async def manual_ingest(current_user: str = Depends(get_current_user)):
     if not ai_services.embedding_client or not ai_services.chroma_client:
         raise HTTPException(status_code=503, detail="AI sistem nije spreman.")
     try:
+        ai_services.load_grants_cache()
         await ai_services.auto_ingest_grants()
         return {
             "status": "ok",
             "triggered_by": current_user,
+            "grants_cache_count": len(ai_services._grants_cache),
             "grants_in_db": ai_services.chroma_client.collection.count(),
         }
     except Exception as e:
