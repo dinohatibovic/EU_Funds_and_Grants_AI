@@ -334,7 +334,9 @@ FMRPO grant pozivi:
 
 - [x] `.env.example` fajl (GEMINI_API_KEY template)
 - [x] Graceful DB fallback na startupu
-- [ ] PostgreSQL ili Supabase (za persistence korisnika)
+- [x] PostgreSQL / Supabase (za persistence korisnika) — projekat `poticaji-bih-eu`
+      (eu-central-1), `users` tabela postoji. Treba samo postaviti
+      `DATABASE_URL` u Render environment (vidi .env.example).
 - [ ] Stripe integracija (pretplate)
 - [ ] SMTP konfiguracija (notifikacije)
 - [ ] Redis za caching API odgovora

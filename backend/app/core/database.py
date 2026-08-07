@@ -54,19 +54,28 @@ def db_exec(conn, cf, sql: str, params: tuple = ()):
 
 
 def init_user_db() -> None:
-    """Kreira tabelu korisnika ako ne postoji (PostgreSQL ili SQLite)."""
+    """Kreira tabelu korisnika ako ne postoji (PostgreSQL ili SQLite).
+
+    Šema mora odgovarati postojećoj `users` tabeli u Supabase projektu
+    (poticaji-bih-eu): email, password_hash, full_name, is_active,
+    subscription_tier, created_at, last_login.
+    """
     _id_col = (
         "id SERIAL PRIMARY KEY"
         if config.DATABASE_URL
         else "id INTEGER PRIMARY KEY AUTOINCREMENT"
     )
+    _timestamp_type = "TIMESTAMPTZ" if config.DATABASE_URL else "TEXT"
     with db_ctx() as (conn, cf):
         db_exec(conn, cf, f"""
             CREATE TABLE IF NOT EXISTS users (
                 {_id_col},
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
-                plan TEXT DEFAULT 'free',
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                full_name TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                subscription_tier TEXT DEFAULT 'free',
+                created_at {_timestamp_type} DEFAULT CURRENT_TIMESTAMP,
+                last_login {_timestamp_type}
             )
         """)
