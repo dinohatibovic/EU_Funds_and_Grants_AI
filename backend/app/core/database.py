@@ -20,19 +20,9 @@ def ph() -> str:
 def db_ctx():
     """Konekcija ka bazi — PostgreSQL (Supabase) ili SQLite (lokalno)."""
     if config.DATABASE_URL:
-        import urllib.parse
-
         import psycopg2
         import psycopg2.extras
-        parsed = urllib.parse.urlparse(config.DATABASE_URL)
-        conn = psycopg2.connect(
-            host=parsed.hostname,
-            port=parsed.port or 5432,
-            database=parsed.path.lstrip('/'),
-            user=urllib.parse.unquote(parsed.username or ''),
-            password=urllib.parse.unquote(parsed.password or ''),
-            sslmode='require'
-        )
+        conn = psycopg2.connect(config.DATABASE_URL, sslmode="require")
         try:
             yield conn, psycopg2.extras.RealDictCursor
             conn.commit()
