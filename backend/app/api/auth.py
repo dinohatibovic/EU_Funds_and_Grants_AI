@@ -40,10 +40,11 @@ async def login(req: LoginRequest):
     email = req.email.strip().lower()
     with db_ctx() as (conn, cf):
         row = db_exec(conn, cf, f"SELECT * FROM users WHERE email = {ph()}", (email,)).fetchone()  # nosec B608 — ph() je placeholder, upit je parametrizovan
-    if not row or not verify_password(req.password, row["password_hash"]):
-        raise HTTPException(status_code=401, detail="Pogrešan email ili lozinka.")
+        if not row or not verify_password(req.password, row["password_hash"]):
+            raise HTTPException(status_code=401, detail="Pogrešan email ili lozinka.")
+        db_exec(conn, cf, f"UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE email = {ph()}", (email,))  # nosec B608 — ph() je placeholder, upit je parametrizovan
     logger.info(f"🔑 Korisnik ulogovan: {email}")
-    return AuthResponse(token=create_jwt(email), email=email, plan=row["plan"])
+    return AuthResponse(token=create_jwt(email), email=email, plan=row["subscription_tier"])
 
 
 @router.get("/auth/me")
@@ -56,7 +57,7 @@ async def auth_me(request: Request):
     payload = decode_jwt(token)
     email = payload["sub"]
     with db_ctx() as (conn, cf):
-        row = db_exec(conn, cf, f"SELECT email, plan, created_at FROM users WHERE email = {ph()}", (email,)).fetchone()  # nosec B608 — ph() je placeholder, upit je parametrizovan
+        row = db_exec(conn, cf, f"SELECT email, subscription_tier, created_at FROM users WHERE email = {ph()}", (email,)).fetchone()  # nosec B608 — ph() je placeholder, upit je parametrizovan
     if not row:
         raise HTTPException(status_code=404, detail="Korisnik ne postoji.")
-    return {"email": row["email"], "plan": row["plan"], "created_at": row["created_at"]}
+    return {"email": row["email"], "plan": row["subscription_tier"], "created_at": row["created_at"]}
