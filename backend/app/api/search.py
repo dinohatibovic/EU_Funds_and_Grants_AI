@@ -124,6 +124,28 @@ def _grant_quality_score(query: str, metadata: dict, document: str) -> int:
         if any(term in combined for term in digital_doc_terms):
             score += 30
 
+    # Additional trust / quality tuning
+    if "neprovjereno" in doc_l:
+        score -= 50
+
+    if "neizvjesno" in doc_l:
+        score -= 35
+
+    if "agregator" in doc_l:
+        score -= 10
+
+    if "fmpvs" in combined:
+        score += 25
+
+    if "eu4agri" in combined:
+        score += 20
+
+    if "zeda" in combined:
+        score += 15
+
+    if "fmrpo" in combined:
+        score += 15
+
     return score
 
 
