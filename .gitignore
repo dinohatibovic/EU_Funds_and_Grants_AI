@@ -33,3 +33,41 @@ Thumbs.db
 logs/
 *.bak
 requirements.freeze.txt
+
+# Local authentication and benchmark secrets
+.env
+.env.*
+!.env.example
+*.token
+.token
+tokens.json
+auth-response.json
+login-response.json
+render-login.log
+
+# Local Python environment
+.venv/
+
+# Local ChromaDB persistence
+vector_db/
+
+# Local Python environment and generated vector database
+.venv/
+vector_db/
+__pycache__/
+*.pyc
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Local backups and temporary diagnostics
+*.bak
+*.before_metadata_fix
+check_chroma.py
+check_chroma_count.py
+diagnose_chroma_metadata.py
+patch_local_chroma_metadata.py
+verify_chroma_metadata.py
+env_check.sh

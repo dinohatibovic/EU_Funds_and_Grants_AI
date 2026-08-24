@@ -120,13 +120,31 @@ def main() -> bool:
         new_texts.append(text)
         new_ids.append(gid)
         new_docs.append(text)
+        def metadata_text(value) -> str:
+            """Chroma metadata ne prihvata None ili složene Python objekte."""
+            if value is None:
+                return ""
+            return str(value)
+
+        def metadata_int(value, default: int) -> int:
+            """Normalizuje numeričku metadata vrijednost u obični Python int."""
+            if value is None or value == "":
+                return default
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return default
+
         new_meta.append({
-            "title":    g.get("title", ""),
-            "category": g.get("category", ""),
-            "budget":   g.get("budget", ""),
-            "deadline": g.get("deadline", ""),
-            "url":      g.get("url", ""),
-            "relevance":g.get("relevance", ""),
+            "title": metadata_text(g.get("title", "")),
+            "category": metadata_text(g.get("category", "")),
+            "budget": metadata_text(g.get("budget", "")),
+            "deadline": metadata_text(g.get("deadline", "")),
+            "url": metadata_text(g.get("url", "")),
+            "relevance": metadata_text(g.get("relevance", "")),
+            "status": metadata_text(g.get("status", "unknown")),
+            "verified_score": metadata_int(g.get("verified_score"), 50),
+            "source_priority": metadata_int(g.get("source_priority"), 50),
         })
 
     if not new_texts:

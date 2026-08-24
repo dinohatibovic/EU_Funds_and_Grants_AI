@@ -105,6 +105,9 @@ async def auto_ingest_grants() -> None:
             "deadline": str(g.get("deadline", "")) if g.get("deadline") is not None else "",
             "url": g.get("url", ""),
             "relevance": g.get("relevance", ""),
+            "status": g.get("status", "unknown"),
+            "verified_score": int(g.get("verified_score", 50)),
+            "source_priority": int(g.get("source_priority", 50)),
         }
         for g in grants
     ]

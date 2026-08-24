@@ -8,7 +8,18 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/horizon-hlth-2026-ai-02-01",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "research"
+    ]
   },
   {
     "id": "grant_002",
@@ -19,7 +30,16 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://erasmusplus.ec.europa.eu/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "grant_003",
@@ -30,7 +50,18 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://digital-strategy.ec.europa.eu/en/funding/digital-europe-programme",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
   },
   {
     "id": "grant_006",
@@ -41,7 +72,18 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://www.vijeceministara.gov.ba/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
   },
   {
     "id": "grant_008",
@@ -52,7 +94,18 @@
     "deadline": null,
     "relevance": "Medium",
     "url": "https://ec.europa.eu/growth/tools-databases/competitiveness/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
   },
   {
     "id": "grant_009",
@@ -63,7 +116,18 @@
     "deadline": null,
     "relevance": "Medium",
     "url": "https://eu4digital.eu/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
   },
   {
     "id": "grant_010",
@@ -74,7 +138,16 @@
     "deadline": null,
     "relevance": "Medium",
     "url": "https://www.copernicus.eu/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "grant_011",
@@ -85,7 +158,16 @@
     "deadline": null,
     "relevance": "Low",
     "url": "https://culture.ec.europa.eu/creative-europe",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "grant_012",
@@ -96,7 +178,16 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://www.interreg.eu/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "grant_013",
@@ -107,7 +198,16 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://www.mreza-mira.net/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "grant_014",
@@ -118,7 +218,16 @@
     "deadline": null,
     "relevance": "High",
     "url": "https://zdk.ba/",
-    "status": "neprovjereno"
+    "status": "neprovjereno",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "local_grant_001",
@@ -130,7 +239,16 @@
     "budget": "27.400.000 KM (5 projekata)",
     "deadline": "2026-03-11",
     "relevance": "High",
-    "url": "https://javnipozivi.fmrpo.gov.ba/"
+    "url": "https://javnipozivi.fmrpo.gov.ba/",
+    "verified_score": 20,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "local_grant_002",
@@ -142,7 +260,18 @@
     "budget": "99.999 EUR – 170.000 EUR",
     "deadline": "2026-03-30",
     "relevance": "Medium",
-    "url": "https://www.eeas.europa.eu/delegations/bosnia-and-herzegovina_en"
+    "url": "https://www.eeas.europa.eu/delegations/bosnia-and-herzegovina_en",
+    "verified_score": 20,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "green"
+    ]
   },
   {
     "id": "local_grant_003",
@@ -154,7 +283,18 @@
     "budget": "ranije 30.000–200.000 KM",
     "deadline": null,
     "relevance": "Medium",
-    "url": "https://eu4agri.ba/"
+    "url": "https://eu4agri.ba/",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "agriculture"
+    ]
   },
   {
     "id": "local_grant_004",
@@ -166,7 +306,16 @@
     "budget": "varijabilno",
     "deadline": null,
     "relevance": "Medium",
-    "url": "https://fmpvs.gov.ba/"
+    "url": "https://fmpvs.gov.ba/",
+    "verified_score": 60,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "local_grant_005",
@@ -178,7 +327,16 @@
     "budget": "obično do 50% refundacija",
     "deadline": null,
     "relevance": "High",
-    "url": "https://zeda.ba/javni-pozivi/"
+    "url": "https://zeda.ba/javni-pozivi/",
+    "verified_score": 50,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
   },
   {
     "id": "local_grant_006",
@@ -190,7 +348,19 @@
     "budget": "varijabilno",
     "deadline": null,
     "relevance": "Medium",
-    "url": "https://fzofbih.org.ba/"
+    "url": "https://fzofbih.org.ba/",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization",
+      "green"
+    ]
   },
   {
     "id": "local_grant_007",
@@ -202,7 +372,18 @@
     "budget": "ranije navedeno 50.000 KM",
     "deadline": null,
     "relevance": "Low",
-    "url": ""
+    "url": "",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
   },
   {
     "id": "local_grant_008",
@@ -214,6 +395,250 @@
     "budget": "ranije navedeno do 150.000 KM",
     "deadline": null,
     "relevance": "Low",
-    "url": "https://fipa.gov.ba/"
+    "url": "https://fipa.gov.ba/",
+    "verified_score": 40,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
+  },
+  {
+    "id": "eu4digitalsme",
+    "title": "EU4DigitalSME",
+    "description": "Digitalna transformacija MSP kroz Digital Innovation Hub mrežu.",
+    "category": "digitalizacija",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://projects.europa.ba/",
+    "budget": "5000000 EUR",
+    "relevance": "MSP, startup, digitalizacija",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
+  },
+  {
+    "id": "go_digital_wb",
+    "title": "Go Digital Western Balkans",
+    "description": "EBRD i EU program digitalizacije MSP uz grant podršku.",
+    "category": "digitalizacija",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://www.ebrd.com/",
+    "budget": "377000000 EUR",
+    "relevance": "MSP, automatizacija, digitalizacija",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
+  },
+  {
+    "id": "wbif",
+    "title": "Western Balkans Investment Framework",
+    "description": "Finansiranje investicijskih i razvojnih projekata Zapadnog Balkana.",
+    "category": "infrastruktura",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://wbif.eu/",
+    "budget": "program",
+    "relevance": "razvoj, investicije",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
+  },
+  {
+    "id": "horizon_health",
+    "title": "Horizont Evropa - Zdravstvo",
+    "description": "EU grantovi za zdravstvena istraživanja.",
+    "category": "istraživanje",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://ec.europa.eu/",
+    "budget": "program",
+    "relevance": "zdravstvo, istraživanje",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "horizon_green",
+    "title": "Horizont Evropa - Zeleni razvoj",
+    "description": "Zeleni i održivi razvoj kroz EU istraživačke grantove.",
+    "category": "green",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://ec.europa.eu/",
+    "budget": "program",
+    "relevance": "energija, okoliš",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "green",
+      "research"
+    ]
+  },
+  {
+    "id": "interreg_danube",
+    "title": "Interreg Danube Region",
+    "description": "Regionalni razvoj i prekogranična saradnja.",
+    "category": "regionalni razvoj",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://interreg-danube.eu/",
+    "budget": "program",
+    "relevance": "javni sektor, razvoj",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
+  },
+  {
+    "id": "interreg_adrion",
+    "title": "Interreg ADRION",
+    "description": "Jadransko-jonska saradnja i razvoj.",
+    "category": "regionalni razvoj",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://www.interreg-ipa-adrion.eu/",
+    "budget": "program",
+    "relevance": "razvoj, inovacije",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
+  },
+  {
+    "id": "ebrd_advice",
+    "title": "EBRD Advice for Small Businesses",
+    "description": "Konsultantska i finansijska podrška MSP.",
+    "category": "poduzetništvo",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://www.ebrd.com/",
+    "budget": "program",
+    "relevance": "MSP",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
+  },
+  {
+    "id": "single_market_programme",
+    "title": "Single Market Programme",
+    "description": "EU podrška konkurentnosti MSP.",
+    "category": "konkurentnost",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://single-market-economy.ec.europa.eu/",
+    "budget": "program",
+    "relevance": "MSP, konkurentnost",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": []
+  },
+  {
+    "id": "eic_accelerator",
+    "title": "EIC Accelerator",
+    "description": "EU finansiranje inovativnih startupa.",
+    "category": "startup",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://eic.ec.europa.eu/",
+    "budget": "program",
+    "relevance": "startup, inovacije",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "digitalization"
+    ]
+  },
+  {
+    "id": "life_program",
+    "title": "LIFE Programme",
+    "description": "EU okolišni i klimatski grantovi.",
+    "category": "okoliš",
+    "status": "verified",
+    "deadline": null,
+    "url": "https://cinea.ec.europa.eu/",
+    "budget": "program",
+    "relevance": "okoliš, klima",
+    "verified_score": 95,
+    "source_priority": 50,
+    "regions": [
+      "BiH"
+    ],
+    "beneficiary_types": [
+      "SME"
+    ],
+    "sectors": [
+      "green"
+    ]
   }
 ]
