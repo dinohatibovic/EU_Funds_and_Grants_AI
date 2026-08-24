@@ -71,3 +71,6 @@ diagnose_chroma_metadata.py
 patch_local_chroma_metadata.py
 verify_chroma_metadata.py
 env_check.sh
+
+# Generated benchmark runs
+tests/benchmarks/results/
