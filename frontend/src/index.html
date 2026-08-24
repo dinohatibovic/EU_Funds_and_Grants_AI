@@ -291,6 +291,38 @@
             .chat-area { overflow: visible; }
         }
     </style>
+
+<style id="finassist-logout-style">
+  .finassist-logout-btn {
+    position: fixed;
+    top: 68px;
+    right: 16px;
+    z-index: 9999;
+    border: 1px solid #dbe3f0;
+    background: #ffffff;
+    color: #0f3f91;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(15, 63, 145, 0.14);
+    cursor: pointer;
+  }
+
+  .finassist-logout-btn:hover {
+    background: #f3f7ff;
+  }
+
+  @media (max-width: 640px) {
+    .finassist-logout-btn {
+      top: 64px;
+      right: 10px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+  }
+</style>
+
 </head>
 <body>
 
@@ -763,5 +795,53 @@
         // ============================================
         checkHealth();
     </script>
+
+<script id="finassist-logout-script">
+(function () {
+  function clearFinAssistSession() {
+    localStorage.removeItem("finassist_token");
+    localStorage.removeItem("finassist_email");
+    localStorage.removeItem("finassist_plan");
+    localStorage.removeItem("supabase_token");
+    localStorage.removeItem("user_email");
+
+    sessionStorage.removeItem("finassist_token");
+    sessionStorage.removeItem("finassist_email");
+    sessionStorage.removeItem("finassist_plan");
+    sessionStorage.removeItem("supabase_token");
+    sessionStorage.removeItem("user_email");
+
+    window.location.href = "auth.html";
+  }
+
+  function mountLogoutButton() {
+    var token = localStorage.getItem("finassist_token");
+    if (!token) {
+      return;
+    }
+
+    if (document.getElementById("finassistLogoutBtn")) {
+      return;
+    }
+
+    var button = document.createElement("button");
+    button.id = "finassistLogoutBtn";
+    button.className = "finassist-logout-btn";
+    button.type = "button";
+    button.textContent = "Odjavi se";
+    button.setAttribute("aria-label", "Odjavi se iz FinAssistBH");
+    button.addEventListener("click", clearFinAssistSession);
+
+    document.body.appendChild(button);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountLogoutButton);
+  } else {
+    mountLogoutButton();
+  }
+})();
+</script>
+
 </body>
 </html>
