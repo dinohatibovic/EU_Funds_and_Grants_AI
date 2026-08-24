@@ -23,9 +23,17 @@ jobs:
           pip install -r requirements.txt
           pip install pip-audit
       - name: pip-audit
-        # PYSEC-2026-311 (chromadb 1.5.9): no fixed version exists yet —
-        # remove the ignore as soon as one ships (watch the pip-audit report)
-        run: pip-audit --ignore-vuln PYSEC-2026-311
+        # Temporary ChromaDB 1.5.9 exceptions:
+        # latest stable PyPI release currently has no confirmed patched version.
+        # This application uses an embedded PersistentClient and does not expose
+        # ChromaDB's multi-tenant or RBAC API directly.
+        # Remove each exception when a patched stable release becomes available.
+        run: |
+          pip-audit \
+            --ignore-vuln PYSEC-2026-311 \
+            --ignore-vuln CVE-2026-45830 \
+            --ignore-vuln CVE-2026-45831 \
+            --ignore-vuln CVE-2026-45833
 
   static-security-scan:
     name: Static security analysis (Bandit)
