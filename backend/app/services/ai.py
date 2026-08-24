@@ -10,6 +10,10 @@ import json
 import logging
 from typing import Dict, List
 
+from ai_core.rag_pipeline.grant_metadata import (
+    build_chroma_metadata,
+    build_embedding_text,
+)
 from backend.app.core import config
 
 logger = logging.getLogger("eu_grants_api")
@@ -76,9 +80,8 @@ async def auto_ingest_grants() -> None:
     logger.info(f"📥 Auto-ingestion: ingestiram svih {len(grants)} grantova iz grants.json...")
 
     texts = [
-        f"{g['title']}. {g.get('description', '')} Kategorija: {g.get('category', '')}. "
-        f"Budžet: {g.get('budget', '')}. Rok: {g.get('deadline', '')}."
-        for g in grants
+        build_embedding_text(grant)
+        for grant in grants
     ]
 
     # Slanje svih tekstova odjednom može srušiti Gemini rate limit
@@ -96,20 +99,10 @@ async def auto_ingest_grants() -> None:
         logger.error("❌ Broj embeddinga ne odgovara broju grantova — prekidam.")
         return
 
-    ids = [g["id"] for g in grants]
+    ids = [grant["id"] for grant in grants]
     metadatas = [
-        {
-            "title": g["title"],
-            "category": g.get("category", ""),
-            "budget": g.get("budget", ""),
-            "deadline": str(g.get("deadline", "")) if g.get("deadline") is not None else "",
-            "url": g.get("url", ""),
-            "relevance": g.get("relevance", ""),
-            "status": g.get("status", "unknown"),
-            "verified_score": int(g.get("verified_score", 50)),
-            "source_priority": int(g.get("source_priority", 50)),
-        }
-        for g in grants
+        build_chroma_metadata(grant)
+        for grant in grants
     ]
 
     collection.add(ids=ids, embeddings=all_embeddings, metadatas=metadatas, documents=texts)

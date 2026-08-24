@@ -20,6 +20,10 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
 from ai_core.embeddings.embedding_client import EmbeddingClient
+from ai_core.rag_pipeline.grant_metadata import (
+    build_chroma_metadata,
+    build_embedding_text,
+)
 from ai_core.vector_store.chroma_client import ChromaDBClient
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -40,24 +44,6 @@ LOCAL_CATEGORIES = {
 
 COLLECTION_NAME = "eu_grants"
 DATA_FILE = ROOT / "data" / "grants.json"
-
-
-def build_embed_text(grant: dict) -> str:
-    """Gradi tekst koji se embeduje — kombinuje sva relevantna polja."""
-    parts = [
-        grant.get("title", ""),
-        f"Kategorija: {grant.get('category', '')}",
-        grant.get("description", ""),
-        f"Rok: {grant.get('deadline', 'nije naveden')}",
-        f"Budžet: {grant.get('budget', 'nije naveden')}",
-    ]
-    note = grant.get("note", "")
-    if note:
-        parts.append(f"Napomena: {note}")
-    url = grant.get("url", "")
-    if url:
-        parts.append(f"Izvor: {url}")
-    return ". ".join(p for p in parts if p.strip())
 
 
 def load_grants(path: Path) -> list[dict]:
@@ -116,36 +102,11 @@ def main() -> bool:
             logger.info(f"  Preskačem (već postoji): {gid}")
             continue
 
-        text = build_embed_text(g)
+        text = build_embedding_text(g)
         new_texts.append(text)
         new_ids.append(gid)
         new_docs.append(text)
-        def metadata_text(value) -> str:
-            """Chroma metadata ne prihvata None ili složene Python objekte."""
-            if value is None:
-                return ""
-            return str(value)
-
-        def metadata_int(value, default: int) -> int:
-            """Normalizuje numeričku metadata vrijednost u obični Python int."""
-            if value is None or value == "":
-                return default
-            try:
-                return int(value)
-            except (TypeError, ValueError):
-                return default
-
-        new_meta.append({
-            "title": metadata_text(g.get("title", "")),
-            "category": metadata_text(g.get("category", "")),
-            "budget": metadata_text(g.get("budget", "")),
-            "deadline": metadata_text(g.get("deadline", "")),
-            "url": metadata_text(g.get("url", "")),
-            "relevance": metadata_text(g.get("relevance", "")),
-            "status": metadata_text(g.get("status", "unknown")),
-            "verified_score": metadata_int(g.get("verified_score"), 50),
-            "source_priority": metadata_int(g.get("source_priority"), 50),
-        })
+        new_meta.append(build_chroma_metadata(g))
 
     if not new_texts:
         print("\n✅ Svi grantovi su već upisani u bazu — nema novih.")
