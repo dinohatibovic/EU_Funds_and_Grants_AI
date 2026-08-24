@@ -22,6 +22,128 @@ logger = logging.getLogger("eu_grants_api")
 router = APIRouter()
 
 
+def _grant_quality_score(query: str, metadata: dict, document: str) -> int:
+    """Small deterministic reranker for safer grant search results."""
+    query_l = (query or "").lower()
+    title = str(metadata.get("title", "") or "").lower()
+    category = str(metadata.get("category", "") or "").lower()
+    status = str(metadata.get("status", "") or "").lower()
+    relevance = str(metadata.get("relevance", "") or "").lower()
+    url = str(metadata.get("url", "") or "").strip().lower()
+    doc_l = str(document or "").lower()
+
+    combined = f"{title} {category} {doc_l}"
+    score = 0
+
+    status_weights = {
+        "rolling": 30,
+        "u_pripremi": 20,
+        "open": 25,
+        "otvoren": 25,
+        "zatvoren": -10,
+        "closed": -10,
+        "neprovjereno": -25,
+        "neizvjesno": -25,
+        "needs_review": -35,
+    }
+    score += status_weights.get(status, -5 if not status else 0)
+
+    relevance_weights = {
+        "high": 15,
+        "medium": 5,
+        "low": -10,
+    }
+    score += relevance_weights.get(relevance, 0)
+
+    if not url:
+        score -= 40
+    elif url in {
+        "https://www.vijeceministara.gov.ba/",
+        "https://vijeceministara.gov.ba/",
+        "https://www.interreg.eu/",
+        "https://interreg.eu/",
+    }:
+        score -= 15
+
+    if "innovate bosnia" in combined or "fipa" in combined:
+        score -= 35
+
+    agriculture_query_terms = {
+        "poljoprivred",
+        "rural",
+        "stocar",
+        "vocar",
+        "farma",
+        "pcel",
+        "agri",
+        "fmpvs",
+    }
+    agriculture_doc_terms = {
+        "poljoprivred",
+        "rural",
+        "stocar",
+        "vocar",
+        "farma",
+        "pcel",
+        "eu4agri",
+        "fmpvs",
+    }
+
+    digital_query_terms = {
+        "digital",
+        "digitaliz",
+        "msp",
+        "sme",
+        "startup",
+        "start-up",
+        "zdk",
+        "tesanj",
+        "obrt",
+    }
+    digital_doc_terms = {
+        "digital",
+        "digitaliz",
+        "msp",
+        "sme",
+        "startup",
+        "zdk",
+        "tesanj",
+        "zeda",
+        "fmrpo",
+        "konkurentnost",
+        "obrt",
+    }
+
+    if any(term in query_l for term in agriculture_query_terms):
+        if any(term in combined for term in agriculture_doc_terms):
+            score += 35
+        if "it sektor" in combined or "fipa" in combined:
+            score -= 45
+
+    if any(term in query_l for term in digital_query_terms):
+        if any(term in combined for term in digital_doc_terms):
+            score += 30
+
+    return score
+
+
+def _rerank_search_results(query: str, documents: list, metadatas: list, limit: int):
+    """Rerank Chroma results while preserving response-compatible shapes."""
+    items = []
+    for index, document in enumerate(documents):
+        metadata = metadatas[index] if index < len(metadatas) and metadatas[index] else {}
+        quality_score = _grant_quality_score(query, metadata, document)
+        items.append((quality_score, index, document, metadata))
+
+    items.sort(key=lambda item: (item[0], -item[1]), reverse=True)
+    selected = items[:limit]
+
+    reranked_documents = [item[2] for item in selected]
+    reranked_metadatas = [item[3] for item in selected]
+    return reranked_documents, reranked_metadatas
+
+
+
 @router.post("/ingest")
 async def manual_ingest(current_user: str = Depends(get_current_user)):
     """Manualni re-ingest grantova u ChromaDB bez restarta servera."""
@@ -66,20 +188,28 @@ async def search_endpoint(request: SearchRequest, current_user: str = Depends(ge
             raise HTTPException(status_code=500, detail="Greška pri generisanju AI vektora.")
 
         # KORAK 2: Pretraga u Bazi
-        # ChromaDB baca grešku ako n_results > broj dokumenata u kolekciji
+        # Fetch a wider candidate set, then apply deterministic safety reranking.
         doc_count = ai_services.chroma_client.collection.count()
-        safe_n = min(request.n_results, max(doc_count, 1))
+        requested_n = max(request.n_results, 1)
+        candidate_n = min(max(requested_n * 3, requested_n), max(doc_count, 1))
         search_results = ai_services.chroma_client.query(
             query_embeddings=query_vectors,
-            n_results=safe_n
+            n_results=candidate_n
         )
 
-        # ChromaDB vraća liste unutar listi, pa ih moramo "otpakovati"
-        documents = search_results['documents'] if search_results else []
-        metadatas = search_results['metadatas'] if search_results else []
+        raw_documents = search_results.get("documents", [[]])[0] if search_results else []
+        raw_metadatas = search_results.get("metadatas", [[]])[0] if search_results else []
 
-        # Za frontend kompatibilnost (JS očekuje listu stringova u 'results')
-        flat_results = documents[0] if documents else []
+        flat_results, flat_metadatas = _rerank_search_results(
+            request.query,
+            raw_documents,
+            raw_metadatas,
+            requested_n,
+        )
+
+        # Frontend compatibility: JS expects a list of strings in "results".
+        documents = [flat_results]
+        metadatas = [flat_metadatas]
 
         duration = time.time() - start_time
         logger.info(f"✅ [ID: {req_id}] Pretraga završena za {duration:.2f}s. Nađeno {len(flat_results)} rezultata.")
@@ -119,14 +249,20 @@ async def ai_answer_endpoint(request: AIAnswerRequest, current_user: str = Depen
             raise HTTPException(status_code=500, detail="Greška pri generisanju AI vektora.")
 
         doc_count = ai_services.chroma_client.collection.count()
-        safe_n = min(5, max(doc_count, 1))
+        candidate_n = min(12, max(doc_count, 1))
         search_results = ai_services.chroma_client.query(
             query_embeddings=query_vectors,
-            n_results=safe_n
+            n_results=candidate_n
         )
 
-        metadatas = search_results.get("metadatas", [[]])[0]
-        documents = search_results.get("documents", [[]])[0]
+        raw_metadatas = search_results.get("metadatas", [[]])[0]
+        raw_documents = search_results.get("documents", [[]])[0]
+        documents, metadatas = _rerank_search_results(
+            request.query,
+            raw_documents,
+            raw_metadatas,
+            5,
+        )
 
         # Kontekst za AI
         context_parts = []
