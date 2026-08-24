@@ -32,12 +32,23 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install pytest httpx
-      - name: Backend tests
-        run: pytest tests/backend_tests/ -v
-      - name: AI pipeline tests
-        run: pytest tests/ai_pipeline_tests/ -v
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements.txt
+          python -m pip install pytest httpx
+
+      - name: Verify dependency consistency
+        run: python -m pip check
+
+      - name: Run project tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python -m pytest -q
+
+      - name: Validate benchmark shell syntax
+        run: bash -n tests/benchmarks/run_search_benchmark.sh
+
+      - name: Detect whitespace errors
+        run: git diff --check
 
   deploy-backend:
     name: Deploy to Render
