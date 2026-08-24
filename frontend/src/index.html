@@ -835,11 +835,28 @@
     document.body.appendChild(button);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", mountLogoutButton);
-  } else {
-    mountLogoutButton();
+  function ensureLogoutButton() {
+    var token = localStorage.getItem("finassist_token");
+    var button = document.getElementById("finassistLogoutBtn");
+
+    if (token && !button) {
+      mountLogoutButton();
+    }
+
+    if (!token && button) {
+      button.remove();
+    }
   }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ensureLogoutButton);
+  } else {
+    ensureLogoutButton();
+  }
+
+  window.addEventListener("focus", ensureLogoutButton);
+  window.addEventListener("storage", ensureLogoutButton);
+  setInterval(ensureLogoutButton, 2000);
 })();
 </script>
 
