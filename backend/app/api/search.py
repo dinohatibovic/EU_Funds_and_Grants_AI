@@ -36,12 +36,13 @@ def _grant_quality_score(query: str, metadata: dict, document: str) -> int:
     score = 0
 
     status_weights = {
+        "verified": 20,
         "rolling": 30,
-        "u_pripremi": 20,
+        "u_pripremi": 10,
         "open": 25,
         "otvoren": 25,
-        "zatvoren": -10,
-        "closed": -10,
+        "zatvoren": -20,
+        "closed": -20,
         "neprovjereno": -25,
         "neizvjesno": -25,
         "needs_review": -35,
@@ -54,6 +55,28 @@ def _grant_quality_score(query: str, metadata: dict, document: str) -> int:
         "low": -10,
     }
     score += relevance_weights.get(relevance, 0)
+
+    def normalized_metadata_score(
+        value,
+        *,
+        weight: float,
+    ) -> int:
+        try:
+            numeric = int(value)
+        except (TypeError, ValueError):
+            numeric = 50
+
+        numeric = max(0, min(100, numeric))
+        return round((numeric - 50) * weight)
+
+    score += normalized_metadata_score(
+        metadata.get("verified_score", 50),
+        weight=0.4,
+    )
+    score += normalized_metadata_score(
+        metadata.get("source_priority", 50),
+        weight=0.3,
+    )
 
     if not url:
         score -= 40
