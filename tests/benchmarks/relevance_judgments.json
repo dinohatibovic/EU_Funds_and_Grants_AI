@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "binary_relevance_threshold": 2,
+  "scale": {
+    "0": "nije relevantno",
+    "1": "djelimično relevantno, zatvoreno ili nepouzdano",
+    "2": "relevantno",
+    "3": "izravno i visoko relevantno"
+  },
+  "queries": [
+    {
+      "query": "grant za digitalizaciju firme u ZDK",
+      "relevance": {
+        "local_grant_005": 3,
+        "eu4digitalsme": 3,
+        "go_digital_wb": 2,
+        "grant_003": 1,
+        "grant_014": 1
+      }
+    },
+    {
+      "query": "digitalizacija proizvodne firme Tešanj",
+      "relevance": {
+        "local_grant_005": 3,
+        "go_digital_wb": 3,
+        "eu4digitalsme": 3,
+        "grant_003": 1
+      }
+    },
+    {
+      "query": "ERP sistem za MSP",
+      "relevance": {
+        "go_digital_wb": 3,
+        "eu4digitalsme": 3,
+        "local_grant_005": 2,
+        "single_market_programme": 1
+      }
+    },
+    {
+      "query": "CNC proizvodnja Tešanj",
+      "relevance": {
+        "local_grant_005": 3,
+        "go_digital_wb": 2,
+        "ebrd_advice": 2,
+        "local_grant_001": 1
+      }
+    },
+    {
+      "query": "AI startup BiH",
+      "relevance": {
+        "eic_accelerator": 3,
+        "eu4digitalsme": 2,
+        "go_digital_wb": 2,
+        "grant_003": 1,
+        "local_grant_007": 1
+      }
+    },
+    {
+      "query": "tehnološki startup ZDK",
+      "relevance": {
+        "eic_accelerator": 3,
+        "local_grant_005": 2,
+        "eu4digitalsme": 2,
+        "go_digital_wb": 2,
+        "local_grant_007": 1
+      }
+    },
+    {
+      "query": "Poticaji za poljoprivredu u BiH",
+      "relevance": {
+        "local_grant_004": 3,
+        "local_grant_003": 2,
+        "grant_014": 1
+      }
+    },
+    {
+      "query": "farma mlijeka ZDK",
+      "relevance": {
+        "local_grant_004": 3,
+        "local_grant_003": 2,
+        "grant_014": 1
+      }
+    },
+    {
+      "query": "poticaji za pčelarstvo",
+      "relevance": {
+        "local_grant_004": 3,
+        "local_grant_003": 2
+      }
+    },
+    {
+      "query": "voćnjak poticaji FBiH",
+      "relevance": {
+        "local_grant_004": 3,
+        "local_grant_003": 2
+      }
+    },
+    {
+      "query": "ruralni razvoj BiH",
+      "relevance": {
+        "local_grant_003": 3,
+        "local_grant_004": 2,
+        "grant_014": 1
+      }
+    },
+    {
+      "query": "grantovi za obrt u Tešnju",
+      "relevance": {
+        "local_grant_005": 3,
+        "local_grant_001": 2,
+        "ebrd_advice": 1
+      }
+    },
+    {
+      "query": "zapošljavanje mladih u FBiH",
+      "relevance": {
+        "local_grant_001": 1,
+        "ebrd_advice": 1
+      }
+    },
+    {
+      "query": "energetska efikasnost MSP",
+      "relevance": {
+        "local_grant_006": 3,
+        "local_grant_002": 2,
+        "life_program": 2,
+        "horizon_green": 1
+      }
+    },
+    {
+      "query": "izvoz i konkurentnost firme",
+      "relevance": {
+        "single_market_programme": 3,
+        "local_grant_005": 3,
+        "ebrd_advice": 2,
+        "grant_008": 1
+      }
+    }
+  ]
+}
