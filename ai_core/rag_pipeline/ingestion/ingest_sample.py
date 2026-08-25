@@ -14,7 +14,7 @@ if os.getenv("ALLOW_SAMPLE") != "1":
         "Postavi ALLOW_SAMPLE=1 ako namjerno pokrećeš u dev okruženju."
     )
 from ai_core.embeddings.embedding_client import EmbeddingClient
-from ai_core.vector_store.chroma_client import ChromaDBClient
+from ai_core.vector_store.chroma_client import ChromaDBClient, DEFAULT_CHROMA_COLLECTION
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ def main():
     print("-" * 70)
     
     try:
-        collection = db_client.client.get_or_create_collection("eu_grants")
+        collection = db_client.client.get_or_create_collection(DEFAULT_CHROMA_COLLECTION)
         
         # Add documents with embeddings
         ids = [doc["id"] for doc in documents]

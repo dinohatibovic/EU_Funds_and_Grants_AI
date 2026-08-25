@@ -4,7 +4,7 @@ RAG PIPELINE - Retrieval Augmented Generation
 """
 
 from ai_core.embeddings.embedding_client import EmbeddingClient
-from ai_core.vector_store.chroma_client import ChromaDBClient
+from ai_core.vector_store.chroma_client import ChromaDBClient, DEFAULT_CHROMA_COLLECTION
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +18,7 @@ class RAGPipeline:
         try:
             self.embedding_client = EmbeddingClient()
             self.db_client = ChromaDBClient()
-            self.collection = self.db_client.client.get_or_create_collection("eu_grants")
+            self.collection = self.db_client.client.get_or_create_collection(DEFAULT_CHROMA_COLLECTION)
             logger.info("✅ RAG Pipeline initialized")
         except Exception as e:
             logger.error(f"❌ Error: {e}")

@@ -2,6 +2,8 @@ import chromadb
 import os
 import logging
 
+DEFAULT_CHROMA_COLLECTION = "eu_grants"
+
 # Postavke za logiranje da vidimo šta se dešava
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,7 +26,7 @@ class ChromaDBClient:
             
             # Kreiramo kolekciju 'eu_grants'. 
             # ChromaDB automatski prepoznaje dimenziju vektora (3072) kod prvog upisa.
-            self.collection = self.client.get_or_create_collection(name="eu_grants")
+            self.collection = self.client.get_or_create_collection(name=DEFAULT_CHROMA_COLLECTION)
             print(f"--- ChromaDB Path: {self.db_path} ---")
             print("✅ Kolekcija 'eu_grants' spremna.")
             
