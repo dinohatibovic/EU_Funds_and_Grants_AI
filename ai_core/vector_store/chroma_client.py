@@ -51,6 +51,57 @@ class ChromaDBClient:
             print(f"❌ Greška pri upisu u ChromaDB: {e}")
             return False
 
+    def sync_documents(
+        self,
+        documents,
+        metadatas,
+        ids,
+        embeddings,
+    ):
+        """Upsert a validated dataset, then remove only stale records."""
+        lengths = {
+            len(documents),
+            len(metadatas),
+            len(ids),
+            len(embeddings),
+        }
+
+        if not ids:
+            raise ValueError(
+                "At least one document is required for synchronization."
+            )
+
+        if len(lengths) != 1:
+            raise ValueError(
+                "Documents, metadatas, ids and embeddings "
+                "must have equal lengths."
+            )
+
+        if len(set(ids)) != len(ids):
+            raise ValueError(
+                "Document IDs must be unique."
+            )
+
+        existing_ids = set(
+            self.collection.get()["ids"]
+        )
+
+        self.collection.upsert(
+            ids=ids,
+            embeddings=embeddings,
+            metadatas=metadatas,
+            documents=documents,
+        )
+
+        stale_ids = sorted(
+            existing_ids - set(ids)
+        )
+
+        if stale_ids:
+            self.collection.delete(ids=stale_ids)
+
+        return self.collection.count()
+
     def query(self, query_embeddings, n_results=5):
         """
         Pretražuje bazu koristeći vektore.
