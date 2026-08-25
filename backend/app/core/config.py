@@ -14,6 +14,13 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[3]
 GRANTS_FILE = ROOT_DIR / "data" / "grants.json"
 
+# --- Release identity ---
+APP_VERSION = os.getenv("APP_VERSION", "2.2.1")
+GIT_COMMIT = os.getenv(
+    "RENDER_GIT_COMMIT",
+    os.getenv("GIT_COMMIT", "local"),
+)
+
 # --- JWT ---
 # JWT tajni ključ — MORA biti postavljen u Render environment za produkciju
 JWT_SECRET = os.getenv("JWT_SECRET")

@@ -35,7 +35,7 @@ logger = logging.getLogger("eu_grants_api")
 app = FastAPI(
     title="FinAssistBH AI Platform API",
     description="Enterprise-grade AI API za EU fondove u BiH (Gemini embeddings + RAG).",
-    version="v2.1.0-enterprise"
+    version=config.APP_VERSION,
 )
 
 
