@@ -1,0 +1,231 @@
+name: Production Health Check
+
+on:
+  workflow_run:
+    workflows:
+      - CI/CD Pipeline
+    types:
+      - completed
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Expected production Git commit
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-health-main
+  cancel-in-progress: true
+
+jobs:
+  verify-production:
+    name: Verify Render production health
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        github.event.workflow_run.conclusion == 'success'
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    env:
+      HEALTH_URL: >-
+        https://eu-funds-and-grants-ai.onrender.com/health
+      EXPECTED_VERSION: 2.2.1
+      EXPECTED_COLLECTION: eu_grants
+      EXPECTED_DOCUMENTS: "30"
+
+    steps:
+      - name: Resolve expected commit
+        id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          MANUAL_SHA: ${{ inputs.expected_sha }}
+          DEFAULT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            expected_sha="$WORKFLOW_SHA"
+          elif [ -n "${MANUAL_SHA:-}" ]; then
+            expected_sha="$MANUAL_SHA"
+          else
+            expected_sha="$DEFAULT_SHA"
+          fi
+
+          if [ -z "$expected_sha" ]; then
+            echo "[FAIL] Expected SHA is empty."
+            exit 1
+          fi
+
+          echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"
+          echo "[INFO] expected_sha=$expected_sha"
+
+      - name: Wait for matching Render deployment
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ steps.release.outputs.expected_sha }}
+        run: |
+          set -euo pipefail
+
+          output="$RUNNER_TEMP/production-health.json"
+          max_attempts=30
+          sleep_seconds=10
+          attempt=1
+
+          while [ "$attempt" -le "$max_attempts" ]; do
+            echo
+            echo "[INFO] attempt=$attempt/$max_attempts"
+
+            if curl \
+              --silent \
+              --show-error \
+              --fail \
+              --max-time 60 \
+              "$HEALTH_URL" \
+              -o "$output"
+            then
+              cat "$output"
+              echo
+
+              if python - "$output" <<'PY'
+          from pathlib import Path
+          import json
+          import os
+          import sys
+
+          path = Path(sys.argv[1])
+
+          try:
+              payload = json.loads(
+                  path.read_text(encoding="utf-8")
+              )
+          except Exception as exc:
+              print(f"[WAIT] Invalid health JSON: {exc}")
+              raise SystemExit(1)
+
+          expected_sha = os.environ["EXPECTED_SHA"]
+          expected_version = os.environ["EXPECTED_VERSION"]
+          expected_collection = os.environ[
+              "EXPECTED_COLLECTION"
+          ]
+          expected_documents = int(
+              os.environ["EXPECTED_DOCUMENTS"]
+          )
+
+          expected = {
+              "status": "healthy",
+              "version": expected_version,
+              "git_commit": expected_sha,
+              "chroma_collection": expected_collection,
+              "chroma_documents": expected_documents,
+              "database": "connected",
+              "ai_engine": "ready",
+              "grants_total": 30,
+              "grants_in_vector_db": 30,
+          }
+
+          failures = []
+
+          for key, value in expected.items():
+              actual = payload.get(key)
+              passed = actual == value
+
+              print(
+                  f"{key}="
+                  f"{'PASS' if passed else 'WAIT'}"
+              )
+
+              if not passed:
+                  failures.append(
+                      f"{key}: expected={value!r}, "
+                      f"actual={actual!r}"
+                  )
+
+          if failures:
+              print("[WAIT] Production is not current:")
+
+              for failure in failures:
+                  print(f"  {failure}")
+
+              raise SystemExit(1)
+
+          print("[PASS] production health contract")
+          PY
+              then
+                cp "$output" production-health.json
+                break
+              fi
+            else
+              echo "[WAIT] Health request failed."
+            fi
+
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              echo "[FAIL] Production did not reach expected release."
+              exit 1
+            fi
+
+            attempt="$((attempt + 1))"
+            sleep "$sleep_seconds"
+          done
+
+      - name: Publish health summary
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ steps.release.outputs.expected_sha }}
+        run: |
+          set -euo pipefail
+
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          from pathlib import Path
+          import json
+          import os
+
+          payload = json.loads(
+              Path("production-health.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          print("# Production health")
+          print()
+          print(f"- Status: `{payload['status']}`")
+          print(f"- Version: `{payload['version']}`")
+          print(f"- Git commit: `{payload['git_commit']}`")
+          print(
+              "- Chroma collection: "
+              f"`{payload['chroma_collection']}`"
+          )
+          print(
+              "- Chroma documents: "
+              f"`{payload['chroma_documents']}`"
+          )
+          print(
+              "- Grants loaded: "
+              f"`{payload['grants_total']}`"
+          )
+          print(
+              "- AI engine: "
+              f"`{payload['ai_engine']}`"
+          )
+          print()
+          print(
+              "Expected commit: "
+              f"`{os.environ['EXPECTED_SHA']}`"
+          )
+          PY
+
+      - name: Upload health response
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-health
+          path: production-health.json
+          retention-days: 7
