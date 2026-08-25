@@ -14,6 +14,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+TEST_EMBEDDING_DIMENSION = 3072
+
 
 # ---------------------------------------------------------------------------
 # FIXTURE: Test klijent koji mocka vanjske servise
@@ -49,7 +51,7 @@ def client(tmp_path_factory):
             }]],
         }
         mock_emb = MagicMock()
-        mock_emb.generate_embeddings.return_value = [[0.1] * 768]
+        mock_emb.generate_embeddings.return_value = [[0.1] * TEST_EMBEDDING_DIMENSION]
 
         ai_services.embedding_client = mock_emb
         ai_services.chroma_client = mock_chroma
@@ -288,7 +290,7 @@ def test_agent_answer_returns_string():
         mock_response.text = "Ovo je testni odgovor o grantovima."
         mock_genai.Client.return_value.models.generate_content.return_value = mock_response
 
-        mock_emb.return_value.generate_embeddings.return_value = [[0.1] * 768]
+        mock_emb.return_value.generate_embeddings.return_value = [[0.1] * TEST_EMBEDDING_DIMENSION]
         mock_db.return_value.client.get_or_create_collection.return_value.query.return_value = {
             "ids": [["test_id"]],
             "documents": [["Test grant dokument."]],
@@ -314,7 +316,7 @@ def test_agent_answer_handles_no_context():
         mock_response.text = "Nema specifičnih podataka, ali evo opštih informacija."
         mock_genai.Client.return_value.models.generate_content.return_value = mock_response
 
-        mock_emb.return_value.generate_embeddings.return_value = [[0.1] * 768]
+        mock_emb.return_value.generate_embeddings.return_value = [[0.1] * TEST_EMBEDDING_DIMENSION]
         mock_db.return_value.client.get_or_create_collection.return_value.query.return_value = {
             "ids": [[]],
             "documents": [[]],
@@ -339,7 +341,7 @@ def test_agent_answer_english():
         mock_response.text = "Here are EU grants available in BiH."
         mock_genai.Client.return_value.models.generate_content.return_value = mock_response
 
-        mock_emb.return_value.generate_embeddings.return_value = [[0.1] * 768]
+        mock_emb.return_value.generate_embeddings.return_value = [[0.1] * TEST_EMBEDDING_DIMENSION]
         mock_db.return_value.client.get_or_create_collection.return_value.query.return_value = {
             "ids": [["id1"]],
             "documents": [["EU grant document."]],
