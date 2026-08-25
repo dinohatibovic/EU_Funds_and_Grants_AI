@@ -83,7 +83,8 @@ baseline.
 
 - Verzija: v2.2.0 — sistem radi stabilno
 - Baza korisnika: SQLite (aktivan) — migracija na Render PostgreSQL u toku
-- ChromaDB: 19 grantova učitano u kolekciju `eu_grants` (duplikati uklonjeni jula 2026.)
+- Historical snapshot: ChromaDB contained 19 grants in July 2026. The current
+  August 2026 baseline contains 30 unique grant records in `eu_grants`.
 - DB fallback: implementiran — server se pokreće i bez PostgreSQL veze
 - CORS: whitelist konfigurisan za produkciju
 - Obrisani duplikati: `agent/main_agent.py`, `ingestion/ingest_real_data.py`
