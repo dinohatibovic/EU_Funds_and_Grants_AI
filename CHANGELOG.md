@@ -5,57 +5,84 @@ All notable changes to the FinAssistBH platform. The format follows
 
 ## [Unreleased]
 
-### P1 search and ranking
+## [2.2.1] — 2026-08-25
 
-#### Added
+### Added
 
-- Structured grant metadata model for retrieval and ranking.
-- Versioned relevance judgments for 15 benchmark queries.
-- Offline evaluator for saved production search API responses.
-- HitRate@5, MRR@10 and NDCG@10 ranking metrics.
-- Deterministic ranking and grant quality scoring tests.
-- Search API response structure validation.
-- Stable and unique grant identifier validation.
-- Reproducible production search baseline.
+- Expanded the production grant dataset to 30 structured records.
+- Added shared release metadata to the public health endpoint:
+  `version`, `git_commit`, `chroma_collection` and `chroma_documents`.
+- Added deterministic Chroma collection and write lifecycle contract tests.
+- Added automated production health verification after deployment.
+- Added versioned relevance judgments and production search benchmark
+  evidence for 15 representative grant queries.
+- Added FastAPI lifespan behavior tests for startup ordering, database
+  fallback and failure-safe AI initialization.
 
-#### Changed
+### Changed
 
-- Expanded the dataset from 19 to 30 unique grant records.
-- Unified structured metadata across ingestion paths.
-- Enriched ChromaDB records with ranking metadata.
-- Added deterministic grant quality scoring.
-- Added quality-aware reranking of search results.
-- Strengthened Python CI quality gates.
-- Normalized `rolling` and `periodic` deadlines to `null`.
+- Centralized the Gemini embedding model contract.
+- Standardized Gemini embeddings at 3072 dimensions.
+- Centralized the ChromaDB collection contract as `eu_grants`.
+- Unified structured metadata and embedding text generation across primary
+  grant ingestion paths.
+- Migrated FastAPI startup initialization from the deprecated
+  `@app.on_event("startup")` mechanism to the lifespan context manager.
+- Updated the application version contract to `2.2.1`.
+- Improved quality-aware reranking for grant search results.
 
-#### Security
+### Fixed
 
-- Documented temporary ChromaDB `pip-audit` exceptions.
-- Retained audit coverage for all non-exempt findings.
+- Made production ChromaDB dataset synchronization failure-safe by upserting
+  the new dataset before deleting stale records.
+- Prevented failed embedding or upsert operations from deleting the existing
+  production collection.
+- Removed the FastAPI `on_event` deprecation warning.
+- Preserved database fallback, grants cache loading, AI client initialization
+  and ChromaDB auto-ingestion during the lifespan migration.
 
-#### Benchmark
+### Production validation
+
+- Production release commit:
+  `f8355363ef9ea16ce8fd4a376c57fd6144511c33`.
+- Public health endpoint reports version `2.2.1` and the matching Git commit.
+- PostgreSQL connection reports `connected`.
+- AI engine reports `ready`.
+- ChromaDB collection `eu_grants` reports 30 documents.
+- Three Gemini embedding batches of 10 records completed successfully.
+- Embedding vectors use 3072 dimensions.
+- Full automated test suite: 87 passing tests.
+- GitHub Release and GHCR image published with tags `2.2.1` and `latest`.
+
+### Search benchmark
+
+Full 15-query production baseline:
 
 - HitRate@5: `0.8667`
 - MRR@10: `0.7622`
 - NDCG@10: `0.6293`
-- P1 completion merge commit: `9020b71`
-- P1 completion baseline: `72` passing tests
 
-### Changed
-- Gemini generation model switched from the discontinued `gemini-2.0-flash`
-  to `gemini-2.5-flash` (overridable via the `GEMINI_MODEL` env variable)
-- LICENSE translated to English; contact changed from phone number to email
-- Repository documentation translated to English (frontend stays Bosnian —
-  product language)
-- `.env.example` aligned with the actual config (`DATABASE_URL`,
-  `CHROMA_DB_PATH`, `RATE_LIMIT_*`, `GEMINI_MODEL`); unused `SUPABASE_*`
-  placeholders removed
+Fourteen evaluable queries, excluding one documented dataset coverage gap:
 
-### Fixed
-- Removed duplicate grants from `data/grants.json` (Innovate Bosnia, FIPA IT,
-  Environment Fund — 22 → 19 entries); duplicates were skewing RAG search
-- `verify_sync.py` now derives the expected grant count from the local data
-  file instead of a hardcoded value
+- HitRate@5: `0.9286`
+- MRR@10: `0.8167`
+- NDCG@10: `0.6573`
+
+Production processing time across 15 search requests:
+
+- Mean: `0.2423` seconds
+- Median: `0.2421` seconds
+- Minimum: `0.2171` seconds
+- Maximum: `0.2699` seconds
+- P95 nearest rank: `0.2699` seconds
+
+### Known limitations
+
+- The benchmark query `zapošljavanje mladih u FBiH` is recorded as a dataset
+  coverage gap because the current judgment set has no document with binary
+  relevance grade `>= 2`.
+- The Render free instance can sleep during inactivity, so the first request
+  after an idle period can have substantially higher latency.
 
 ## [2.2.0] — 2026-07-19
 
