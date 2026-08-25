@@ -24,7 +24,7 @@ from ai_core.rag_pipeline.grant_metadata import (
     build_chroma_metadata,
     build_embedding_text,
 )
-from ai_core.vector_store.chroma_client import ChromaDBClient
+from ai_core.vector_store.chroma_client import ChromaDBClient, DEFAULT_CHROMA_COLLECTION
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ LOCAL_CATEGORIES = {
     "Specialized",
 }
 
-COLLECTION_NAME = "eu_grants"
+COLLECTION_NAME = DEFAULT_CHROMA_COLLECTION
 DATA_FILE = ROOT / "data" / "grants.json"
 
 
