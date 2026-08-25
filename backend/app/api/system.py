@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter
 
+from ai_core.vector_store.chroma_client import DEFAULT_CHROMA_COLLECTION
 from backend.app.core import config
 from backend.app.services import ai as ai_services
 
@@ -16,7 +17,7 @@ router = APIRouter()
 def root():
     return {
         "message": "FinAssistBH AI Platform je Online",
-        "version": "v2.1.0-enterprise",
+        "version": config.APP_VERSION,
         "status": "running"
     }
 
@@ -42,7 +43,10 @@ def health_check():
 
     return {
         "status": "healthy",
-        "version": "v2.2.0",
+        "version": config.APP_VERSION,
+        "git_commit": config.GIT_COMMIT,
+        "chroma_collection": DEFAULT_CHROMA_COLLECTION,
+        "chroma_documents": chroma_docs,
         "database": "connected" if ai_services.chroma_client else "disconnected",
         "db_type": "postgresql" if config.DATABASE_URL else "sqlite",
         "ai_engine": "ready" if ai_services.embedding_client else "offline",
