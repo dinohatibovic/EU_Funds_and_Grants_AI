@@ -21,6 +21,39 @@ Tešanj**.
 **Live:** [Frontend (GitHub Pages)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/) ·
 [API (Render)](https://eu-funds-and-grants-ai.onrender.com/health)
 
+## Current production release
+
+```text
+Release:              v2.2.1
+Release commit:       f8355363ef9ea16ce8fd4a376c57fd6144511c33
+Post-release main:    585a02cf11c8ca497461e207b1885415ada67d95
+Grant records:        30
+Embedding model:      gemini-embedding-001
+Embedding dimensions: 3072
+Chroma collection:    eu_grants
+Chroma documents:     30
+Automated tests:      87
+```
+
+The public `/health` endpoint exposes `version`, `git_commit`,
+`chroma_collection`, `chroma_documents`, database status, AI engine status,
+and grant counts. Production startup uses the FastAPI lifespan context
+manager and preserves PostgreSQL fallback, grant cache loading, AI client
+initialization, and automatic ChromaDB synchronization.
+
+Versioned container image:
+
+```bash
+docker pull ghcr.io/dinohatibovic/finassistbh-backend:2.2.1
+```
+
+Immutable container reference:
+
+```text
+ghcr.io/dinohatibovic/finassistbh-backend@sha256:7878f5e101107423fedc37643461d7b34e5818ea7ab5737dff8c0020319a62e1
+```
+
+
 ## Proof summary
 
 - **Live product:** GitHub Pages frontend and Render API health endpoint are linked above.
@@ -42,16 +75,32 @@ Current baseline:
 Grant records:        30 unique records
 Relevance judgments:  15 versioned queries
 Metric tests:         13 deterministic tests
-Full test suite:      72 passing tests
+Full test suite:      87 passing tests
 
 HitRate@5:            0.8667
 MRR@10:               0.7622
 NDCG@10:              0.6293
 ```
 
-The P1 search evaluation layer was completed in merge commit `9020b71`.
+Sensitivity baseline for 14 evaluable queries:
+
+```text
+HitRate@5:            0.9286
+MRR@10:               0.8167
+NDCG@10:              0.6573
+```
+
+The query `zapošljavanje mladih u FBiH` remains in the full product-level
+score as a documented dataset coverage gap. The current 30-grant collection
+contains no confirmed binary-relevant document for that query, and no
+relevance grade was invented.
+
+
+The current production baseline is release `v2.2.1` at commit `f8355363ef9ea16ce8fd4a376c57fd6144511c33`.
+Post-release documentation is tracked on `main` at commit `585a02cf11c8ca497461e207b1885415ada67d95`.
 Changes affecting embeddings, ingestion, ChromaDB metadata, retrieval,
-quality scoring or reranking must be compared with this baseline.
+quality scoring or reranking must be compared with both the full 15-query
+product score and the 14-query evaluable sensitivity score.
 
 Before opening a ranking-related pull request, run:
 
@@ -162,9 +211,12 @@ EU_Funds_and_Grants_AI/
 Every release automatically publishes the backend image to GHCR:
 
 ```bash
-docker pull ghcr.io/dinohatibovic/finassistbh-backend:latest
-docker run --env-file .env -p 8000:8000 ghcr.io/dinohatibovic/finassistbh-backend:latest
+docker pull ghcr.io/dinohatibovic/finassistbh-backend:2.2.1
+docker run --env-file .env -p 8000:8000 ghcr.io/dinohatibovic/finassistbh-backend:2.2.1
 ```
+
+Use the versioned tag for reproducible deployments. The `latest` tag currently
+points to the same published v2.2.1 manifest.
 
 New to the project? Start with [docs/onboarding.md](./docs/onboarding.md) —
 from zero to a running system in 15 minutes.

@@ -1,85 +1,261 @@
-# FinAssistBH — Architecture Blueprint
+# FinAssistBH Architecture Blueprint
 
-**Version:** 2.2.0 | **Owner:** Dino Hatibović | Tešanj, BiH
+**Version:** 2.2.1
+**Owner:** Dino Hatibović
+**Production status:** Live
 
-The system is organized into strictly separated layers. Each layer has its
-own directory, its own dependencies, and can be tested/deployed in isolation.
+## System overview
 
-## Layers
+FinAssistBH is organized into isolated application layers with explicit
+dependency boundaries.
 
-```
-┌────────────────────────────────────────────────────────┐
-│  Layer 4: FRONTEND (frontend/)                          │
-│  Static HTML/CSS/JS — GitHub Pages                      │
-│  index.html (chat) │ auth.html (JWT) │ pitch.html       │
-└──────────────────────┬─────────────────────────────────┘
-                       │ HTTPS / JSON (CORS whitelist)
-┌──────────────────────▼─────────────────────────────────┐
-│  Layer 3: BACKEND — API Gateway (backend/app/)          │
-│  ├── api/       FastAPI routes (system, search, grants, │
-│  │              auth, webhooks) + Pydantic schemas      │
-│  ├── core/      config, database, security (JWT),       │
-│  │              rate_limit                              │
-│  ├── services/  ai.py — bridge to the AI layer          │
-│  └── main.py    app factory, middleware, startup        │
-└──────────────────────┬─────────────────────────────────┘
-                       │ Python import (backend → ai_core)
-┌──────────────────────▼─────────────────────────────────┐
-│  Layer 2: AI CORE — Intelligence Stack (ai_core/)       │
-│  ├── embeddings/    Gemini embedding-001 client         │
-│  ├── vector_store/  ChromaDB persistent client          │
-│  ├── rag_pipeline/  search, normalization, ingestion    │
-│  │                  (JSON, web scraping, PDF, API)      │
-│  └── agent/         EUFundsAgent — RAG + Gemini 2.5     │
-│                     Flash generation (bs/en)            │
-└──────────────────────┬─────────────────────────────────┘
-                       │
-        ┌──────────────┴──────────────┐
-        ▼                             ▼
-  Google Gemini API            ChromaDB (disk)
-  (embeddings + generation)    collection `eu_grants`
-
-┌────────────────────────────────────────────────────────┐
-│  Layer 5: INFRASTRUCTURE (infrastructure/)              │
-│  render/ (production) │ k8s/ (optional) │               │
-│  docker-compose.yml (local dev) │ scripts/              │
-└────────────────────────────────────────────────────────┘
+```text
+Frontend
+  |
+  | HTTPS and JSON
+  v
+FastAPI backend
+  |
+  +--> authentication and PostgreSQL
+  |
+  +--> AI service bridge
+          |
+          +--> Gemini embeddings
+          +--> ChromaDB retrieval
+          +--> deterministic reranking
+          +--> Gemini answer generation
 ```
 
-## Dependency matrix (who may import whom)
+## Layer 4: Frontend
 
-| Layer | may import | must NOT import |
+Location:
+
+```text
+frontend/src/
+```
+
+Responsibilities:
+
+- static GitHub Pages user interface
+- registration and login
+- JWT token use
+- search requests
+- AI-answer requests
+- cold-start progress handling
+
+The frontend communicates with the backend only through HTTP.
+
+## Layer 3: Backend and orchestration
+
+Location:
+
+```text
+backend/app/
+```
+
+Structure:
+
+```text
+api/       FastAPI routes and Pydantic schemas
+core/      configuration, database, JWT, rate limiting
+services/  bridge to the AI layer
+main.py    application lifecycle and router registration
+```
+
+Production lifecycle uses:
+
+```text
+FastAPI(lifespan=lifespan)
+```
+
+The lifespan startup sequence is:
+
+```text
+init_user_db
+load_grants_cache
+init_ai_clients
+auto_ingest_grants
+```
+
+If the configured production database cannot be initialized, startup switches
+to the SQLite fallback before continuing.
+
+## Layer 2: AI core
+
+Location:
+
+```text
+ai_core/
+```
+
+Responsibilities:
+
+- Gemini embedding generation
+- ChromaDB management
+- ingestion normalization
+- RAG retrieval
+- metadata-aware reranking
+- answer generation
+
+Embedding contract:
+
+```text
+Model:      gemini-embedding-001
+Dimensions: 3072
+Batch size: 10
+```
+
+Vector-store contract:
+
+```text
+Collection: eu_grants
+Documents:  30 in the verified v2.2.1 dataset
+```
+
+## Layer 1: Data
+
+Source of truth:
+
+```text
+data/grants.json
+```
+
+The v2.2.1 baseline contains 30 unique structured grant records.
+
+Each Chroma record uses a stable grant identifier and structured metadata for
+retrieval and reranking.
+
+The synchronization strategy is failure-safe:
+
+1. generate embeddings
+2. upsert current records
+3. verify successful writes
+4. delete stale records only after successful synchronization
+
+## Layer 5: Infrastructure
+
+Location:
+
+```text
+infrastructure/
+```
+
+Components:
+
+```text
+render/              production deployment documentation
+docker-compose.yml   local orchestration
+k8s/                 optional Kubernetes manifests
+scripts/             deployment and synchronization utilities
+```
+
+The authoritative Render Blueprint remains at:
+
+```text
+/render.yaml
+```
+
+## Dependency matrix
+
+| Layer | May depend on | Must not depend on |
 |---|---|---|
-| `frontend/` | — (HTTP only) | any Python |
-| `backend/app/api/` | `backend/app/core`, `backend/app/services`, schemas | `ai_core` directly |
-| `backend/app/services/` | `backend/app/core`, `ai_core` | `backend/app/api` |
-| `backend/app/core/` | stdlib, external libraries | `ai_core`, `api`, `services` |
-| `ai_core/*` | other `ai_core` modules | `backend`, `frontend` |
-| `sdk/` | — (HTTP only) | internal modules |
+| `frontend/` | backend HTTP API | Python internals |
+| `backend/app/api/` | core, services, schemas | `ai_core` directly |
+| `backend/app/services/` | core, `ai_core` | API route modules |
+| `backend/app/core/` | standard library, external packages | API and AI layers |
+| `ai_core/` | other AI-core modules | backend and frontend |
+| `sdk/` | public HTTP API | internal application modules |
 
-Rule: **dependencies flow downward** (api → services → ai_core). The AI layer
-does not know the backend exists — it can be used standalone (scripts,
-notebooks, CLI).
+Dependencies flow from API to services to AI core. The AI layer can be used
+without importing the FastAPI backend.
 
-## Data flow
+## Search data flow
 
-1. **Ingestion:** `data/grants.json` → auto-ingest on startup (full refresh) →
-   Gemini embeddings (batches of 10) → ChromaDB collection `eu_grants`.
-2. **Search (`POST /search`):** query → embedding → ChromaDB top-N → raw
-   results + metadata.
-3. **AI answer (`POST /ai-answer`):** query → RAG context (top 5) → Gemini 2.5
-   Flash prompt with BiH domain knowledge → structured answer + sources.
+```text
+POST /search
+  -> JWT validation
+  -> Gemini query embedding
+  -> ChromaDB candidate retrieval
+  -> metadata-aware reranking
+  -> requested result limit
+  -> SearchResponse
+```
 
-## Key decisions and constraints
+The current search pipeline retrieves a larger candidate set before applying
+deterministic quality-aware reranking.
 
-- **ChromaDB local, not managed** — zero cost, sufficient below ~10K
-  documents; the Render free-tier disk is ephemeral, so auto-ingest rebuilds
-  the database on startup.
-- **SQLite fallback for users** — the server boots even without a PostgreSQL
-  connection; `DATABASE_URL` (Supabase) is recommended for production.
-- **In-memory rate limiter** — fine for a single process; replace with Redis
-  when scaling horizontally.
-- **JWT HS256, 30 days** — `JWT_SECRET` must be a stable env variable in
-  production.
-- **Gemini model** — default `gemini-2.5-flash`, overridable via the
-  `GEMINI_MODEL` env variable (the 2.0 model was discontinued).
+## AI-answer data flow
+
+```text
+POST /ai-answer
+  -> JWT validation
+  -> query embedding
+  -> ChromaDB candidate retrieval
+  -> rerank to top five
+  -> build grant context
+  -> Gemini 2.5 Flash generation
+  -> answer plus sources
+```
+
+## Production health contract
+
+The health endpoint exposes:
+
+```text
+version
+git_commit
+chroma_collection
+chroma_documents
+database
+db_type
+ai_engine
+grants_total
+grants_in_vector_db
+```
+
+This allows the Production Health Check workflow to confirm that the deployed
+commit and runtime data match the intended release.
+
+## Key operational constraints
+
+- Render free instances can sleep during inactivity.
+- Cold starts can exceed 50 seconds.
+- ChromaDB storage is ephemeral on the current Render plan.
+- Automatic startup synchronization rebuilds the vector collection.
+- PostgreSQL is used for production users.
+- SQLite remains a failure fallback.
+- `WEB_CONCURRENCY=1` avoids inconsistent process-local state.
+- The current in-memory rate limiter is not intended for horizontal scaling.
+- `JWT_SECRET` must remain stable across restarts.
+
+## Verified v2.2.1 baseline
+
+```text
+Release commit:       f8355363ef9ea16ce8fd4a376c57fd6144511c33
+Grant records:        30
+Embedding dimensions: 3072
+Chroma documents:     30
+Automated tests:      87
+```
+
+Search benchmark:
+
+```text
+Full HitRate@5:       0.8667
+Full MRR@10:          0.7622
+Full NDCG@10:         0.6293
+
+Evaluable HitRate@5:  0.9286
+Evaluable MRR@10:     0.8167
+Evaluable NDCG@10:    0.6573
+```
+
+## Planned evolution
+
+- verified dataset expansion
+- stronger behavior-lock tests around search
+- retrieval and reranking module decomposition
+- SBOM and provenance attestations
+- optional Redis-backed rate limiting
+- local LLM, LangChain, LangGraph, and local RAG experimentation outside the
+  production release path
