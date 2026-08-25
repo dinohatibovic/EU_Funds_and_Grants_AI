@@ -3,6 +3,8 @@ import time
 from google import genai
 from dotenv import load_dotenv
 
+DEFAULT_EMBEDDING_MODEL = "models/gemini-embedding-001"
+
 load_dotenv()
 
 class EmbeddingClient:
@@ -10,7 +12,7 @@ class EmbeddingClient:
     Klijent za generisanje vektorskih reprezentacija teksta (Embeddings)
     koristeći Google Gemini API.
     
-    Model: models/gemini-embedding-001 (Verifikovan za tvoj API ključ)
+    Model configuration is defined by DEFAULT_EMBEDDING_MODEL.
     """
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
@@ -19,7 +21,7 @@ class EmbeddingClient:
             self.client = None
             return
 
-        self.model_name = "models/gemini-embedding-001"
+        self.model_name = DEFAULT_EMBEDDING_MODEL
 
         # Inicijalizacija Gemini klijenta verzije 1.0+
         try:
@@ -58,7 +60,7 @@ class EmbeddingClient:
             try:
                 # KLJUČNA IZMJENA: Koristimo tačan naziv modela koji smo otkrili
                 result = self.client.models.embed_content(
-                    model="models/gemini-embedding-001",
+                    model=self.model_name,
                     contents=cleaned_texts
                 )
                 
@@ -66,7 +68,7 @@ class EmbeddingClient:
                 # Google vraća objekat koji sadrži listu embeddinga
                 embeddings = [e.values for e in result.embeddings]
                 
-                # Verifikacija dimenzija (Trebalo bi biti 768 za ovaj model)
+                # Prikazi stvarnu dimenziju vracenu od konfiguriranog modela
                 if embeddings:
                     print(f"✨ Uspjeh! Generisano {len(embeddings)} vektora (Dimenzija: {len(embeddings[0])})")
                 
