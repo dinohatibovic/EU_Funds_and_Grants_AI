@@ -1,0 +1,14 @@
+{
+  "apiVersion": "fixture",
+  "results": [
+    {
+      "reference": "TEST-TOPIC-001",
+      "summary": "Synthetic SEDIA fixture",
+      "metadata": {
+        "status": [
+          "OPEN"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+[
+  {
+    "source_id": "eu_sedia",
+    "name": "EU Funding and Tenders Portal",
+    "base_url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/home",
+    "source_type": "official_api",
+    "authority_level": 1,
+    "jurisdiction": "EU",
+    "access_method": "sedia_api",
+    "content_scope": [
+      "grant",
+      "programme",
+      "topic",
+      "documentation"
+    ],
+    "enabled": true,
+    "requires_manual_review": false
+  },
+  {
+    "source_id": "dei_ipa",
+    "name": "DEI BiH - IPA III",
+    "base_url": "https://www.dei.gov.ba/hr/ipa-iii",
+    "source_type": "official_website",
+    "authority_level": 2,
+    "jurisdiction": "Bosnia and Herzegovina",
+    "access_method": "html",
+    "content_scope": [
+      "programme",
+      "documentation"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "fmrpo",
+    "name": "FMRPO",
+    "base_url": "https://javnipozivi.fmrpo.gov.ba/",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Federation of BiH",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call",
+      "documentation"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "fzzz",
+    "name": "Federalni zavod za zaposljavanje",
+    "base_url": "https://www.fzzz.ba/show/projects",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Federation of BiH",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call",
+      "documentation"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "fzofbih",
+    "name": "Fond za zastitu okolisa FBiH",
+    "base_url": "https://fzofbih.org.ba/kategorija/javni-konkursi/",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Federation of BiH",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call",
+      "documentation"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "ekofondrs",
+    "name": "Ekofond Republike Srpske",
+    "base_url": "https://ekofondrs.org/43-dokumentiiobrasci/190-javni_konkurs.html",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Republika Srpska",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call",
+      "documentation"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "mcp_bih",
+    "name": "Ministarstvo civilnih poslova BiH",
+    "base_url": "https://www.mcp.gov.ba/",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Bosnia and Herzegovina",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call",
+      "programme"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "mhrr_bih",
+    "name": "Ministarstvo za ljudska prava BiH",
+    "base_url": "https://mhrr.gov.ba/hr/javni-pozivi",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Bosnia and Herzegovina",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "fbih_vlada",
+    "name": "Vlada Federacije BiH",
+    "base_url": "https://fbihvlada.gov.ba/bs/javni-pozivi",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Federation of BiH",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "undp_bih",
+    "name": "UNDP BiH - Javni pozivi",
+    "base_url": "https://javnipoziv.undp.ba/",
+    "source_type": "official_website",
+    "authority_level": 1,
+    "jurisdiction": "Bosnia and Herzegovina",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "public_call"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  },
+  {
+    "source_id": "eu4business",
+    "name": "EU4Business BiH",
+    "base_url": "https://eu4business.ba/",
+    "source_type": "programme_portal",
+    "authority_level": 2,
+    "jurisdiction": "Bosnia and Herzegovina",
+    "access_method": "html",
+    "content_scope": [
+      "grant",
+      "programme",
+      "public_call"
+    ],
+    "enabled": true,
+    "requires_manual_review": true
+  }
+]
