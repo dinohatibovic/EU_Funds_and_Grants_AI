@@ -65,20 +65,6 @@ async def auto_ingest_grants() -> None:
     with open(config.GRANTS_FILE, "r", encoding="utf-8") as f:
         grants = json.load(f)
 
-    collection = chroma_client.collection
-
-    # Dohvati sve postojeće ID-eve i obriši ih (full refresh)
-    try:
-        existing_ids = collection.get()["ids"]
-    except Exception:
-        existing_ids = []
-
-    if existing_ids:
-        collection.delete(ids=existing_ids)
-        logger.info(f"🗑️ Obrisano {len(existing_ids)} postojećih dokumenata iz ChromaDB.")
-
-    logger.info(f"📥 Auto-ingestion: ingestiram svih {len(grants)} grantova iz grants.json...")
-
     texts = [
         build_embedding_text(grant)
         for grant in grants
@@ -105,5 +91,12 @@ async def auto_ingest_grants() -> None:
         for grant in grants
     ]
 
-    collection.add(ids=ids, embeddings=all_embeddings, metadatas=metadatas, documents=texts)
-    logger.info(f"✅ Auto-ingestion završen — {len(grants)} grantova dodano u ChromaDB.")
+    stored_count = chroma_client.sync_documents(
+        documents=texts,
+        metadatas=metadatas,
+        ids=ids,
+        embeddings=all_embeddings,
+    )
+    logger.info(
+        f"✅ Auto-ingestion završen — {stored_count} grantova u ChromaDB."
+    )
