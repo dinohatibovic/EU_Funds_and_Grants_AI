@@ -1,0 +1,1 @@
+"""SEDIA integration tests."""
