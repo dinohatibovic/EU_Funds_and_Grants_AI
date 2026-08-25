@@ -28,6 +28,39 @@
    The Release workflow automatically creates a GitHub Release and publishes
    the GHCR Docker image.
 
+## Search and ranking changes
+
+Changes affecting embeddings, ChromaDB ingestion, grant metadata,
+retrieval, quality scoring, reranking or benchmark evaluation must
+include:
+
+1. deterministic tests for the changed behavior;
+2. validation of stable and unique grant identifiers;
+3. validation of the search API response structure;
+4. offline evaluation against the versioned relevance judgments;
+5. comparison with the current HitRate@5, MRR@10 and NDCG@10 baseline.
+
+Before opening the pull request, run:
+
+```bash
+make lint
+make test
+make ai-test
+make benchmark-test
+make benchmark-syntax
+```
+
+When valid API credentials are available, run the production benchmark
+separately:
+
+```bash
+make benchmark-run
+```
+
+A ranking change must not be merged only because selected examples appear
+better. Metric regressions must be documented and justified in the pull
+request.
+
 ## Conventions
 
 - **Commit messages:** `type: short description` (feat/fix/refactor/docs/chore/test)

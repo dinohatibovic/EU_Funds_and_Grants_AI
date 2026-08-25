@@ -1,4 +1,67 @@
 # CLAUDE.md — FinAssistBH Lokalni Pozivi
+
+## CURRENT PROJECT STATUS - August 2026
+
+This section contains the current technical baseline. Older status sections
+below are retained as historical grant-source and monitoring documentation.
+
+### Release and repository status
+
+- Current supported release line: `2.2.x`
+- P1 completion baseline branch: `main`
+- P1 completion merge commit: `9020b71`
+- P1 completion test baseline: 72 passing tests
+
+### Grant dataset and vector store
+
+- Dataset: 30 unique grant records
+- Vector database: ChromaDB
+- Collection: `eu_grants`
+- Embeddings: Gemini vectors with 3072 dimensions
+- Production ingestion paths use the same structured metadata model
+- Ranking metadata includes grant status, verification score and source
+  priority
+- Non-date deadlines such as `rolling` and `periodic` are normalized to
+  `null`
+
+### Current RAG architecture
+
+```text
+Grant data
+  -> structured metadata validation
+  -> Gemini embedding generation
+  -> ChromaDB collection eu_grants
+  -> vector candidate retrieval
+  -> deterministic grant quality scoring
+  -> quality-aware reranking
+  -> ranked grant results
+  -> grounded AI answer
+```
+
+### P1 search evaluation
+
+The P1 evaluation layer contains:
+
+- 15 versioned relevance judgments
+- offline evaluation of saved production API responses
+- stable and unique grant ID validation
+- API response structure validation
+- deterministic ranking metric tests
+
+Current reproducible baseline:
+
+```text
+HitRate@5: 0.8667
+MRR@10:    0.7622
+NDCG@10:   0.6293
+```
+
+Future changes affecting embeddings, ingestion, ChromaDB metadata,
+retrieval, quality scoring or reranking must be compared with this
+baseline.
+
+---
+
 # Dino Hatibović | Tešanj, BiH | Mart 2026.
 #
 # SVRHA: Ovaj fajl Claude Code čita automatski.

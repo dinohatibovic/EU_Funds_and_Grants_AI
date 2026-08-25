@@ -1,4 +1,4 @@
-.PHONY: build up down logs dev test ai-test lint ingest clean
+.PHONY: build up down logs dev test ai-test benchmark-test benchmark-syntax benchmark-run lint ingest check clean
 
 COMPOSE = docker compose -f infrastructure/docker-compose.yml
 
@@ -14,7 +14,8 @@ down:
 logs:
 	$(COMPOSE) logs -f backend
 
-# Local development without Docker (requires pip install -r requirements.txt)
+# Local development without Docker
+# Requires: pip install -r requirements.txt
 dev:
 	uvicorn backend.app.main:app --reload
 
@@ -24,11 +25,22 @@ test:
 ai-test:
 	pytest tests/ai_pipeline_tests/ -v
 
+benchmark-test:
+	pytest tests/ai_pipeline_tests/test_search_benchmark_metrics.py -v
+
+benchmark-syntax:
+	bash -n tests/benchmarks/run_search_benchmark.sh
+
+benchmark-run:
+	bash tests/benchmarks/run_search_benchmark.sh
+
 lint:
 	ruff check --select E9,F63,F7,F82 .
 
 ingest:
 	python3 ai_core/rag_pipeline/ingestion/ingest_local_grants.py
+
+check: lint test ai-test benchmark-test benchmark-syntax
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +

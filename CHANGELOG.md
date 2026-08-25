@@ -5,6 +5,42 @@ All notable changes to the FinAssistBH platform. The format follows
 
 ## [Unreleased]
 
+### P1 search and ranking
+
+#### Added
+
+- Structured grant metadata model for retrieval and ranking.
+- Versioned relevance judgments for 15 benchmark queries.
+- Offline evaluator for saved production search API responses.
+- HitRate@5, MRR@10 and NDCG@10 ranking metrics.
+- Deterministic ranking and grant quality scoring tests.
+- Search API response structure validation.
+- Stable and unique grant identifier validation.
+- Reproducible production search baseline.
+
+#### Changed
+
+- Expanded the dataset from 19 to 30 unique grant records.
+- Unified structured metadata across ingestion paths.
+- Enriched ChromaDB records with ranking metadata.
+- Added deterministic grant quality scoring.
+- Added quality-aware reranking of search results.
+- Strengthened Python CI quality gates.
+- Normalized `rolling` and `periodic` deadlines to `null`.
+
+#### Security
+
+- Documented temporary ChromaDB `pip-audit` exceptions.
+- Retained audit coverage for all non-exempt findings.
+
+#### Benchmark
+
+- HitRate@5: `0.8667`
+- MRR@10: `0.7622`
+- NDCG@10: `0.6293`
+- P1 completion merge commit: `9020b71`
+- P1 completion baseline: `72` passing tests
+
 ### Changed
 - Gemini generation model switched from the discontinued `gemini-2.0-flash`
   to `gemini-2.5-flash` (overridable via the `GEMINI_MODEL` env variable)

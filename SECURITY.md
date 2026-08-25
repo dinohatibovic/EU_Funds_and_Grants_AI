@@ -35,3 +35,18 @@ until the vulnerability is resolved or declined with an explanation.
 
 - Password hashing is SHA256+salt — migration to bcrypt/argon2 is planned.
 - The rate limiter is in-memory (per process) — Redis is planned for scaling.
+
+## Temporary dependency-audit exceptions
+
+The security workflow contains documented temporary exceptions for known
+advisories affecting the pinned ChromaDB release.
+
+These exceptions:
+
+- apply only to explicitly listed advisory identifiers;
+- do not disable `pip-audit` for other dependencies;
+- must be reviewed whenever ChromaDB is upgraded;
+- must be removed when a compatible patched release becomes available.
+
+The authoritative exception list and rationale are maintained in
+`.github/workflows/security-audit.yml`.
