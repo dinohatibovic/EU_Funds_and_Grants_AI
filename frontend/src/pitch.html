@@ -1,648 +1,1403 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinAssistBH — Investor Pitch | EU Grants AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta
+    name="description"
+    content="FinAssistBH je produkcijska AI platforma za pretragu EU fondova i grantova dostupnih u Bosni i Hercegovini."
+  >
+  <meta name="theme-color" content="#07111f">
+  <title>FinAssistBH | Investor Pitch</title>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        eu: { blue: '#003399', yellow: '#FFCC00', dark: '#001a4d', light: '#e8edf8' }
-                    },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0c1a2d;
+      --panel: rgba(14, 30, 51, 0.78);
+      --panel-solid: #0e1e33;
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #f8fafc;
+      --muted: #a8b5c7;
+      --blue: #4da3ff;
+      --cyan: #23d5d5;
+      --yellow: #ffd84d;
+      --green: #42d392;
+      --danger: #ff7b7b;
+      --radius: 24px;
+      --max: 1180px;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+    }
 
-    <style>
-        body { background: #0a0f1e; color: #e2e8f0; }
-        .hero-bg {
-            background: linear-gradient(135deg, #001a4d 0%, #003399 50%, #001a4d 100%);
-        }
-        .section-alt { background: #0f1628; }
-        .section-light { background: #111827; }
-        .card-glow {
-            border: 1px solid rgba(0,51,153,0.4);
-            background: rgba(255,255,255,0.04);
-            backdrop-filter: blur(4px);
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .card-glow:hover {
-            transform: translateY(-4px);
-            border-color: rgba(255,204,0,0.5);
-        }
-        .badge-tier {
-            background: linear-gradient(135deg, #003399, #0055cc);
-            border: 1px solid rgba(255,204,0,0.3);
-        }
-        .tier-highlight {
-            background: linear-gradient(135deg, #003399 0%, #0044bb 100%);
-            border: 2px solid #FFCC00;
-        }
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #FFCC00, #ffdd44);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .flow-step {
-            background: rgba(0,51,153,0.2);
-            border: 1px solid rgba(0,51,153,0.5);
-        }
-        .flow-arrow { color: #FFCC00; }
-        .traction-check { color: #22c55e; }
-        .section-number {
-            font-size: 0.7rem;
-            letter-spacing: 0.15em;
-            color: #FFCC00;
-            text-transform: uppercase;
-        }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #003399; border-radius: 2px; }
-    </style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(77, 163, 255, 0.18), transparent 32rem),
+        radial-gradient(circle at 86% 24%, rgba(35, 213, 213, 0.13), transparent 28rem),
+        linear-gradient(180deg, #07111f 0%, #081522 52%, #06101c 100%);
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 18px;
+      z-index: 100;
+      padding: 12px 16px;
+      color: #07111f;
+      background: var(--yellow);
+      border-radius: 12px;
+      font-weight: 800;
+    }
+
+    .skip-link:focus {
+      top: 18px;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7, 17, 31, 0.82);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-inner {
+      width: min(calc(100% - 32px), var(--max));
+      min-height: 72px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: #07111f;
+      background: linear-gradient(135deg, var(--yellow), #fff29b);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(255, 216, 77, 0.24);
+    }
+
+    .brand-copy {
+      display: grid;
+      line-height: 1.05;
+    }
+
+    .brand-copy small {
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      color: var(--text);
+    }
+
+    .page {
+      overflow: hidden;
+    }
+
+    .section {
+      width: min(calc(100% - 32px), var(--max));
+      margin: auto;
+      padding: 100px 0;
+    }
+
+    .hero {
+      min-height: calc(100vh - 72px);
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      align-items: center;
+      gap: 64px;
+      padding-top: 72px;
+      padding-bottom: 72px;
+    }
+
+    .eyebrow,
+    .status-pill,
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      padding: 9px 13px;
+      color: #dcecff;
+      background: rgba(77, 163, 255, 0.1);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 0 5px rgba(66, 211, 146, 0.12);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 24px 0;
+      font-size: clamp(3.2rem, 7vw, 6.7rem);
+      line-height: 0.96;
+      letter-spacing: -0.065em;
+    }
+
+    .gradient-text {
+      color: transparent;
+      background:
+        linear-gradient(100deg, #ffffff 0%, #9fd4ff 46%, #6be6db 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+
+    .hero-lead {
+      max-width: 730px;
+      margin-bottom: 30px;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+    }
+
+    .hero-actions,
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      min-height: 50px;
+      padding: 0 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 1px solid transparent;
+      border-radius: 15px;
+      font: inherit;
+      font-weight: 850;
+      text-decoration: none;
+      cursor: pointer;
+      transition:
+        transform 160ms ease,
+        border-color 160ms ease,
+        background 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-primary {
+      color: #07111f;
+      background: linear-gradient(135deg, var(--yellow), #ffed8a);
+      box-shadow: 0 18px 40px rgba(255, 216, 77, 0.2);
+    }
+
+    .button-secondary {
+      color: var(--text);
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .hero-note {
+      margin-top: 22px;
+      color: #8494aa;
+      font-size: 0.88rem;
+    }
+
+    .product-card {
+      position: relative;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .product-card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      z-index: -1;
+      background: linear-gradient(
+        135deg,
+        rgba(77, 163, 255, 0.5),
+        transparent 35%,
+        rgba(35, 213, 213, 0.25)
+      );
+      border-radius: inherit;
+      filter: blur(1px);
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .browser-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff7b7b;
+    }
+
+    .browser-dot:nth-child(2) {
+      background: var(--yellow);
+    }
+
+    .browser-dot:nth-child(3) {
+      background: var(--green);
+    }
+
+    .browser-address {
+      margin-left: 10px;
+      color: #7f91a9;
+      font-size: 0.78rem;
+    }
+
+    .query-box {
+      margin: 24px 0 16px;
+      padding: 18px;
+      border: 1px solid rgba(77, 163, 255, 0.28);
+      border-radius: 18px;
+      background: rgba(77, 163, 255, 0.08);
+    }
+
+    .query-label {
+      color: #7ebeff;
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .query-text {
+      margin-top: 7px;
+      font-weight: 750;
+    }
+
+    .match-card {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .match-card + .match-card {
+      margin-top: 10px;
+    }
+
+    .rank {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      color: #07111f;
+      background: var(--yellow);
+      border-radius: 12px;
+      font-weight: 900;
+    }
+
+    .match-title {
+      font-weight: 850;
+    }
+
+    .match-meta {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .match-score {
+      color: var(--green);
+      font-size: 0.83rem;
+      font-weight: 850;
+    }
+
+    .section-head {
+      max-width: 790px;
+      margin-bottom: 42px;
+    }
+
+    .section-kicker {
+      margin-bottom: 9px;
+      color: var(--yellow);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: clamp(2.25rem, 5vw, 4.5rem);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+    }
+
+    .section-copy {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 20px;
+      display: grid;
+      place-items: center;
+      color: var(--yellow);
+      background: rgba(255, 216, 77, 0.1);
+      border: 1px solid rgba(255, 216, 77, 0.19);
+      border-radius: 15px;
+      font-size: 1.3rem;
+    }
+
+    .card h3 {
+      margin-bottom: 9px;
+      font-size: 1.22rem;
+    }
+
+    .card p {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .metric {
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-value {
+      color: var(--yellow);
+      font-size: clamp(2.2rem, 4vw, 4.2rem);
+      font-weight: 950;
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .metric-label {
+      color: var(--text);
+      font-weight: 850;
+    }
+
+    .metric-note {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .flow {
+      counter-reset: flow;
+    }
+
+    .flow-card {
+      position: relative;
+      padding-top: 68px;
+    }
+
+    .flow-card::before {
+      counter-increment: flow;
+      content: "0" counter(flow);
+      position: absolute;
+      top: 24px;
+      left: 28px;
+      color: var(--blue);
+      font-size: 0.78rem;
+      font-weight: 950;
+      letter-spacing: 0.1em;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: 0.86fr 1.14fr;
+      gap: 20px;
+    }
+
+    .arch-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .arch-layer {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .arch-layer strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .arch-layer small {
+      color: var(--muted);
+    }
+
+    .benchmark {
+      padding: 34px;
+      background:
+        linear-gradient(135deg, rgba(77, 163, 255, 0.12), transparent 50%),
+        var(--panel);
+    }
+
+    .benchmark-row {
+      display: grid;
+      grid-template-columns: 1.25fr repeat(3, 1fr);
+      align-items: center;
+      gap: 12px;
+      padding: 17px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .benchmark-row:last-child {
+      border-bottom: 0;
+    }
+
+    .benchmark-row strong:not(:first-child) {
+      color: var(--green);
+      font-size: 1.25rem;
+    }
+
+    .proof {
+      border-color: rgba(66, 211, 146, 0.25);
+      background:
+        linear-gradient(145deg, rgba(66, 211, 146, 0.09), transparent 60%),
+        var(--panel);
+    }
+
+    .proof-label {
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .proof-value {
+      margin: 12px 0 3px;
+      font-size: 1.55rem;
+      font-weight: 900;
+    }
+
+    .pricing-card {
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      border-color: rgba(255, 216, 77, 0.58);
+      transform: translateY(-8px);
+      box-shadow: 0 18px 54px rgba(255, 216, 77, 0.12);
+    }
+
+    .chip {
+      padding: 7px 10px;
+      color: var(--yellow);
+      background: rgba(255, 216, 77, 0.08);
+    }
+
+    .price {
+      margin: 20px 0 3px;
+      font-size: 2.6rem;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+    }
+
+    .price small {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .feature-list {
+      padding: 0;
+      margin: 22px 0 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      padding: 8px 0;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .feature-list li::before {
+      content: "OK";
+      margin-right: 9px;
+      color: var(--green);
+      font-size: 0.67rem;
+      font-weight: 950;
+    }
+
+    .roadmap {
+      position: relative;
+    }
+
+    .roadmap::before {
+      content: "";
+      position: absolute;
+      top: 22px;
+      bottom: 22px;
+      left: 25px;
+      width: 2px;
+      background: linear-gradient(var(--green), var(--blue), var(--yellow));
+    }
+
+    .roadmap-item {
+      position: relative;
+      padding: 0 0 34px 72px;
+    }
+
+    .roadmap-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .roadmap-dot {
+      position: absolute;
+      top: 2px;
+      left: 14px;
+      width: 24px;
+      height: 24px;
+      border: 6px solid var(--bg-soft);
+      background: var(--blue);
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px var(--line);
+    }
+
+    .roadmap-item.done .roadmap-dot {
+      background: var(--green);
+    }
+
+    .roadmap-item h3 {
+      margin-bottom: 6px;
+    }
+
+    .roadmap-item p {
+      color: var(--muted);
+    }
+
+    .funding {
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1fr 0.8fr;
+      gap: 36px;
+      align-items: center;
+      border-color: rgba(255, 216, 77, 0.35);
+      background:
+        radial-gradient(circle at 82% 20%, rgba(255, 216, 77, 0.14), transparent 20rem),
+        var(--panel-solid);
+    }
+
+    .funding-number {
+      color: var(--yellow);
+      font-size: clamp(4rem, 8vw, 7rem);
+      font-weight: 950;
+      line-height: 0.9;
+      letter-spacing: -0.065em;
+    }
+
+    .allocation {
+      display: grid;
+      gap: 12px;
+    }
+
+    .allocation-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .allocation-row span {
+      color: var(--muted);
+    }
+
+    .cta {
+      padding: 58px;
+      text-align: center;
+      border: 1px solid rgba(77, 163, 255, 0.3);
+      border-radius: 32px;
+      background:
+        linear-gradient(135deg, rgba(77, 163, 255, 0.14), rgba(35, 213, 213, 0.08)),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .cta h2 {
+      max-width: 850px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .cta p {
+      max-width: 680px;
+      margin-right: auto;
+      margin-bottom: 28px;
+      margin-left: auto;
+      color: var(--muted);
+    }
+
+    .cta-actions {
+      justify-content: center;
+    }
+
+    footer {
+      width: min(calc(100% - 32px), var(--max));
+      margin: auto;
+      padding: 36px 0 50px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      color: #708198;
+      border-top: 1px solid var(--line);
+      font-size: 0.85rem;
+    }
+
+    .disclaimer {
+      margin-top: 26px;
+      padding: 16px 18px;
+      border-left: 3px solid var(--yellow);
+      color: var(--muted);
+      background: rgba(255, 216, 77, 0.055);
+      border-radius: 8px 14px 14px 8px;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .architecture,
+      .funding {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: 0;
+      }
+
+      .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .funding-number {
+        margin-top: 8px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .section {
+        padding: 74px 0;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 16vw, 5rem);
+      }
+
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .product-card,
+      .card,
+      .benchmark,
+      .funding,
+      .cta {
+        padding: 22px;
+        border-radius: 20px;
+      }
+
+      .benchmark-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .benchmark-row strong:first-child {
+        grid-column: 1 / -1;
+      }
+
+      .pricing-card.featured {
+        transform: none;
+      }
+
+      .match-card {
+        grid-template-columns: auto 1fr;
+      }
+
+      .match-score {
+        grid-column: 2;
+      }
+
+      footer {
+        flex-direction: column;
+      }
+    }
+
+    @media print {
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #ffffff;
+        --panel: #ffffff;
+        --panel-solid: #ffffff;
+        --line: #d7dee8;
+        --text: #0d1726;
+        --muted: #45556b;
+      }
+
+      body {
+        color: #0d1726;
+        background: #ffffff;
+      }
+
+      .nav,
+      .skip-link,
+      .hero-actions,
+      .cta-actions,
+      .print-hide {
+        display: none !important;
+      }
+
+      .section,
+      .hero {
+        width: 100%;
+        min-height: 0;
+        padding: 36px 24px;
+        page-break-inside: avoid;
+      }
+
+      .card,
+      .product-card,
+      .funding,
+      .cta,
+      .benchmark {
+        color: #0d1726;
+        background: #ffffff;
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+
+      h1 {
+        font-size: 52px;
+      }
+
+      h2 {
+        font-size: 34px;
+      }
+
+      .gradient-text {
+        color: #0d1726;
+      }
+    }
+  </style>
 </head>
-<body class="font-sans min-h-screen">
 
-<!-- =================== SECTION 1: HERO =================== -->
-<section class="hero-bg min-h-screen flex flex-col justify-center px-6 py-16 text-center">
-    <div class="max-w-3xl mx-auto">
+<body>
+  <a class="skip-link" href="#content">Preskoči na sadržaj</a>
 
-        <!-- Logo -->
-        <div class="flex items-center justify-center gap-3 mb-8">
-            <div class="w-14 h-14 bg-eu-yellow rounded-xl flex items-center justify-center shadow-lg">
-                <span class="text-eu-dark font-black text-xl">EU</span>
-            </div>
-            <div class="text-left">
-                <h1 class="text-3xl font-black text-white">FinAssistBH</h1>
-                <p class="text-blue-300 text-sm">EU Funds & Grants AI Platform</p>
-            </div>
-        </div>
+  <nav class="nav" aria-label="Glavna navigacija">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark" aria-hidden="true">EU</span>
+        <span class="brand-copy">
+          FinAssistBH
+          <small>EU Funds Intelligence</small>
+        </span>
+      </a>
 
-        <!-- Tagline -->
-        <h2 class="text-4xl sm:text-5xl font-black text-white leading-tight mb-6">
-            AI koja čita<br>
-            <span class="text-eu-yellow">EU birokratiju</span><br>
-            umjesto tebe.
-        </h2>
+      <div class="nav-links">
+        <a href="#problem">Problem</a>
+        <a href="#product">Proizvod</a>
+        <a href="#traction">Traction</a>
+        <a href="#model">Model</a>
+        <a href="#funding">Investicija</a>
+      </div>
 
-        <p class="text-blue-200 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-            Bosanskohercegovačke firme propuštaju <strong class="text-white">milijarde eura</strong> EU fondova svake godine — zbog rasutih informacija, propuštenih rokova i jezičnih barijera.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/"
-               target="_blank"
-               class="bg-eu-yellow text-eu-dark font-bold px-8 py-4 rounded-xl text-base hover:bg-yellow-300 transition shadow-lg">
-                <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i>Pogledaj live demo
-            </a>
-            <a href="#kontakt"
-               class="border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-xl text-base hover:border-eu-yellow hover:text-eu-yellow transition">
-                <i class="fa-solid fa-envelope mr-2"></i>Kontaktiraj osnivača
-            </a>
-        </div>
-
-        <!-- Flags -->
-        <p class="mt-12 text-blue-300 text-sm">
-            🇧🇦 Razvijeno u Tešnju, BiH &nbsp;·&nbsp; 🇪🇺 Za EU tržište
-        </p>
+      <button
+        class="button button-secondary print-hide"
+        type="button"
+        onclick="window.print()"
+      >
+        Sačuvaj kao PDF
+      </button>
     </div>
-</section>
+  </nav>
 
-<!-- =================== SECTION 2: PROBLEM =================== -->
-<section class="section-alt py-20 px-6">
-    <div class="max-w-4xl mx-auto">
-        <p class="section-number mb-3 text-center">Problem</p>
-        <h2 class="text-3xl font-black text-white text-center mb-4">
-            BiH firme <span class="text-red-400">gube novac</span> koji im pripada.
-        </h2>
-        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">
-            Svake godine kroz EU programe prolazi ogroman iznos dostupan za BiH — ali većina preduzetnika nikad ne aplicira.
+  <main id="content" class="page">
+    <section class="section hero">
+      <div>
+        <div class="eyebrow">
+          <span class="dot" aria-hidden="true"></span>
+          Produkcijski aktivan v2.2.1
+        </div>
+
+        <h1>
+          AI koji pretvara
+          <span class="gradient-text">grant birokratiju</span>
+          u konkretne prilike.
+        </h1>
+
+        <p class="hero-lead">
+          FinAssistBH je AI platforma za pretragu EU i domaćih programa
+          finansiranja dostupnih firmama, organizacijama i institucijama u
+          Bosni i Hercegovini.
         </p>
 
-        <!-- Big stat -->
-        <div class="text-center mb-14">
-            <div class="inline-block bg-red-900/20 border border-red-500/30 rounded-2xl px-10 py-6">
-                <div class="stat-number" style="background: linear-gradient(135deg,#f87171,#ef4444); -webkit-background-clip:text; background-clip:text;">
-                    &lt;30%
-                </div>
-                <p class="text-red-300 font-semibold mt-1">dostupnih EU sredstava BiH zapravo iskoristi</p>
-            </div>
+        <div class="hero-actions">
+          <a class="button button-primary" href="./index.html">
+            Otvori live proizvod
+          </a>
+          <a
+            class="button button-secondary"
+            href="https://github.com/dinohatibovic/EU_Funds_and_Grants_AI"
+            rel="noopener"
+          >
+            Pogledaj GitHub
+          </a>
+                  </div>
+
+        <p class="hero-note">
+          Razvijeno u Tešnju, BiH. Produkcijski API, autentifikacija,
+          semantička pretraga i RAG odgovor rade danas.
+        </p>
+      </div>
+
+      <div class="product-card" aria-label="Primjer rezultata proizvoda">
+        <div class="browser-bar">
+          <span class="browser-dot"></span>
+          <span class="browser-dot"></span>
+          <span class="browser-dot"></span>
+          <span class="browser-address">finassistbh / production</span>
         </div>
 
-        <!-- 3 problem cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="card-glow rounded-2xl p-6">
-                <div class="text-3xl mb-3">🗂️</div>
-                <h3 class="font-bold text-white mb-2">Rasuti fondovi</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">
-                    Horizon Europe, FIPA, IPA, WBIF, TED — svaki portal ima drugačiji format, drugačiji jezik, drugu prijavu.
-                </p>
-            </div>
-            <div class="card-glow rounded-2xl p-6">
-                <div class="text-3xl mb-3">⏰</div>
-                <h3 class="font-bold text-white mb-2">Propušteni rokovi</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">
-                    Konsultanti ručno prate desetine portala. Dobar projekt propusti rok jer niko nije vidio poziv na vrijeme.
-                </p>
-            </div>
-            <div class="card-glow rounded-2xl p-6">
-                <div class="text-3xl mb-3">🗣️</div>
-                <h3 class="font-bold text-white mb-2">Jezična barijera</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">
-                    EU dokumenti na engleskom, birokratski jezik. Firme ne znaju ni aplicirati, a kamoli da se kvalifikuju.
-                </p>
-            </div>
+        <div class="query-box">
+          <div class="query-label">Upit firme</div>
+          <div class="query-text">
+            Proizvodni MSP iz Tešnja traži podršku za digitalizaciju.
+          </div>
         </div>
-    </div>
-</section>
 
-<!-- =================== SECTION 3: RJEŠENJE =================== -->
-<section class="section-light py-20 px-6">
-    <div class="max-w-4xl mx-auto">
-        <p class="section-number mb-3 text-center">Rješenje</p>
-        <h2 class="text-3xl font-black text-white text-center mb-4">
-            Opišeš firmu. AI nađe grant.
-        </h2>
-        <p class="text-slate-400 text-center mb-14 max-w-xl mx-auto">
-            FinAssistBH agregira sve fondove u jednom dashboardu i koristi vektorsku AI pretragu da pronađe savršeni match.
+        <div class="match-card">
+          <div class="rank">1</div>
+          <div>
+            <div class="match-title">Najrelevantniji programi</div>
+            <div class="match-meta">
+              RAG kontekst, strukturirani metapodaci i izvori
+            </div>
+          </div>
+          <div class="match-score">Top match</div>
+        </div>
+
+        <div class="match-card">
+          <div class="rank">2</div>
+          <div>
+            <div class="match-title">AI odgovor na bosanskom</div>
+            <div class="match-meta">
+              Sa sljedećim korakom i linkovima prema izvorima
+            </div>
+          </div>
+          <div class="match-score">5 izvora</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problem" class="section">
+      <div class="section-head">
+        <div class="section-kicker">Problem</div>
+        <h2>Pronalaženje pravog javnog poziva je spor i fragmentiran proces.</h2>
+        <p class="section-copy">
+          Informacije su raspoređene kroz različite portale, dokumente,
+          jezike i administrativne nivoe. Timovi zato troše vrijeme na
+          pretragu prije nego što uopće počnu pripremati prijavu.
+        </p>
+      </div>
+
+      <div class="grid grid-3">
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">01</div>
+          <h3>Fragmentirani izvori</h3>
+          <p>
+            Federalni, kantonalni, lokalni i evropski programi nemaju jedan
+            zajednički format ili pretraživač.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">02</div>
+          <h3>Težak administrativni jezik</h3>
+          <p>
+            Uslovi, prihvatljivi korisnici i finansijski detalji često su
+            skriveni u dugim dokumentima.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">03</div>
+          <h3>Nepouzdano rangiranje</h3>
+          <p>
+            Klasična keyword pretraga teško razumije poslovnu potrebu,
+            lokaciju, sektor i cilj projekta zajedno.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="product" class="section">
+      <div class="section-head">
+        <div class="section-kicker">Proizvod</div>
+        <h2>Opišete firmu. FinAssistBH pronalazi i objašnjava prilike.</h2>
+        <p class="section-copy">
+          Platforma kombinira strukturirane podatke, Gemini embeddinge,
+          ChromaDB pretragu, deterministički reranking i generativni odgovor
+          sa izvorima.
+        </p>
+      </div>
+
+      <div class="grid grid-4 flow">
+        <article class="card flow-card">
+          <h3>Poslovni upit</h3>
+          <p>
+            Korisnik piše prirodnim jezikom, na primjer sektor, lokaciju,
+            veličinu firme i planirani projekt.
+          </p>
+        </article>
+
+        <article class="card flow-card">
+          <h3>Semantička analiza</h3>
+          <p>
+            Upit se pretvara u 3.072-dimenzionalni Gemini embedding.
+          </p>
+        </article>
+
+        <article class="card flow-card">
+          <h3>Rangiranje grantova</h3>
+          <p>
+            ChromaDB kandidati prolaze metadata-aware reranking prije
+            konačnog prikaza.
+          </p>
+        </article>
+
+        <article class="card flow-card">
+          <h3>Odgovor sa izvorima</h3>
+          <p>
+            RAG odgovor navodi relevantne programe i sljedeći korak za
+            korisnika.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="traction" class="section">
+      <div class="section-head">
+        <div class="section-kicker">Verificirano danas</div>
+        <h2>Nije koncept. Produkcijski tok radi end-to-end.</h2>
+        <p class="section-copy">
+          Sljedeće metrike dolaze iz verificiranog v2.2.1 produkcijskog
+          baselinea i kasnijeg post-release main deploymenta.
+        </p>
+      </div>
+
+      <div class="grid grid-4">
+        <article class="card metric proof">
+          <div class="proof-label">Dataset</div>
+          <div>
+            <div class="metric-value">30</div>
+            <div class="metric-label">strukturiranih grantova</div>
+            <div class="metric-note">ChromaDB collection: eu_grants</div>
+          </div>
+        </article>
+
+        <article class="card metric proof">
+          <div class="proof-label">Quality gate</div>
+          <div>
+            <div class="metric-value">87</div>
+            <div class="metric-label">automatiziranih testova</div>
+            <div class="metric-note">Lokalni suite prolazi</div>
+          </div>
+        </article>
+
+        <article class="card metric proof">
+          <div class="proof-label">AI retrieval</div>
+          <div>
+            <div class="metric-value">3072</div>
+            <div class="metric-label">embedding dimenzija</div>
+            <div class="metric-note">gemini-embedding-001</div>
+          </div>
+        </article>
+
+        <article class="card metric proof">
+          <div class="proof-label">Live AI smoke</div>
+          <div>
+            <div class="metric-value">200</div>
+            <div class="metric-label">HTTP /ai-answer</div>
+            <div class="metric-note">JWT i pet izvora potvrđeni</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section architecture">
+      <div class="section-head">
+        <div class="section-kicker">Tehnologija</div>
+        <h2>Modularna RAG arhitektura za siguran rast.</h2>
+        <p class="section-copy">
+          Jasne granice između interfejsa, API sloja, AI jezgre, podataka i
+          infrastrukture omogućavaju male, izolirane produkcijske promjene.
+        </p>
+      </div>
+
+      <div class="card arch-stack">
+        <div class="arch-layer">
+          <strong>GitHub Pages frontend</strong>
+          <small>Chat, auth, investor pitch i mobile-first UI</small>
+        </div>
+
+        <div class="arch-layer">
+          <strong>FastAPI backend</strong>
+          <small>JWT, REST API, health contract i lifespan startup</small>
+        </div>
+
+        <div class="arch-layer">
+          <strong>AI core</strong>
+          <small>Gemini embedding, ChromaDB, reranking i RAG</small>
+        </div>
+
+        <div class="arch-layer">
+          <strong>PostgreSQL + failure-safe startup</strong>
+          <small>Produkcijski korisnici, SQLite fallback i dataset sync</small>
+        </div>
+
+        <div class="arch-layer">
+          <strong>GitHub Actions + Render</strong>
+          <small>CI, Security Audit, deploy i post-deploy health provjera</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-kicker">Search quality</div>
+        <h2>Relevantnost se mjeri, ne pretpostavlja.</h2>
+        <p class="section-copy">
+          Produkcijski benchmark prati 15 poslovnih upita. Dodatni sensitivity
+          pogled prikazuje ranking kvalitetu za 14 upita koji imaju potvrđen
+          binary-relevant dokument.
+        </p>
+      </div>
+
+      <div class="card benchmark">
+        <div class="benchmark-row">
+          <strong>Benchmark pogled</strong>
+          <strong>HitRate@5</strong>
+          <strong>MRR@10</strong>
+          <strong>NDCG@10</strong>
+        </div>
+
+        <div class="benchmark-row">
+          <strong>Svih 15 produkcijskih upita</strong>
+          <strong>0.8667</strong>
+          <strong>0.7622</strong>
+          <strong>0.6293</strong>
+        </div>
+
+        <div class="benchmark-row">
+          <strong>14 evaluabilnih upita</strong>
+          <strong>0.9286</strong>
+          <strong>0.8167</strong>
+          <strong>0.6573</strong>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        Upit o zapošljavanju mladih u FBiH ostaje dokumentiran kao dataset
+        coverage gap. Sistem ne dobiva umjetno povećanu relevance ocjenu samo
+        radi boljeg benchmark rezultata.
+      </div>
+    </section>
+
+    <section id="model" class="section">
+      <div class="section-head">
+        <div class="section-kicker">Poslovni model</div>
+        <h2>Predloženi SaaS paketi za jasne korisničke segmente.</h2>
+        <p class="section-copy">
+          Cijene ispod su poslovni prijedlog za validaciju kroz kontrolirani
+          beta program. Nisu prikazane kao postojeći prihod ili potvrđena
+          tržišna potražnja.
+        </p>
+      </div>
+
+      <div class="grid grid-4">
+        <article class="card pricing-card">
+          <span class="chip">Proposed</span>
+          <div class="price">€29 <small>/ mj.</small></div>
+          <h3>Starter</h3>
+          <p>Samostalni preduzetnici i mali MSP-ovi.</p>
+          <ul class="feature-list">
+            <li>AI grant pretraga</li>
+            <li>Sačuvani upiti</li>
+            <li>Osnovni izvještaj</li>
+          </ul>
+        </article>
+
+        <article class="card pricing-card featured">
+          <span class="chip">Beta fokus</span>
+          <div class="price">€149 <small>/ mj.</small></div>
+          <h3>Pro</h3>
+          <p>Konsultanti i organizacije koje prate više prilika.</p>
+          <ul class="feature-list">
+            <li>Napredna pretraga</li>
+            <li>Više profila</li>
+            <li>Export izvještaja</li>
+          </ul>
+        </article>
+
+        <article class="card pricing-card">
+          <span class="chip">Proposed</span>
+          <div class="price">€299 <small>/ mj.</small></div>
+          <h3>Agency</h3>
+          <p>Računovodstveni i konsultantski timovi.</p>
+          <ul class="feature-list">
+            <li>Klijentski profili</li>
+            <li>API pristup</li>
+            <li>Prioritetna podrška</li>
+          </ul>
+        </article>
+
+        <article class="card pricing-card">
+          <span class="chip">Custom</span>
+          <div class="price">€799 <small>/ mj.</small></div>
+          <h3>Enterprise</h3>
+          <p>Institucije, univerziteti i lokalne uprave.</p>
+          <ul class="feature-list">
+            <li>White-label opcija</li>
+            <li>Custom integracije</li>
+            <li>SLA razgovor</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-kicker">Roadmap</div>
+        <h2>Od dokazano stabilnog proizvoda prema tržišnoj validaciji.</h2>
+      </div>
+
+      <div class="card roadmap">
+        <article class="roadmap-item done">
+          <span class="roadmap-dot" aria-hidden="true"></span>
+          <h3>Produkcijski RAG baseline</h3>
+          <p>
+            JWT, search, AI answer, 30 dokumenata, benchmark, release i
+            post-deploy health provjera su aktivni.
+          </p>
+        </article>
+
+        <article class="roadmap-item">
+          <span class="roadmap-dot" aria-hidden="true"></span>
+          <h3>Kontrolirani beta krug</h3>
+          <p>
+            Rad sa stvarnim firmama i konsultantima, praćenje upita i ručni
+            groundedness pregled AI odgovora.
+          </p>
+        </article>
+
+        <article class="roadmap-item">
+          <span class="roadmap-dot" aria-hidden="true"></span>
+          <h3>Verified dataset expansion</h3>
+          <p>
+            Dodavanje potvrđenih poziva za nedovoljno pokrivene potrebe i
+            ponovno mjerenje produkcijskog benchmarka.
+          </p>
+        </article>
+
+        <article class="roadmap-item">
+          <span class="roadmap-dot" aria-hidden="true"></span>
+          <h3>Commercial validation</h3>
+          <p>
+            Aktiviranje paketa tek nakon potvrđene korisničke vrijednosti,
+            spremnosti naplate i operativne podrške.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="funding" class="section">
+      <div class="card funding">
+        <div>
+          <div class="section-kicker">Funding target</div>
+          <h2>€50.000 za validaciju i ubrzanje tržišnog izlaska.</h2>
+          <p class="section-copy">
+            Cilj je pretvoriti verificirani tehnički proizvod u ponovljiv
+            prodajni proces, proširiti dataset i uspostaviti mali beta program.
+          </p>
+        </div>
+
+        <div>
+          <div class="funding-number">€50k</div>
+          <div class="allocation">
+            <div class="allocation-row">
+              <span>Tehnologija, sigurnost i podaci</span>
+              <strong>€20k</strong>
+            </div>
+            <div class="allocation-row">
+              <span>Beta korisnici, prodaja i distribucija</span>
+              <strong>€18k</strong>
+            </div>
+            <div class="allocation-row">
+              <span>Operacije i runway</span>
+              <strong>€12k</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        Funding cilj i alokacija predstavljaju poslovni plan za razgovor s
+        potencijalnim partnerima. Ne predstavljaju zaključenu rundu ili
+        obećanje prinosa.
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="cta">
+        <div class="section-kicker">Sljedeći korak</div>
+        <h2>Pogledajte proizvod, testirajte stvaran upit i razgovarajmo.</h2>
+        <p>
+          Tražimo kontrolirane beta korisnike, stručne saradnike za EU fondove
+          i strateške partnere koji mogu ubrzati tržišnu validaciju.
         </p>
 
-        <!-- Flow -->
-        <div class="flex flex-col md:flex-row items-center justify-center gap-3 mb-14">
-            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
-                <div class="text-2xl mb-1">💬</div>
-                <p class="text-white font-semibold text-sm">Opišeš projekt</p>
-                <p class="text-slate-500 text-xs mt-1">"Startup, fintech, Tešanj"</p>
-            </div>
-            <div class="flow-arrow text-2xl font-black hidden md:block">→</div>
-            <div class="flow-arrow text-2xl font-black md:hidden">↓</div>
-            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
-                <div class="text-2xl mb-1">🤖</div>
-                <p class="text-white font-semibold text-sm">AI analizira</p>
-                <p class="text-slate-500 text-xs mt-1">3.072-dim vektori</p>
-            </div>
-            <div class="flow-arrow text-2xl font-black hidden md:block">→</div>
-            <div class="flow-arrow text-2xl font-black md:hidden">↓</div>
-            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
-                <div class="text-2xl mb-1">🎯</div>
-                <p class="text-white font-semibold text-sm">Top grantovi</p>
-                <p class="text-slate-500 text-xs mt-1">Rangirani po relevantnosti</p>
-            </div>
-            <div class="flow-arrow text-2xl font-black hidden md:block">→</div>
-            <div class="flow-arrow text-2xl font-black md:hidden">↓</div>
-            <div class="flow-step rounded-xl px-5 py-4 text-center min-w-[140px]">
-                <div class="text-2xl mb-1">📅</div>
-                <p class="text-white font-semibold text-sm">Alert na rok</p>
-                <p class="text-slate-500 text-xs mt-1">Notifikacije na email</p>
-            </div>
+        <div class="cta-actions">
+          <a class="button button-primary" href="./index.html">
+            Pokreni live demo
+          </a>
+                    <a
+            class="button button-secondary"
+            href="https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/releases/tag/v2.2.1"
+            rel="noopener"
+          >
+            Release v2.2.1
+          </a>
         </div>
+      </div>
+    </section>
+  </main>
 
-        <!-- Key differentiators -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
-                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-bolt"></i></div>
-                <div>
-                    <h4 class="font-bold text-white mb-1">32 aktivna izvora</h4>
-                    <p class="text-slate-400 text-sm">TED, SEDIA, FIPA, UNDP, ZDK, Mreža mira i još 26 lokalnih portala — sve na jednom mjestu.</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
-                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-language"></i></div>
-                <div>
-                    <h4 class="font-bold text-white mb-1">Na bosanskom</h4>
-                    <p class="text-slate-400 text-sm">Jedina AI platforma za EU fondove koja govori bosanski — za lokalne MSP-ove, općine i NGO-e.</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
-                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
-                <div>
-                    <h4 class="font-bold text-white mb-1">RAG arhitektura</h4>
-                    <p class="text-slate-400 text-sm">Retrieval-Augmented Generation — AI ne pogađa, nego čita prave dokumente i vraća tačne odgovore.</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex gap-4 items-start">
-                <div class="text-eu-yellow text-xl mt-1"><i class="fa-solid fa-bell"></i></div>
-                <div>
-                    <h4 class="font-bold text-white mb-1">Alarm na rokove</h4>
-                    <p class="text-slate-400 text-sm">Sistem automatski prati rokove i šalje alert kada se deadline bliži — niko više ne propušta prijavu.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- =================== SECTION 4: TRŽIŠNA PRILIKA =================== -->
-<section class="section-alt py-20 px-6">
-    <div class="max-w-4xl mx-auto">
-        <p class="section-number mb-3 text-center">Tržišna Prilika</p>
-        <h2 class="text-3xl font-black text-white text-center mb-4">
-            Ogroman novac. <span class="text-eu-yellow">Mali broj korisnika.</span>
-        </h2>
-        <p class="text-slate-400 text-center mb-14 max-w-xl mx-auto">
-            BiH je EU kandidat od 2022. god. Pristup fondovima raste svake godine — a alati za navigaciju ne postoje.
-        </p>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div class="card-glow rounded-2xl p-6 text-center">
-                <div class="stat-number">€1.2B+</div>
-                <p class="text-slate-300 font-semibold mt-1">EU fondova aktivno dostupno BiH</p>
-                <p class="text-slate-500 text-xs mt-2">IPA, Horizon, Digital Europe, WBIF, Interreg</p>
-            </div>
-            <div class="card-glow rounded-2xl p-6 text-center">
-                <div class="stat-number">18M+</div>
-                <p class="text-slate-300 font-semibold mt-1">korisnika u regiji Zapadnog Balkana</p>
-                <p class="text-slate-500 text-xs mt-2">BiH, Srbija, Crna Gora, Albanija, N. Makedonija</p>
-            </div>
-            <div class="card-glow rounded-2xl p-6 text-center">
-                <div class="stat-number">~50k</div>
-                <p class="text-slate-300 font-semibold mt-1">MSP-ova i NGO-a u BiH</p>
-                <p class="text-slate-500 text-xs mt-2">Direktna ciljna grupa za SaaS model</p>
-            </div>
-        </div>
-
-        <!-- Target segments -->
-        <h3 class="text-white font-bold text-lg mb-5">Ciljni segmenti — po prioritetu</h3>
-        <div class="space-y-3">
-            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <span class="text-xl">🧑‍💼</span>
-                    <div>
-                        <p class="font-semibold text-white text-sm">EU konsultanti</p>
-                        <p class="text-slate-500 text-xs">80% vremena troše na pretragu — sistem im daje 3× više kapaciteta</p>
-                    </div>
-                </div>
-                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€300–800/mj</span>
-            </div>
-            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <span class="text-xl">🧾</span>
-                    <div>
-                        <p class="font-semibold text-white text-sm">Računovodstveni uredi</p>
-                        <p class="text-slate-500 text-xs">Prate fondove za 10–50 klijenata — alert "Klijent X može dobiti €50k"</p>
-                    </div>
-                </div>
-                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€100–300/mj</span>
-            </div>
-            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <span class="text-xl">⚖️</span>
-                    <div>
-                        <p class="font-semibold text-white text-sm">Odvjetnički uredi</p>
-                        <p class="text-slate-500 text-xs">EU Official Journal svaki dan — alternativa LexisNexis-u za €1.000+/mj</p>
-                    </div>
-                </div>
-                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€200–500/mj</span>
-            </div>
-            <div class="card-glow rounded-xl p-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <span class="text-xl">🏛️</span>
-                    <div>
-                        <p class="font-semibold text-white text-sm">Općine BiH (140+)</p>
-                        <p class="text-slate-500 text-xs">1–2 osobe ne mogu pratiti WBIF, IPA, WBIP — automatske obavijesti</p>
-                    </div>
-                </div>
-                <span class="text-eu-yellow font-bold text-sm whitespace-nowrap">€150–400/mj</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- =================== SECTION 5: POSLOVNI MODEL =================== -->
-<section class="section-light py-20 px-6">
-    <div class="max-w-4xl mx-auto">
-        <p class="section-number mb-3 text-center">Poslovni Model</p>
-        <h2 class="text-3xl font-black text-white text-center mb-4">
-            SaaS pretplata. <span class="text-eu-yellow">Skalabilno.</span>
-        </h2>
-        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">
-            Četiri jasna tiera — od individualnih preduzetnika do općina i institucija.
-        </p>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-            <!-- Starter -->
-            <div class="card-glow rounded-2xl p-5 text-center flex flex-col">
-                <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Starter</p>
-                <div class="text-3xl font-black text-white mb-1">€29</div>
-                <div class="text-slate-500 text-xs mb-4">/mjesec</div>
-                <p class="text-slate-300 text-sm mb-4">MSP-ovi, preduzetnici, startupi</p>
-                <ul class="text-slate-400 text-xs space-y-1 text-left mb-5">
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Dashboard pristup</li>
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>AI pretraga (50 upita/mj)</li>
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Email obavijesti</li>
-                </ul>
-                <a href="#" data-stripe-plan="starter"
-                   class="mt-auto block bg-eu-blue text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-700 transition">
-                    Započni <i class="fa-solid fa-arrow-right ml-1"></i>
-                </a>
-            </div>
-
-            <!-- Pro -->
-            <div class="card-glow rounded-2xl p-5 text-center flex flex-col">
-                <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Pro</p>
-                <div class="text-3xl font-black text-white mb-1">€149</div>
-                <div class="text-slate-500 text-xs mb-4">/mjesec</div>
-                <p class="text-slate-300 text-sm mb-4">EU konsultanti, NGO-ovi</p>
-                <ul class="text-slate-400 text-xs space-y-1 text-left mb-5">
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Neograničena AI pretraga</li>
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Export u PDF/Excel</li>
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>5 praćenih korisnika</li>
-                </ul>
-                <a href="#" data-stripe-plan="pro"
-                   class="mt-auto block bg-eu-blue text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-700 transition">
-                    Započni <i class="fa-solid fa-arrow-right ml-1"></i>
-                </a>
-            </div>
-
-            <!-- Agency — highlighted -->
-            <div class="tier-highlight rounded-2xl p-5 text-center relative flex flex-col">
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-eu-yellow text-eu-dark text-xs font-black px-3 py-1 rounded-full">
-                    NAJPOPULARNIJI
-                </div>
-                <p class="text-eu-yellow text-xs font-semibold uppercase tracking-widest mb-2 mt-2">Agency</p>
-                <div class="text-3xl font-black text-white mb-1">€299</div>
-                <div class="text-blue-300 text-xs mb-4">/mjesec</div>
-                <p class="text-blue-200 text-sm mb-4">Računovođe, odvjetnici</p>
-                <ul class="text-blue-200 text-xs space-y-1 text-left mb-5">
-                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>25 klijentskih profila</li>
-                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>Automatski client reports</li>
-                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>API pristup</li>
-                    <li><i class="fa-solid fa-check text-eu-yellow mr-2"></i>Prioritetna podrška</li>
-                </ul>
-                <a href="#" data-stripe-plan="agency"
-                   class="mt-auto block bg-eu-yellow text-eu-dark font-bold text-sm py-2.5 rounded-xl hover:bg-yellow-300 transition">
-                    Započni <i class="fa-solid fa-arrow-right ml-1"></i>
-                </a>
-            </div>
-
-            <!-- Enterprise -->
-            <div class="card-glow rounded-2xl p-5 text-center flex flex-col">
-                <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Enterprise</p>
-                <div class="text-3xl font-black text-white mb-1">€799</div>
-                <div class="text-slate-500 text-xs mb-4">/mjesec</div>
-                <p class="text-slate-300 text-sm mb-4">Općine, univerziteti, institucije</p>
-                <ul class="text-slate-400 text-xs space-y-1 text-left mb-5">
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>White-label opcija</li>
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Custom integracije</li>
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>Neograničeni korisnici</li>
-                    <li><i class="fa-solid fa-check text-green-400 mr-2"></i>SLA ugovor</li>
-                </ul>
-                <a href="#kontakt" data-stripe-plan="enterprise"
-                   class="mt-auto block bg-eu-blue text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-700 transition">
-                    Kontaktiraj nas <i class="fa-solid fa-arrow-right ml-1"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Revenue projection -->
-        <div class="card-glow rounded-2xl p-6">
-            <h3 class="font-bold text-white mb-4 text-center">Projekcija prihoda (konzervativna)</h3>
-            <div class="grid grid-cols-3 gap-4 text-center">
-                <div>
-                    <p class="text-slate-400 text-sm mb-1">Godina 1</p>
-                    <div class="text-2xl font-black text-white">€18k</div>
-                    <p class="text-slate-500 text-xs mt-1">50 Starter korisnika</p>
-                </div>
-                <div class="border-l border-r border-slate-700">
-                    <p class="text-slate-400 text-sm mb-1">Godina 2</p>
-                    <div class="text-2xl font-black text-eu-yellow">€120k</div>
-                    <p class="text-slate-500 text-xs mt-1">Mix Pro + Agency</p>
-                </div>
-                <div>
-                    <p class="text-slate-400 text-sm mb-1">Godina 3</p>
-                    <div class="text-2xl font-black text-white">€480k</div>
-                    <p class="text-slate-500 text-xs mt-1">Region + Enterprise</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- =================== SECTION 6: TRACTION =================== -->
-<section class="section-alt py-20 px-6">
-    <div class="max-w-4xl mx-auto">
-        <p class="section-number mb-3 text-center">Traction</p>
-        <h2 class="text-3xl font-black text-white text-center mb-4">
-            Živi produkt. <span class="text-green-400">Radi sada.</span>
-        </h2>
-        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">
-            Nisu to ideje na papiru — FinAssistBH je live platforma izgrađena u Tešnju, BiH.
-        </p>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
-                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
-                <div>
-                    <p class="font-semibold text-white">Live frontend dashboard</p>
-                    <p class="text-slate-500 text-xs">GitHub Pages — dinohatibovic.github.io/EU_Funds_and_Grants_AI</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
-                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
-                <div>
-                    <p class="font-semibold text-white">Backend API deplojovan</p>
-                    <p class="text-slate-500 text-xs">FastAPI na Render — health endpoint aktivan</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
-                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
-                <div>
-                    <p class="font-semibold text-white">32 aktivna izvora za scraping</p>
-                    <p class="text-slate-500 text-xs">TED, SEDIA, FIPA, UNDP, ZDK, Mreža mira, DEI BiH...</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
-                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
-                <div>
-                    <p class="font-semibold text-white">€1.2B+ grantova u bazi</p>
-                    <p class="text-slate-500 text-xs">12 verificiranih poziva — Horizon, Erasmus, Interreg, FIPA...</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
-                <i class="fa-solid fa-circle-check text-green-400 text-2xl"></i>
-                <div>
-                    <p class="font-semibold text-white">AI search (RAG) implementiran</p>
-                    <p class="text-slate-500 text-xs">Vektorska pretraga s 3.072-dim embeddingima</p>
-                </div>
-            </div>
-            <div class="card-glow rounded-xl p-5 flex items-center gap-4">
-                <i class="fa-solid fa-clock text-eu-yellow text-2xl"></i>
-                <div>
-                    <p class="font-semibold text-white">Q2 2026: TED + SEDIA live data</p>
-                    <p class="text-slate-500 text-xs">REST API integracija — pravi EU podaci u realnom vremenu</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="card-glow rounded-2xl p-6">
-            <h3 class="font-bold text-white mb-5">Roadmap</h3>
-            <div class="space-y-4">
-                <div class="flex gap-4 items-start">
-                    <div class="w-24 shrink-0 text-xs text-green-400 font-semibold pt-0.5">✅ Q1 2026</div>
-                    <p class="text-slate-300 text-sm">MVP: dashboard, API, AI search, 32 izvora, live deploy</p>
-                </div>
-                <div class="flex gap-4 items-start">
-                    <div class="w-24 shrink-0 text-xs text-eu-yellow font-semibold pt-0.5">🔧 Q2 2026</div>
-                    <p class="text-slate-300 text-sm">TED + SEDIA API integracija, real-time podaci, email notifikacije</p>
-                </div>
-                <div class="flex gap-4 items-start">
-                    <div class="w-24 shrink-0 text-xs text-blue-400 font-semibold pt-0.5">🚀 Q3 2026</div>
-                    <p class="text-slate-300 text-sm">Beta korisnici (konsultanti, računovođe), SaaS naplata, mobile app</p>
-                </div>
-                <div class="flex gap-4 items-start">
-                    <div class="w-24 shrink-0 text-xs text-slate-500 font-semibold pt-0.5">🌍 Q4 2026</div>
-                    <p class="text-slate-300 text-sm">Ekspanzija na region (Srbija, Crna Gora), bijeli label za općine</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- =================== SECTION 7: TIM =================== -->
-<section class="section-light py-20 px-6">
-    <div class="max-w-4xl mx-auto">
-        <p class="section-number mb-3 text-center">Tim</p>
-        <h2 class="text-3xl font-black text-white text-center mb-12">
-            Izgrađeno lokalno. <span class="text-eu-yellow">Lokalno poznavanje.</span>
-        </h2>
-
-        <div class="max-w-sm mx-auto">
-            <div class="card-glow rounded-2xl p-8 text-center">
-                <div class="w-20 h-20 bg-eu-blue rounded-2xl flex items-center justify-center mx-auto mb-5">
-                    <span class="text-3xl font-black text-white">DH</span>
-                </div>
-                <h3 class="text-xl font-black text-white mb-1">Dino Hatibović</h3>
-                <p class="text-eu-yellow font-semibold text-sm mb-4">Osnivač & Full-stack AI Developer</p>
-                <p class="text-slate-400 text-sm leading-relaxed mb-5">
-                    Razvija AI rješenja za lokalno tržište BiH. Fokus na primjenu EU fondova za digitalni razvoj regije. Tešanj, Zeničko-dobojski kanton.
-                </p>
-                <div class="flex flex-wrap gap-2 justify-center">
-                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">Python / FastAPI</span>
-                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">AI / RAG</span>
-                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">EU fondovi</span>
-                    <span class="bg-blue-900/40 border border-blue-700/40 text-blue-300 text-xs px-3 py-1 rounded-full">BiH tržište</span>
-                </div>
-            </div>
-        </div>
-
-        <p class="text-slate-500 text-sm text-center mt-8">
-            Tražimo ko-osnivača s iskustvom u EU konsaltingu / prodaji ili strateškog investitora.
-        </p>
-    </div>
-</section>
-
-<!-- =================== SECTION 8: CTA / KONTAKT =================== -->
-<section id="kontakt" class="hero-bg py-20 px-6">
-    <div class="max-w-3xl mx-auto text-center">
-        <p class="section-number mb-3">Investicija</p>
-        <h2 class="text-3xl font-black text-white mb-4">
-            Tražimo <span class="text-eu-yellow">€50.000</span> seed runde.
-        </h2>
-        <p class="text-blue-200 text-lg mb-6 max-w-xl mx-auto leading-relaxed">
-            Za 12 mjeseci runway: TED/SEDIA API integracija, beta korisnici, SaaS infrastruktura i marketinška ekspanzija na region.
-        </p>
-
-        <!-- Use of funds -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12 max-w-2xl mx-auto">
-            <div class="bg-white/10 rounded-xl p-4 text-center">
-                <div class="text-eu-yellow font-black text-xl mb-1">€20k</div>
-                <p class="text-blue-200 text-xs">Tech &amp; infrastruktura<br>(API, server, sigurnost)</p>
-            </div>
-            <div class="bg-white/10 rounded-xl p-4 text-center">
-                <div class="text-eu-yellow font-black text-xl mb-1">€18k</div>
-                <p class="text-blue-200 text-xs">Prodaja &amp; marketing<br>(beta korisnici, region)</p>
-            </div>
-            <div class="bg-white/10 rounded-xl p-4 text-center">
-                <div class="text-eu-yellow font-black text-xl mb-1">€12k</div>
-                <p class="text-blue-200 text-xs">Operativni troškovi<br>(12 mj. runway)</p>
-            </div>
-        </div>
-
-        <!-- Contact -->
-        <div class="card-glow rounded-2xl p-8 max-w-md mx-auto bg-white/5">
-            <h3 class="font-bold text-white mb-5">Kontakt</h3>
-            <div class="space-y-3 text-left">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-envelope text-eu-yellow w-5 text-center"></i>
-                    <span class="text-slate-300 text-sm">dino@finassistbh.ba</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <i class="fa-brands fa-github text-eu-yellow w-5 text-center"></i>
-                    <a href="https://github.com/dinohatibovic/EU_Funds_and_Grants_AI"
-                       target="_blank"
-                       class="text-blue-300 text-sm hover:text-eu-yellow transition">
-                        github.com/dinohatibovic/EU_Funds_and_Grants_AI
-                    </a>
-                </div>
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-globe text-eu-yellow w-5 text-center"></i>
-                    <a href="https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/"
-                       target="_blank"
-                       class="text-blue-300 text-sm hover:text-eu-yellow transition">
-                        Live demo →
-                    </a>
-                </div>
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-location-dot text-eu-yellow w-5 text-center"></i>
-                    <span class="text-slate-300 text-sm">Tešanj, Zeničko-dobojski kanton, BiH</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- =================== FOOTER =================== -->
-<footer class="bg-eu-dark text-slate-500 py-8 text-center border-t border-blue-900/50">
-    <p class="text-sm text-slate-400">&copy; 2026 <span class="text-white font-semibold">Dino Hatibović</span> – FinAssistBH</p>
-    <p class="text-xs mt-2">🇧🇦 Razvijeno u Tešnju, Bosna i Hercegovina &nbsp;·&nbsp; 🇪🇺 Sufinansirano u okviru EU programa za digitalizaciju i razvoj</p>
-    <p class="text-xs mt-3">
-        <a href="index.html" class="text-blue-400 hover:text-eu-yellow transition">← Grants Dashboard</a>
-    </p>
-</footer>
-
-<!-- Stripe Payment Links Config -->
-<script>
-// =============================================================
-// STRIPE PAYMENT LINKS — Dino, zamijeni ove linkove pravim!
-// =============================================================
-// Kad kreiraš Stripe nalog:
-// 1. Idi na dashboard.stripe.com → Products → kreiraj 4 proizvoda
-// 2. Za svaki proizvod klikni "Create payment link"
-// 3. Kopiraj link i zalijepi ovdje umjesto '#'
-// =============================================================
-const STRIPE_LINKS = {
-    starter:    '#',  // Zamijeni sa: https://buy.stripe.com/xxx
-    pro:        '#',  // Zamijeni sa: https://buy.stripe.com/xxx
-    agency:     '#',  // Zamijeni sa: https://buy.stripe.com/xxx
-    enterprise: null  // Enterprise = kontakt forma, ne Stripe
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-stripe-plan]').forEach(btn => {
-        const plan = btn.dataset.stripePlan;
-        const link = STRIPE_LINKS[plan];
-
-        if (link && link !== '#') {
-            btn.href = link;
-            btn.target = '_blank';
-        } else if (link === '#') {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert('Pretplate će uskoro biti dostupne! Kontaktirajte nas na dino@finassistbh.ba za rani pristup.');
-            });
-        }
-    });
-});
-</script>
-
+  <footer>
+    <span>FinAssistBH © 2026</span>
+    <span>Razvijeno u Tešnju, Bosna i Hercegovina</span>
+    <span>
+      Informativna platforma. Konačne uslove provjeriti kod izvornog
+      izdavaoca poziva.
+    </span>
+  </footer>
 </body>
 </html>
