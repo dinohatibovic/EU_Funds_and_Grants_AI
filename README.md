@@ -31,6 +31,45 @@ Tešanj**.
 
 ---
 
+## P1 search evaluation baseline
+
+The P1 search and ranking layer provides a reproducible evaluation
+workflow for retrieval and reranking changes.
+
+Current baseline:
+
+```text
+Grant records:        30 unique records
+Relevance judgments:  15 versioned queries
+Metric tests:         13 deterministic tests
+Full test suite:      72 passing tests
+
+HitRate@5:            0.8667
+MRR@10:               0.7622
+NDCG@10:              0.6293
+```
+
+The P1 search evaluation layer was completed in merge commit `9020b71`.
+Changes affecting embeddings, ingestion, ChromaDB metadata, retrieval,
+quality scoring or reranking must be compared with this baseline.
+
+Before opening a ranking-related pull request, run:
+
+```bash
+make lint
+make test
+make ai-test
+make benchmark-test
+make benchmark-syntax
+```
+
+Run the production benchmark separately when valid API credentials are
+available:
+
+```bash
+make benchmark-run
+```
+
 ## 🏗️ System architecture
 
 The system is designed for maximum modularity and layer isolation:
@@ -71,7 +110,7 @@ EU_Funds_and_Grants_AI/
 │   ├── scripts/           #   verify_sync.py (prod ↔ code audit)
 │   └── docker-compose.yml #   Local orchestration
 ├── docs/                  # Architecture, forensics, regulatory
-├── data/grants.json       # Source of truth — 19 BiH/EU grants
+├── data/grants.json       # Source of truth - 30 unique grant records
 ├── sdk/                   # Public Python SDK for the API
 ├── tests/                 # backend_tests/ + ai_pipeline_tests/
 ├── Makefile               # make up / test / ingest ...

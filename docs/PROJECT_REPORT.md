@@ -1,4 +1,42 @@
 # FinAssistBH — Projektni Izvještaj
+
+## August 2026 technical baseline addendum
+
+This addendum records the current implementation state after completion
+of the P1 search and ranking milestone. Earlier sections remain as a
+historical March 2026 project snapshot.
+
+### Current implementation baseline
+
+- Release line: `2.2.x`
+- Grant dataset: 30 unique records
+- Vector database: ChromaDB
+- Collection: `eu_grants`
+- Embeddings: Gemini vectors with 3072 dimensions
+- Production ingestion paths use the same structured metadata model
+- Ranking metadata includes grant status, verification score and source
+  priority
+- Non-date deadlines such as `rolling` and `periodic` are normalized to
+  `null`
+- P1 completion merge commit: `9020b71`
+- Full test baseline: 72 passing tests
+
+### Search evaluation baseline
+
+```text
+Relevance judgments: 15
+Metric tests:        13
+HitRate@5:           0.8667
+MRR@10:              0.7622
+NDCG@10:             0.6293
+```
+
+The March 2026 references to version `v2.2.0` and 768-dimensional
+embeddings are retained below as historical statements. They do not
+describe the current August 2026 implementation baseline.
+
+---
+
 ## EU Funds & Grants AI Platform | Mart 2026.
 **Autor:** Dino Hatibović | **Lokacija:** Tešanj, BiH
 **Datum:** 14. mart 2026. | **Verzija:** 2.2.0
