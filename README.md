@@ -1,299 +1,195 @@
-# EU Funds & Grants AI 🇪🇺🤖 — FinAssistBH
+# FinAssistBH
+### AI asistent za EU i domaće grantove u Bosni i Hercegovini
 
-[![CI/CD Pipeline](https://img.shields.io/github/actions/workflow/status/dinohatibovic/EU_Funds_and_Grants_AI/ci-cd-pipeline.yml?branch=main&label=CI%2FCD)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/actions)
-[![Security Audit](https://img.shields.io/github/actions/workflow/status/dinohatibovic/EU_Funds_and_Grants_AI/security-audit.yml?branch=main&label=Security%20Audit)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/actions)
-[![Release](https://img.shields.io/github/v/release/dinohatibovic/EU_Funds_and_Grants_AI?label=Release&color=success)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/releases)
-[![Docker](https://img.shields.io/badge/GHCR-finassistbh--backend-2496ED?logo=docker&logoColor=white)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/pkgs/container/finassistbh-backend)
-[![Python](https://img.shields.io/badge/Python-3.12-blue.svg?logo=python)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Render](https://img.shields.io/badge/Render-Deployed-informational?logo=render)](https://render.com/)
+BiH koristi manje od 30% raspoloživih EU sredstava. FinAssistBH pomaže firmama,
+obrtnicima i konsultantima da **pronađu pravi javni poziv** — na bosanskom,
+sa izvorom, bez izmišljenih rokova i budžeta.
+
+Fokus: Zenica-Doboj kanton i Tešanj, zatim FBiH i EU programi dostupni BiH.
+
+[![CI/CD](https://img.shields.io/github/actions/workflow/status/dinohatibovic/EU_Funds_and_Grants_AI/ci-cd-pipeline.yml?branch=main&label=CI%2FCD)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/actions)
+[![Release](https://img.shields.io/github/v/release/dinohatibovic/EU_Funds_and_Grants_AI)](https://github.com/dinohatibovic/EU_Funds_and_Grants_AI/releases)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
-[![Sponsor](https://img.shields.io/badge/♥-Support_the_project-ea4aaa)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/pitch.html)
 
-A modular AI system with a **Retrieval-Augmented Generation (RAG)** architecture
-for analyzing, indexing and intelligently searching EU and Bosnian grant &
-funding programs — with a special focus on the **Zenica-Doboj Canton (ZDK) and
-Tešanj**.
+**Live:** [Aplikacija](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/) ·
+[API health](https://eu-funds-and-grants-ai.onrender.com/health) ·
+[Pitch](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/pitch.html)
 
-> Bosnia and Herzegovina uses less than 30% of the EU funds available to it.
-> FinAssistBH is changing that.
-
-**Live:** [Frontend (GitHub Pages)](https://dinohatibovic.github.io/EU_Funds_and_Grants_AI/) ·
-[API (Render)](https://eu-funds-and-grants-ai.onrender.com/health)
-
-## Current production release
-
-```text
-Release:              v2.2.1
-Release commit:       f8355363ef9ea16ce8fd4a376c57fd6144511c33
-Post-release main:    585a02cf11c8ca497461e207b1885415ada67d95
-Grant records:        30
-Embedding model:      gemini-embedding-001
-Embedding dimensions: 3072
-Chroma collection:    eu_grants
-Chroma documents:     30
-Automated tests:      87
-```
-
-The public `/health` endpoint exposes `version`, `git_commit`,
-`chroma_collection`, `chroma_documents`, database status, AI engine status,
-and grant counts. Production startup uses the FastAPI lifespan context
-manager and preserves PostgreSQL fallback, grant cache loading, AI client
-initialization, and automatic ChromaDB synchronization.
-
-Versioned container image:
-
-```bash
-docker pull ghcr.io/dinohatibovic/finassistbh-backend:2.2.1
-```
-
-Immutable container reference:
-
-```text
-ghcr.io/dinohatibovic/finassistbh-backend@sha256:7878f5e101107423fedc37643461d7b34e5818ea7ab5737dff8c0020319a62e1
-```
-
-
-## Proof summary
-
-- **Live product:** GitHub Pages frontend and Render API health endpoint are linked above.
-- **Deployment evidence:** README badges link to CI/CD, Security Audit, release, GHCR package, Python, FastAPI, Render, and license status.
-- **Architecture evidence:** documented RAG system with `ai_core/`, `backend/`, `frontend/`, `infrastructure/`, `docs/`, `sdk/`, and tests.
-- **Operational evidence:** GitHub Actions workflows cover CI/CD, release, and security audit checks.
-- **Product focus:** grant discovery and AI-assisted search for Bosnia and Herzegovina, with priority coverage for ZDK and Tešanj.
+Demo: 3 AI upita bez registracije. Render free instanca može spavati; prvi
+poziv traje do ~60 sekundi.
 
 ---
 
-## P1 search evaluation baseline
+## Za koga
 
-The P1 search and ranking layer provides a reproducible evaluation
-workflow for retrieval and reranking changes.
+| Korisnik | Šta dobija danas |
+|---|---|
+| MSP, obrt, startup | Prirodni upit → rangirani grantovi + izvori |
+| Konsultant | Brza pretraga i grounding umjesto ručnog kopanja portala |
+| Općina / razvojna agencija | Lokalni i kantonalni pozivi uz EU programe |
 
-Current baseline:
+BiH je **kandidat za EU**, nije članica. Platforma to ne zamagljuje.
 
-```text
-Grant records:        30 unique records
-Relevance judgments:  15 versioned queries
-Metric tests:         13 deterministic tests
-Full test suite:      87 passing tests
-
-HitRate@5:            0.8667
-MRR@10:               0.7622
-NDCG@10:              0.6293
-```
-
-Sensitivity baseline for 14 evaluable queries:
+## Šta radi sada
 
 ```text
-HitRate@5:            0.9286
-MRR@10:               0.8167
-NDCG@10:              0.6573
+Upit na bosanskom
+  → hybrid pretraga (BM25 + dense + RRF)
+  → reranking
+  → strukturirani rezultati i URL izvori
+  → AI odgovor samo nad verificiranim podacima
 ```
 
-The query `zapošljavanje mladih u FBiH` remains in the full product-level
-score as a documented dataset coverage gap. The current 30-grant collection
-contains no confirmed binary-relevant document for that query, and no
-relevance grade was invented.
+AI **ne smije** izmišljati rok, budžet, uslove ni URL. Ako podatak nije
+potvrđen, kaže da nije potvrđen. Polje `next_expected` nije aktivni deadline.
 
+Sljedeći proizvodni sloj (nije u ovom releaseu): profil firme, matching,
+alerti, dokumentacija prijave, praćenje statusa.
 
-The current production baseline is release `v2.2.1` at commit `f8355363ef9ea16ce8fd4a376c57fd6144511c33`.
-Post-release documentation is tracked on `main` at commit `585a02cf11c8ca497461e207b1885415ada67d95`.
-Changes affecting embeddings, ingestion, ChromaDB metadata, retrieval,
-quality scoring or reranking must be compared with both the full 15-query
-product score and the 14-query evaluable sensitivity score.
+## Produkcijski ugovor
 
-Before opening a ranking-related pull request, run:
+| | |
+|---|---|
+| Release linija | `2.2.x` (`v2.2.1`) |
+| Dataset | 30 strukturiranih grantova, `data/grants.json` |
+| Vektori | ChromaDB `eu_grants`, Gemini `gemini-embedding-001` (3072 dim) |
+| Generisanje | Gemini 2.5 Flash |
+| Baza korisnika | PostgreSQL (SQLite fallback) |
+| Frontend | statički HTML, GitHub Pages, UI na bosanskom |
+| Backend | FastAPI na Renderu |
+
+Trenutni runtime čitaj sa [`/health`](https://eu-funds-and-grants-ai.onrender.com/health)
+(`version`, `git_commit`, `chroma_documents`, `database`, `ai_engine`).
+Ne tvrdi SHA iz README-ja ako health kaže drugačije.
+
+P1 search baseline (15 upita, v2.2.1):
+
+```text
+HitRate@5  0.8667
+MRR@10     0.7622
+NDCG@10    0.6293
+```
+
+Rupa u datasetu: `zapošljavanje mladih u FBiH` nema potvrđen relevantan
+dokument — to je coverage gap, ne izmišljen hit.
+
+Lokalni testovi (pre-push, 29.9.2026): 191. Release `v2.2.1` je imao 87.
+
+Prije ranking/RAG PR-a:
 
 ```bash
-make lint
-make test
-make ai-test
-make benchmark-test
-make benchmark-syntax
+make lint && make test && make ai-test && make benchmark-test
 ```
 
-Run the production benchmark separately when valid API credentials are
-available:
+## Arhitektura
 
-```bash
-make benchmark-run
+```text
+GitHub Pages  →  FastAPI  →  PostgreSQL
+                    │
+                    └→  ai_core
+                          BM25 + Chroma + RRF + rerank + Gemini
 ```
 
-## 🏗️ System architecture
+| Sloj | Put | Odgovornost |
+|---|---|---|
+| UI | `frontend/src/` | prijava, demo, chat, pitch |
+| API | `backend/app/` | JWT, grantovi, search, AI, Stripe webhook |
+| AI | `ai_core/` | embeddings, Chroma, RAG, grounding |
+| Podaci | `data/grants.json` | jedini izvor istine za grantove |
+| Ops | `infrastructure/`, `render.yaml` | Docker, Render, health |
 
-The system is designed for maximum modularity and layer isolation:
-
-- **AI Layer** (`ai_core/`) — RAG pipeline, Google Gemini embeddings
-  (`gemini-embedding-001`), Gemini 2.5 Flash generation, ChromaDB vector
-  store, ingestion (JSON / web scraping / PDF / API).
-- **Backend** (`backend/`) — FastAPI API gateway: search, AI answers,
-  grants REST, JWT auth, rate limiting, Stripe webhook.
-- **Frontend** (`frontend/`) — static web app (chat, auth, investor pitch)
-  hosted on GitHub Pages. *UI language: Bosnian (product language).*
-- **Infrastructure** (`infrastructure/`) — Docker Compose for local dev,
-  Render blueprint for production, optional Kubernetes manifests.
-
-Full blueprint with the dependency matrix: [`docs/architecture/BLUEPRINT.md`](./docs/architecture/BLUEPRINT.md)
-
-### Repository layout
+Slojevi su namjerno odvojeni: frontend ne uvozi Python, `ai_core` ne uvozi FastAPI.
 
 ```text
 EU_Funds_and_Grants_AI/
-├── .github/               # CI/CD workflows + issue/PR templates
-├── ai_core/               # Layer 2: Core Intelligence Stack
-│   ├── embeddings/        #   Google Gemini embedding client
-│   ├── vector_store/      #   ChromaDB management
-│   ├── rag_pipeline/      #   Search, normalization, ingestion
-│   └── agent/             #   EUFundsAgent (RAG + Gemini, bs/en)
-├── backend/               # Layer 3: API & Orchestration
-│   └── app/
-│       ├── api/           #   FastAPI routes (REST endpoints)
-│       ├── core/          #   Config, DB, JWT, rate limiting
-│       ├── services/      #   Bridge to the AI layer
-│       └── main.py        #   Entry point
-├── frontend/              # Layer 4: User Interface (GitHub Pages)
-│   └── src/               #   index.html, auth.html, pitch.html
-├── infrastructure/        # Layer 5: DevOps
-│   ├── render/            #   Render deployment docs
-│   ├── k8s/               #   Kubernetes manifests (optional)
-│   ├── scripts/           #   verify_sync.py (prod ↔ code audit)
-│   └── docker-compose.yml #   Local orchestration
-├── docs/                  # Architecture, forensics, regulatory
-├── data/grants.json       # Source of truth - 30 unique grant records
-├── sdk/                   # Public Python SDK for the API
-├── tests/                 # backend_tests/ + ai_pipeline_tests/
-├── Makefile               # make up / test / ingest ...
-├── render.yaml            # Render blueprint (must stay in root)
-└── README.md
+├── ai_core/            embeddings, vector_store, rag_pipeline, agent
+├── backend/app/        api/, core/, services/, main.py
+├── frontend/src/       index.html, auth.html, pitch.html
+├── data/grants.json    30 grantova
+├── docs/               blueprint, onboarding, regulatory
+├── infrastructure/     docker-compose, render, k8s, scripts
+├── sdk/                Python klijent
+├── tests/              backend_tests/ + ai_pipeline_tests/
+├── Makefile
+└── render.yaml
 ```
 
----
+Blueprint: [`docs/architecture/BLUEPRINT.md`](docs/architecture/BLUEPRINT.md)
 
-## 🚀 Quick start (local environment)
+## API
 
-### Prerequisites
+| Endpoint | Auth | Namjena |
+|---|---|---|
+| `GET /health` | — | status, SHA, Chroma, DB |
+| `GET /grants` | — | lista + filteri |
+| `GET /grants/local` | — | ZDK / Tešanj |
+| `GET /grants/urgent` | — | bliski rokovi |
+| `POST /auth/register` `POST /auth/login` | — | JWT |
+| `POST /search` | JWT | hybrid pretraga |
+| `POST /ai-answer` | JWT | RAG odgovor (bs/en) |
+| `POST /demo/ai-answer` | — | 3 guest upita |
+| `POST /ingest` | JWT | ručni re-ingest |
 
-- Docker + Docker Compose (or Python 3.12+ for a non-Docker setup)
-- A [Gemini API key](https://aistudio.google.com/app/apikey)
+SDK: [`sdk/client.py`](sdk/client.py)
 
-### Install & run
+## Pokretanje
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/dinohatibovic/EU_Funds_and_Grants_AI.git
-   cd EU_Funds_and_Grants_AI
-   ```
+Treba Python 3.12+ (ili Docker) i [Gemini API key](https://aistudio.google.com/app/apikey).
 
-2. **Configure the environment** — copy the template and add your API keys:
-   ```bash
-   cp .env.example .env
-   ```
+```bash
+git clone https://github.com/dinohatibovic/EU_Funds_and_Grants_AI.git
+cd EU_Funds_and_Grants_AI
+cp .env.example .env
+make up          # backend :8000, frontend :3000
+# ili: pip install -r requirements.txt && make dev
+```
 
-3. **Run via Makefile:**
-   ```bash
-   make up        # Docker: backend on :8000, frontend on :3000
-   # or without Docker:
-   pip install -r requirements.txt
-   make dev       # uvicorn backend.app.main:app --reload
-   ```
+```bash
+make lint && make test && make ai-test
+```
 
-   *API docs (Swagger): http://localhost:8000/docs*
+Onboarding: [`docs/onboarding.md`](docs/onboarding.md)
 
-4. **Tests:**
-   ```bash
-   pip install pytest httpx
-   make test      # backend tests
-   make ai-test   # AI pipeline tests
-   ```
-
-### Prebuilt Docker image (GitHub Packages)
-
-Every release automatically publishes the backend image to GHCR:
+Prebuilt image:
 
 ```bash
 docker pull ghcr.io/dinohatibovic/finassistbh-backend:2.2.1
-docker run --env-file .env -p 8000:8000 ghcr.io/dinohatibovic/finassistbh-backend:2.2.1
 ```
 
-Use the versioned tag for reproducible deployments. The `latest` tag currently
-points to the same published v2.2.1 manifest.
+## Izvori grantova
 
-New to the project? Start with [docs/onboarding.md](./docs/onboarding.md) —
-from zero to a running system in 15 minutes.
+Prioritet: Općina Tešanj, ZDK, ZEDA, FMRPO, FBiH javni pozivi, DEI BiH,
+Funding & Tenders / SEDIA, IPA, WBIF. TED je javna nabavka, ne grant katalog.
 
----
+Svaki zapis treba: naziv, iznos ako je poznat, rok ili `null`, URL, nivo
+pouzdanosti. Nepoznat rok ostaje nepoznat.
 
-## 🔌 API overview
+## Ograničenja (namjerno vidljiva)
 
-| Endpoint | Method | Auth | Description |
-|---|---|---|---|
-| `/health` | GET | — | System status, grant counts, urgent deadlines |
-| `/search` | POST | JWT | Semantic (vector) grant search |
-| `/ai-answer` | POST | JWT | RAG + Gemini AI answer (Bosnian/English) |
-| `/grants` | GET | — | Grant list (filters + pagination) |
-| `/grants/local` | GET | — | ZDK/Tešanj priority calls |
-| `/grants/urgent` | GET | — | Deadlines expiring within N days |
-| `/auth/register` `/auth/login` | POST | — | JWT registration/login |
-| `/ingest` | POST | JWT | Manual vector DB re-ingest |
+- 30 grantova — proizvodni katalog, ne cijeli EU space
+- Render free: cold start, Chroma se gradi na startupu
+- Rate limit je in-memory, jedan worker (`WEB_CONCURRENCY=1`)
+- Stripe pretplate i SMTP alerti još nisu produkcijski tok
+- AI odgovor je informativan, nije pravni savjet ni prijava na fond
 
-Python SDK: [`sdk/client.py`](./sdk/client.py) —
-`EUGrantsClient().login(email, pass)` → `client.query("SME incentives in ZDK")`
+## Komercijalna licenca
 
----
+Kod je proprietary. Pregled u ovom repou je dozvoljen u edukativne svrhe.
+Komercijalna upotreba: [LICENSE](LICENSE).
 
-## 🛡️ Security & regulatory compliance
+| Plan | Cijena |
+|---|---|
+| Starter | €29 / mj |
+| Pro | €149 / mj |
+| Agency | €299 / mj |
+| Enterprise | €799 / mj |
 
-- **Automated audits:** weekly [security-audit workflow](./.github/workflows/security-audit.yml)
-  — pip-audit (CVEs), Bandit (static analysis), gitleaks (secrets in code).
-- **No secrets in the repo:** all keys live in environment variables; `.env`
-  is gitignored.
-- **Forensic transparency:** audits and system analyses are archived in
-  [`docs/forensics/`](./docs/forensics/); production drift is checked by
-  `infrastructure/scripts/verify_sync.py`.
-- **EU AI Act & GDPR:** compliance status and escalation procedures are
-  documented in [`docs/regulatory/`](./docs/regulatory/README.md) —
-  AI answers always cite sources, and data entries carry reliability labels.
-- Vulnerability reporting: [SECURITY.md](./SECURITY.md)
+## Kontakt
 
-## 🛠️ CI/CD pipeline
-
-GitHub Actions ([ci-cd-pipeline.yml](./.github/workflows/ci-cd-pipeline.yml)):
-
-1. **Lint** — ruff static analysis (critical errors).
-2. **Test** — isolated unit tests for the Backend and AI layers (external
-   services mocked).
-3. **Deploy backend** — automatic deploy to **Render** after green tests on
-   `main` (deploy hook or Render auto-deploy).
-4. **Deploy frontend** — `frontend/src/` to **GitHub Pages**
-   (one-time setup: Settings → Pages → Source: *GitHub Actions*).
-
-Releases: pushing a `v*` tag (or manually running the
-[Release workflow](./.github/workflows/release.yml)) creates a GitHub Release
-and publishes the Docker image to GHCR.
-
----
-
-## 💰 Pricing (SaaS)
-
-| Plan | Price | Audience |
-|---|---|---|
-| Starter | €29/mo | Small businesses, basic search |
-| Pro | €149/mo | SMEs — notifications, AI matching |
-| Agency | €299/mo | Consultants — white-label, API |
-| Enterprise | €799/mo | Cantons, governments, corporations |
-
-## 📞 Contact
-
-**Dino Hatibović** — Tešanj, Zenica-Doboj Canton, Bosnia and Herzegovina
-Email: holdin.genesis@gmail.com ·
-[GitHub](https://github.com/dinohatibovic) ·
+**Dino Hatibović** — Tešanj, Zeničko-dobojski kanton, BiH
+holdin.genesis@gmail.com · [GitHub](https://github.com/dinohatibovic) ·
 [LinkedIn](https://linkedin.com/in/dinohatibovic)
 
-## 📄 License
+Copyright © 2026 Dino Hatibović. Sva prava zadržana.
 
-Copyright © 2026 Dino Hatibović. All rights reserved.
-Restricted access and distribution under the [proprietary license](./LICENSE).
-
----
-
-*Built in Tešanj, BiH — for the EU market.*
+*Građeno u Tešnju, za firme koje ostavljaju EU novac na stolu.*
