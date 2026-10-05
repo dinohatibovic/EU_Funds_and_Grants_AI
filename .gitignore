@@ -74,3 +74,4 @@ env_check.sh
 
 # Generated benchmark runs
 tests/benchmarks/results/
+.python-version
