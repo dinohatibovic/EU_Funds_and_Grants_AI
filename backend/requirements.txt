@@ -1,8 +1,8 @@
 # Backend Layer — FastAPI API Gateway
-fastapi>=0.141.1
+fastapi>=0.142.2
 uvicorn>=0.54.0
 pydantic>=2.13.5
 PyJWT>=2.15.1
 psycopg2-binary>=2.9.13
-stripe>=15.6.1
-python-dotenv>=1.2.3
+stripe>=16.0.0
+python-dotenv>=1.2.4
