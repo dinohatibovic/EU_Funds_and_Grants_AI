@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Self
 
 import httpx
 
@@ -31,12 +31,16 @@ class SediaClient:
             timeout=self.settings.timeout_seconds,
             transport=transport,
             headers={
-                "Accept": "application/json",
+                "Accept": (
+                    "application/json, text/plain, */*"
+                ),
                 "User-Agent": self.settings.user_agent,
+                "Origin": self.settings.origin,
+                "Referer": self.settings.referer,
             },
         )
 
-    async def __aenter__(self) -> "SediaClient":
+    async def __aenter__(self) -> Self:
         """Enter the asynchronous context."""
 
         return self
@@ -63,21 +67,42 @@ class SediaClient:
         """Execute one validated SEDIA search request."""
 
         query_json = json.dumps(
-            request.to_api_payload(),
+            request.to_query_payload(),
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
         )
+        languages_json = json.dumps(
+            list(request.languages),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+
+        files = {
+            "query": (
+                None,
+                query_json,
+                "application/json",
+            ),
+            "languages": (
+                None,
+                languages_json,
+                "application/json",
+            ),
+            "displayLanguage": (
+                None,
+                request.display_language,
+                "text/plain",
+            ),
+        }
 
         try:
             response = await self._client.post(
                 self.settings.search_url,
-                params={
-                    "apiKey": self.settings.api_key,
-                },
-                data={
-                    "query": query_json,
-                },
+                params=request.to_url_params(
+                    api_key=self.settings.api_key,
+                ),
+                files=files,
             )
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
