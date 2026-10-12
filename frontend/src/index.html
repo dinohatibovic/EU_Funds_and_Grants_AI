@@ -271,52 +271,76 @@
         </div>
 
         <div class="map-overlay" aria-label="Karta Bosne i Hercegovine">
-            <!-- EU 12 stars -->
-            <svg class="eu-stars" viewBox="0 0 100 100" aria-hidden="true">
-                <circle cx="50" cy="50" r="46" fill="rgba(0,51,153,0.25)" stroke="rgba(255,204,0,0.85)" stroke-width="2"/>
-                <g fill="#FFCC00">
-                    <g id="star">
-                        <polygon points="50,14 52.4,21.4 60.4,21.4 54,26 56.4,33.4 50,28.8 43.6,33.4 46,26 39.6,21.4 47.6,21.4"/>
+            <div class="map-stack">
+                <!-- EU zvijezde gore desno -->
+                <svg class="eu-stars" viewBox="0 0 120 120" aria-hidden="true">
+                    <defs>
+                        <polygon id="euStar" points="0,-10 2.9,-3.1 10,-3.1 4.3,1.2 6.2,8.1 0,4.2 -6.2,8.1 -4.3,1.2 -10,-3.1 -2.9,-3.1"/>
+                    </defs>
+                    <circle cx="60" cy="60" r="54" fill="rgba(0,51,153,0.18)" stroke="rgba(255,204,0,0.55)" stroke-width="1.5"/>
+                    <g transform="translate(60,60)" fill="#FFCC00">
+                        <use href="#euStar" transform="rotate(0) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(30) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(60) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(90) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(120) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(150) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(180) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(210) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(240) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(270) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(300) translate(0,-38)"/>
+                        <use href="#euStar" transform="rotate(330) translate(0,-38)"/>
                     </g>
-                    <use href="#star" transform="rotate(30 50 50)"/>
-                    <use href="#star" transform="rotate(60 50 50)"/>
-                    <use href="#star" transform="rotate(90 50 50)"/>
-                    <use href="#star" transform="rotate(120 50 50)"/>
-                    <use href="#star" transform="rotate(150 50 50)"/>
-                    <use href="#star" transform="rotate(180 50 50)"/>
-                    <use href="#star" transform="rotate(210 50 50)"/>
-                    <use href="#star" transform="rotate(240 50 50)"/>
-                    <use href="#star" transform="rotate(270 50 50)"/>
-                    <use href="#star" transform="rotate(300 50 50)"/>
-                    <use href="#star" transform="rotate(330 50 50)"/>
-                </g>
-            </svg>
+                </svg>
 
-            <!-- Realistic BiH outline -->
-            <svg class="map-svg" viewBox="0 0 280 300" xmlns="http://www.w3.org/2000/svg">
-                <path d="M95 28
-                         C118 18, 145 16, 168 28
-                         C186 38, 198 52, 208 70
-                         C220 92, 232 112, 236 136
-                         C238 158, 232 178, 220 196
-                         C208 214, 190 230, 168 244
-                         C148 256, 128 264, 108 262
-                         C90 260, 76 248, 66 230
-                         C54 208, 44 186, 40 162
-                         C36 138, 40 116, 50 96
-                         C60 76, 74 54, 95 28 Z"
-                      fill="rgba(34,197,94,0.08)"
-                      stroke="#6ee7a8"
-                      stroke-width="3"
-                      stroke-linejoin="round"/>
-                <!-- Tešanj -->
-                <circle cx="150" cy="92" r="4.5" fill="#86efac"/>
-                <text x="158" y="96" fill="#e8eef8" font-size="12" font-family="DM Sans, sans-serif">Tešanj</text>
-                <!-- Zenica-doboj -->
-                <circle cx="132" cy="128" r="4.5" fill="#86efac"/>
-                <text x="140" y="132" fill="#e8eef8" font-size="11" font-family="DM Sans, sans-serif">Zeničko-dobojski</text>
-                <text x="140" y="146" fill="#e8eef8" font-size="11" font-family="DM Sans, sans-serif">kanton</text>
-            </svg>
+                <!-- Realniji oblik BiH -->
+                <svg class="map-svg" viewBox="0 0 320 360" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M118 36
+                           C142 22, 170 20, 196 34
+                           C214 44, 230 58, 242 78
+                           C254 98, 264 122, 268 148
+                           C270 170, 266 192, 254 212
+                           C244 228, 230 242, 214 256
+                           C198 270, 180 284, 162 298
+                           C148 308, 134 318, 120 322
+                           C108 318, 102 304, 98 288
+                           C94 272, 88 256, 78 242
+                           C66 224, 52 208, 46 188
+                           C40 168, 40 148, 46 128
+                           C52 108, 62 90, 76 74
+                           C90 58, 104 46, 118 36 Z"
+                        fill="rgba(34,197,94,0.10)"
+                        stroke="#7CFFB2"
+                        stroke-width="3.2"
+                        stroke-linejoin="round"
+                        stroke-linecap="round"/>
+
+                    <!-- Tešanj -->
+                    <circle cx="168" cy="108" r="5" fill="#B6FFD2"/>
+                    <text x="178" y="112" fill="#F2F7FF" font-size="13" font-family="DM Sans, sans-serif">Tešanj</text>
+
+                    <!-- Zeničko-dobojski kanton -->
+                    <circle cx="152" cy="156" r="5" fill="#B6FFD2"/>
+                    <text x="162" y="154" fill="#F2F7FF" font-size="12" font-family="DM Sans, sans-serif">Zeničko-dobojski</text>
+                    <text x="162" y="170" fill="#F2F7FF" font-size="12" font-family="DM Sans, sans-serif">kanton</text>
+                </svg>
+
+                <!-- Tekst + dvije linije -->
+                <div class="map-caption">
+                    <div class="map-caption-text">
+                        Više mogućnosti za<br>
+                        <span>snažniju</span> Bosnu i<br>
+                        Hercegovinu
+                    </div>
+                    <div class="map-lines" aria-hidden="true">
+                        <span class="line line-1"></span>
+                        <span class="line line-2"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
             <div class="map-caption">
                 Više mogućnosti za<br>
