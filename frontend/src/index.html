@@ -11,17 +11,14 @@
     <style>
         :root {
             --bg: #070f1c;
-            --bg-soft: #0c1628;
             --card: #111c31;
-            --border: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.10);
             --text: #f3f6fb;
             --muted: #9aa8bf;
             --green: #22c55e;
-            --green-dark: #16a34a;
-            --green-soft: rgba(34, 197, 94, 0.12);
+            --green-soft: rgba(34, 197, 94, 0.14);
             --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
         body {
@@ -33,274 +30,222 @@
         }
         a { text-decoration: none; color: inherit; }
 
-        /* HEADER */
         .header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            backdrop-filter: blur(12px);
-            background: rgba(7, 15, 28, 0.85);
+            position: sticky; top: 0; z-index: 50;
+            backdrop-filter: blur(14px);
+            background: rgba(7, 15, 28, 0.88);
             border-bottom: 1px solid var(--border);
         }
         .header-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
+            max-width: 1120px; margin: 0 auto; padding: 14px 20px;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
         }
-        .brand {
-            display: flex;
-            align-items: baseline;
-            gap: 2px;
-            font-weight: 800;
-            font-size: 20px;
-            letter-spacing: -0.4px;
-        }
+        .brand { font-weight: 800; font-size: 20px; letter-spacing: -0.4px; }
         .brand span { color: var(--green); }
-        .nav {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .nav-link {
-            font-size: 14px;
-            color: var(--muted);
-            padding: 8px 10px;
-        }
+        .nav { display: flex; align-items: center; gap: 12px; }
+        .nav-link { font-size: 14px; color: var(--muted); padding: 8px 10px; }
         .nav-link:hover { color: var(--text); }
+
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 14px;
-            font-family: var(--font);
-            border: none;
-            cursor: pointer;
-            transition: 0.15s ease;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            border-radius: 12px; font-weight: 700; font-size: 14px; font-family: var(--font);
+            border: none; cursor: pointer; transition: 0.15s ease;
         }
-        .btn-green {
-            background: var(--green);
-            color: #04110a;
-            padding: 11px 16px;
-        }
+        .btn-green { background: var(--green); color: #04110a; padding: 12px 18px; }
         .btn-green:hover { background: #2ee26d; }
         .btn-outline {
-            background: transparent;
-            color: var(--text);
-            border: 1px solid rgba(255,255,255,0.18);
-            padding: 11px 16px;
+            background: transparent; color: var(--text);
+            border: 1px solid rgba(255,255,255,0.18); padding: 12px 18px;
         }
-        .btn-outline:hover {
-            border-color: rgba(255,255,255,0.35);
-            background: rgba(255,255,255,0.04);
-        }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.04); }
 
-        /* HERO */
+        /* HERO — cinematic night look */
         .hero {
             position: relative;
             overflow: hidden;
             border-bottom: 1px solid var(--border);
+            min-height: 560px;
         }
         .hero-bg {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background:
-                radial-gradient(ellipse 80% 60% at 70% 40%, rgba(34,197,94,0.12), transparent 55%),
+                linear-gradient(90deg, rgba(7,15,28,0.92) 0%, rgba(7,15,28,0.75) 42%, rgba(7,15,28,0.35) 70%, rgba(7,15,28,0.55) 100%),
+                linear-gradient(180deg, rgba(7,15,28,0.25) 0%, rgba(7,15,28,0.15) 45%, rgba(7,15,28,0.85) 100%),
+                radial-gradient(ellipse 70% 50% at 75% 35%, rgba(34,197,94,0.10), transparent 55%),
                 radial-gradient(ellipse 50% 40% at 20% 20%, rgba(45,111,212,0.18), transparent 50%),
-                linear-gradient(180deg, #0a1528 0%, #070f1c 100%);
+                linear-gradient(160deg, #0b1a33 0%, #0a1730 35%, #07101f 70%, #050b14 100%);
         }
+        /* soft “city lights” suggestion */
+        .hero-bg::after {
+            content: "";
+            position: absolute; left: 0; right: 0; bottom: 0; height: 42%;
+            background:
+                radial-gradient(ellipse 40% 30% at 18% 70%, rgba(255,200,120,0.08), transparent 60%),
+                radial-gradient(ellipse 35% 25% at 55% 80%, rgba(120,180,255,0.07), transparent 60%),
+                radial-gradient(ellipse 30% 20% at 78% 75%, rgba(255,220,150,0.06), transparent 60%);
+            pointer-events: none;
+        }
+
         .hero-inner {
             position: relative;
-            max-width: 1100px;
+            max-width: 1120px;
             margin: 0 auto;
-            padding: 56px 20px 64px;
+            padding: 64px 20px 56px;
             display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 32px;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 28px;
             align-items: center;
         }
+
         .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 7px 12px;
-            border-radius: 999px;
+            display: inline-flex; align-items: center;
+            padding: 7px 12px; border-radius: 999px;
             border: 1px solid rgba(34,197,94,0.35);
             background: var(--green-soft);
-            color: #86efac;
-            font-size: 12px;
-            font-weight: 600;
+            color: #86efac; font-size: 12px; font-weight: 600;
             margin-bottom: 18px;
         }
         .hero h1 {
             font-size: clamp(32px, 5vw, 48px);
-            line-height: 1.12;
-            letter-spacing: -1px;
-            font-weight: 800;
+            line-height: 1.12; letter-spacing: -1px; font-weight: 800;
             margin-bottom: 16px;
         }
-        .hero h1 em {
-            font-style: normal;
-            color: var(--green);
-        }
+        .hero h1 em { font-style: normal; color: var(--green); }
         .hero-lead {
-            font-size: 16px;
-            line-height: 1.65;
-            color: var(--muted);
-            max-width: 520px;
-            margin-bottom: 28px;
+            font-size: 16px; line-height: 1.65; color: var(--muted);
+            max-width: 520px; margin-bottom: 24px;
         }
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
 
-        /* MAP CARD */
-        .map-card {
-            background: linear-gradient(160deg, rgba(17,28,49,0.95), rgba(10,20,36,0.98));
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 22px;
-            min-height: 280px;
-            position: relative;
-            overflow: hidden;
+        /* EU card under buttons (requested) */
+        .eu-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,204,0,0.28);
+            background: rgba(0, 51, 153, 0.35);
+            backdrop-filter: blur(8px);
+            max-width: 320px;
         }
-        .map-card::before {
-            content: "";
+        .eu-flag {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: #003399;
+            border: 1.5px solid rgba(255,204,0,0.85);
+            display: grid; place-items: center;
+            box-shadow: 0 0 18px rgba(255,204,0,0.18);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .eu-flag::before {
+            content: "★★★★";
             position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(circle at 70% 30%, rgba(34,197,94,0.15), transparent 40%),
-                radial-gradient(circle at 30% 70%, rgba(45,111,212,0.12), transparent 35%);
+            color: #FFCC00;
+            font-size: 9px;
+            letter-spacing: -1px;
+            top: 11px;
         }
-        .map-content {
+        .eu-flag::after {
+            content: "★★★★★★";
+            position: absolute;
+            color: #FFCC00;
+            font-size: 8px;
+            letter-spacing: -1.5px;
+            bottom: 10px;
+        }
+        .eu-card-text { font-size: 12px; line-height: 1.45; color: #dbe4f5; }
+        .eu-card-text strong { display: block; color: #fff; font-size: 13px; margin-bottom: 2px; }
+
+        /* Right visual: map + EU stars */
+        .visual {
             position: relative;
-            z-index: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 18px;
+            min-height: 340px;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            background:
+                radial-gradient(circle at 70% 25%, rgba(34,197,94,0.12), transparent 40%),
+                radial-gradient(circle at 30% 70%, rgba(45,111,212,0.12), transparent 40%),
+                linear-gradient(160deg, rgba(12,22,40,0.9), rgba(8,14,26,0.95));
+            overflow: hidden;
+            padding: 22px;
         }
-        .eu-stars {
-            align-self: flex-end;
-            width: 72px;
-            height: 72px;
-            border: 2px solid rgba(255, 204, 0, 0.75);
+        .eu-circle {
+            position: absolute;
+            top: 18px; right: 18px;
+            width: 78px; height: 78px;
             border-radius: 50%;
+            border: 2px solid rgba(255,204,0,0.8);
+            box-shadow: 0 0 24px rgba(255,204,0,0.15);
+            display: grid; place-items: center;
+        }
+        .eu-circle svg { width: 58px; height: 58px; }
+        .map-wrap {
+            position: absolute;
+            inset: 40px 20px 50px 20px;
             display: grid;
             place-items: center;
-            color: #ffcc00;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            box-shadow: 0 0 24px rgba(255,204,0,0.15);
         }
-        .map-title {
-            font-size: 15px;
-            font-weight: 700;
-            line-height: 1.4;
-            max-width: 180px;
+        .map-wrap svg {
+            width: min(100%, 280px);
+            height: auto;
+            opacity: 0.95;
+            filter: drop-shadow(0 0 18px rgba(34,197,94,0.25));
         }
-        .map-title span { color: var(--green); }
-        .map-points {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .map-caption {
+            position: absolute;
+            right: 18px; bottom: 18px;
+            text-align: right;
             font-size: 13px;
-            color: var(--muted);
+            line-height: 1.4;
+            color: #c9d4e8;
+            max-width: 150px;
         }
-        .map-points strong {
-            color: var(--text);
-            font-weight: 600;
-        }
+        .map-caption span { color: var(--green); font-weight: 700; }
 
         /* FEATURES */
         .features {
-            max-width: 1100px;
-            margin: 0 auto;
+            max-width: 1120px; margin: 0 auto;
             padding: 64px 20px 72px;
         }
-        .features-head {
-            text-align: center;
-            max-width: 640px;
-            margin: 0 auto 36px;
-        }
+        .features-head { text-align: center; max-width: 640px; margin: 0 auto 36px; }
         .features-head h2 {
             font-size: clamp(24px, 3.5vw, 34px);
-            letter-spacing: -0.6px;
-            margin-bottom: 12px;
+            letter-spacing: -0.6px; margin-bottom: 12px;
         }
-        .features-head p {
-            color: var(--muted);
-            font-size: 15px;
-            line-height: 1.6;
-        }
+        .features-head p { color: var(--muted); font-size: 15px; line-height: 1.6; }
         .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
         }
         .feature {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 22px;
+            border-radius: 18px; padding: 22px;
         }
         .feature-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: var(--green-soft);
-            color: var(--green);
-            display: grid;
-            place-items: center;
-            font-size: 18px;
-            margin-bottom: 14px;
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--green-soft); color: var(--green);
+            display: grid; place-items: center; font-size: 18px; margin-bottom: 14px;
         }
-        .feature h3 {
-            font-size: 16px;
-            margin-bottom: 8px;
-        }
-        .feature p {
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--muted);
-        }
+        .feature h3 { font-size: 16px; margin-bottom: 8px; }
+        .feature p { font-size: 14px; line-height: 1.6; color: var(--muted); }
+        .cta-row { text-align: center; margin-top: 36px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 
-        /* FOOTER */
-        .footer {
-            border-top: 1px solid var(--border);
-            padding: 22px 20px;
-        }
+        .footer { border-top: 1px solid var(--border); padding: 22px 20px; }
         .footer-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 12px;
-            color: var(--muted);
-            font-size: 13px;
+            max-width: 1120px; margin: 0 auto;
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+            color: var(--muted); font-size: 13px;
         }
         .footer .brand { font-size: 16px; }
         .footer-sub { margin-top: 4px; font-size: 12px; color: #7b879c; }
 
-        @media (max-width: 860px) {
-            .hero-inner {
-                grid-template-columns: 1fr;
-                padding-top: 40px;
-                padding-bottom: 48px;
-            }
+        @media (max-width: 900px) {
+            .hero-inner { grid-template-columns: 1fr; padding-top: 40px; }
+            .visual { min-height: 280px; order: -1; }
             .feature-grid { grid-template-columns: 1fr; }
             .nav-link { display: none; }
-            .map-card { min-height: 220px; }
+            .map-caption { font-size: 12px; }
         }
     </style>
 </head>
@@ -326,23 +271,62 @@
                 FinAssistBH pomaže firmama, obrtima, startupima, konsultantima i razvojnim organizacijama
                 da pronađu i analiziraju domaće i evropske javne pozive.
             </p>
+
             <div class="hero-actions">
                 <a class="btn btn-green" href="app.html?mode=demo">Pokreni FinAssistBH →</a>
                 <a class="btn btn-outline" href="#o-platformi">Saznaj više</a>
             </div>
+
+            <!-- EU kartica / logo ispod dugmadi -->
+            <div class="eu-card" aria-label="Evropska unija">
+                <div class="eu-flag" aria-hidden="true"></div>
+                <div class="eu-card-text">
+                    <strong>Usklađeno s EU izvorima</strong>
+                    Informacije iz javnih poziva i fondova — bez izmišljenih rokova.
+                </div>
+            </div>
         </div>
 
-        <aside class="map-card" aria-label="Bosna i Hercegovina">
-            <div class="map-content">
-                <div class="eu-stars">EU</div>
-                <div>
-                    <div class="map-title">Više mogućnosti za <span>snažniju</span> Bosnu i Hercegovinu</div>
-                    <div class="map-points" style="margin-top:14px;">
-                        <div><strong>•</strong> Domaći i EU pozivi</div>
-                        <div><strong>•</strong> AI odgovori na bosanskom</div>
-                        <div><strong>•</strong> Bez izmišljenih rokova</div>
-                    </div>
-                </div>
+        <aside class="visual" aria-label="Bosna i Hercegovina">
+            <div class="eu-circle" aria-hidden="true">
+                <!-- 12 EU stars -->
+                <svg viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="48" stroke="rgba(255,204,0,0.25)" stroke-width="1"/>
+                    <g fill="#FFCC00">
+                        <polygon points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(30 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(60 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(90 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(120 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(150 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(180 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(210 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(240 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(270 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(300 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                        <polygon transform="rotate(330 50 50)" points="50,18 52.2,24.8 59.5,24.8 53.6,29 55.8,35.8 50,31.6 44.2,35.8 46.4,29 40.5,24.8 47.8,24.8"/>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="map-wrap">
+                <!-- Simplified BiH outline -->
+                <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M78 18 L112 22 L138 38 L152 58 L168 78 L176 102 L170 128 L158 148 L148 168 L130 186 L108 198 L86 202 L68 190 L54 168 L42 148 L34 122 L32 98 L40 74 L52 54 L66 36 Z"
+                          fill="rgba(34,197,94,0.10)"
+                          stroke="rgba(134,239,172,0.85)"
+                          stroke-width="2.5"
+                          stroke-linejoin="round"/>
+                    <circle cx="118" cy="72" r="3.5" fill="#86efac"/>
+                    <circle cx="96" cy="118" r="3.5" fill="#86efac"/>
+                    <text x="124" y="70" fill="#c9d4e8" font-size="9" font-family="DM Sans, sans-serif">Tešanj</text>
+                    <text x="102" y="116" fill="#c9d4e8" font-size="8" font-family="DM Sans, sans-serif">ZDK</text>
+                </svg>
+            </div>
+
+            <div class="map-caption">
+                Više mogućnosti za<br>
+                <span>snažniju</span> Bosnu i<br>Hercegovinu
             </div>
         </aside>
     </div>
@@ -361,35 +345,24 @@
         <article class="feature">
             <div class="feature-icon">⌕</div>
             <h3>Hibridna pretraga</h3>
-            <p>
-                Kombinacija leksičke i semantičke pretrage pronalazi relevantne grantove
-                na osnovu korisničkog upita.
-            </p>
+            <p>Kombinacija leksičke i semantičke pretrage pronalazi relevantne grantove na osnovu korisničkog upita.</p>
         </article>
-
         <article class="feature">
             <div class="feature-icon">☰</div>
             <h3>Provjerljivi izvori</h3>
-            <p>
-                Rezultati sadrže strukturirane informacije i poveznice prema
-                izvornim objavama javnih poziva.
-            </p>
+            <p>Rezultati sadrže strukturirane informacije i poveznice prema izvornim objavama javnih poziva.</p>
         </article>
-
         <article class="feature">
             <div class="feature-icon">◎</div>
             <h3>AI odgovori na bosanskom</h3>
-            <p>
-                AI odgovara na osnovu dostupnih podataka i ne treba izmišljati
-                nepoznate rokove, budžete ili uslove.
-            </p>
+            <p>AI odgovara na osnovu dostupnih podataka i ne treba izmišljati nepoznate rokove, budžete ili uslove.</p>
         </article>
     </div>
 
-    <div style="text-align:center; margin-top: 36px;">
+    <div class="cta-row">
         <a class="btn btn-green" href="app.html?mode=demo">Isprobaj demo</a>
-        <a class="btn btn-outline" href="auth.html" style="margin-left:10px;">Prijavi se</a>
-        <a class="btn btn-outline" href="pitch.html" style="margin-left:10px;">Cijene</a>
+        <a class="btn btn-outline" href="auth.html">Prijavi se</a>
+        <a class="btn btn-outline" href="pitch.html">Cijene</a>
     </div>
 </section>
 
