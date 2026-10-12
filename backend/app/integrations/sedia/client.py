@@ -80,10 +80,30 @@ class SediaClient:
                 },
             )
             response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            retryable = (
+                status_code == 429
+                or 500 <= status_code <= 599
+            )
+
+            raise SediaHTTPError(
+                "SEDIA request failed with HTTP "
+                f"{status_code}",
+                status_code=status_code,
+                retryable=retryable,
+            ) from exc
+        except httpx.RequestError as exc:
+            raise SediaHTTPError(
+                "SEDIA transport failed: "
+                f"{exc.__class__.__name__}",
+                retryable=True,
+            ) from exc
         except httpx.HTTPError as exc:
             raise SediaHTTPError(
                 "SEDIA request failed: "
-                f"{exc.__class__.__name__}"
+                f"{exc.__class__.__name__}",
+                retryable=False,
             ) from exc
 
         try:
