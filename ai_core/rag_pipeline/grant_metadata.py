@@ -6,7 +6,13 @@ import json
 from datetime import date
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 
 def _serialize_list(values: list[str]) -> str:
@@ -32,6 +38,12 @@ class GrantMetadata(BaseModel):
     budget: str = ""
     note: str = ""
     deadline: date | None = None
+    deadlines: list[date] = Field(
+        default_factory=list
+    )
+    deadline_validation_status: str = (
+        "no_deadline"
+    )
     url: str = ""
     relevance: str = ""
     status: str = Field(min_length=1)
@@ -44,6 +56,54 @@ class GrantMetadata(BaseModel):
     sectors: list[str] = Field(default_factory=list)
 
     next_expected: str | None = None
+
+    @field_validator(
+        "deadlines",
+        mode="before",
+    )
+    @classmethod
+    def normalize_deadlines(
+        cls,
+        value: Any,
+    ) -> list[date]:
+        if value is None:
+            return []
+
+        if not isinstance(value, list):
+            raise TypeError(
+                "deadlines mora biti lista datuma"
+            )
+
+        normalized = {
+            item
+            if isinstance(item, date)
+            else date.fromisoformat(str(item))
+            for item in value
+        }
+
+        return sorted(normalized)
+
+    @model_validator(mode="after")
+    def align_primary_deadline(
+        self,
+    ) -> GrantMetadata:
+        if self.deadlines:
+            primary = self.deadlines[0]
+
+            if self.deadline != primary:
+                self.deadline = primary
+        elif self.deadline is not None:
+            self.deadlines = [self.deadline]
+
+            if (
+                self.deadline_validation_status
+                == "no_deadline"
+            ):
+                self.deadline_validation_status = (
+                    "single_valid"
+                )
+
+        return self
 
     @field_validator(
         "regions",
@@ -137,6 +197,15 @@ class GrantMetadata(BaseModel):
                 self.deadline.isoformat()
                 if self.deadline
                 else ""
+            ),
+            "deadlines": _serialize_list(
+                [
+                    value.isoformat()
+                    for value in self.deadlines
+                ]
+            ),
+            "deadline_validation_status": (
+                self.deadline_validation_status
             ),
             "url": self.url,
             "relevance": self.relevance,

@@ -186,17 +186,22 @@ def test_non_mapping_metadata_is_rejected():
         sedia_record_to_grant_metadata(record)
 
 
-def test_invalid_deadline_is_rejected():
+def test_fully_invalid_deadline_is_visible():
     record = grant_record()
     record["metadata"]["deadlineDate"] = [
         "not-a-date"
     ]
 
-    with pytest.raises(
-        SediaAdapterError,
-        match="Invalid SEDIA deadline",
-    ):
-        sedia_record_to_grant_metadata(record)
+    metadata = sedia_record_to_grant_metadata(
+        record
+    )
+
+    assert metadata.deadline is None
+    assert metadata.deadlines == []
+    assert (
+        metadata.deadline_validation_status
+        == "fully_invalid"
+    )
 
 
 @pytest.mark.parametrize(
