@@ -169,6 +169,8 @@
     <p class="text-center text-blue-300 text-xs mt-6">
         &copy; 2026 Dino Hatibovic - FinAssistBH &nbsp;|&nbsp;
         <a href="pitch.html" class="text-eu-yellow hover:underline">Cijene</a>
+        &nbsp;|&nbsp;
+        <a href="index.html" class="text-eu-yellow hover:underline">Početna</a>
     </p>
 </div>
 
@@ -201,7 +203,7 @@ function log(msg, type = 'info') {
 
     // Konzola
     const consoleFn = type === 'err' ? console.error : type === 'warn' ? console.warn : console.log;
-    consoleFn(`[FinAssist ${ts}] [${type.toUpperCase()}] ${msg}`);
+    consoleFn(`[FinAssist \( {ts}] [ \){type.toUpperCase()}] ${msg}`);
 
     // UI panel
     const line = document.createElement('div');
@@ -264,7 +266,7 @@ function stopLoading() {
 const existingToken = localStorage.getItem('finassist_token');
 if (existingToken) {
     console.log('[FinAssist] Token pronađen — preusmjeravam na dashboard');
-    window.location.href = 'index.html';
+    window.location.href = 'app.html';
 }
 
 // =============================================================
@@ -303,7 +305,7 @@ function hideMessage() {
 // AUTH FETCH — sa timeoutom i logovanjem
 // =============================================================
 async function authFetch(endpoint, body) {
-    const url = `${API_BASE}${endpoint}`;
+    const url = `\( {API_BASE} \){endpoint}`;
     log(`POST ${url}`, 'info');
     log(`Payload: ${JSON.stringify({ email: body.email, password: '***' })}`, 'info');
 
@@ -342,7 +344,7 @@ async function authFetch(endpoint, body) {
         const ms = Date.now() - t0;
 
         if (err.name === 'AbortError') {
-            log(`Timeout nakon ${ms}ms (${Math.round(ms/1000)}s)`, 'err');
+            log(`Timeout nakon \( {ms}ms ( \){Math.round(ms/1000)}s)`, 'err');
             throw new Error(IS_LOCAL
                 ? 'Backend ne odgovara. Provjeri da li je pokrenut na portu 8000.'
                 : `Server nije odgovorio za ${Math.round(ms/1000)}s. Pokušaj ponovo.`
@@ -394,7 +396,7 @@ async function handleLogin(e) {
         log('Prijava uspješna — preusmjeravam...', 'ok');
         stopLoading();
         showMessage('Uspješna prijava! Preusmjeravanje...', 'success');
-        setTimeout(() => window.location.href = 'index.html', 700);
+        setTimeout(() => window.location.href = 'app.html', 700);
 
     } catch (err) {
         log(`Prijava neuspješna: ${err.message}`, 'err');
@@ -441,7 +443,7 @@ async function handleRegister(e) {
         log('Registracija uspješna — preusmjeravam...', 'ok');
         stopLoading();
         showMessage('Dobrodošli! Preusmjeravanje na dashboard...', 'success');
-        setTimeout(() => window.location.href = 'index.html', 800);
+        setTimeout(() => window.location.href = 'app.html', 800);
 
     } catch (err) {
         log(`Registracija neuspješna: ${err.message}`, 'err');
