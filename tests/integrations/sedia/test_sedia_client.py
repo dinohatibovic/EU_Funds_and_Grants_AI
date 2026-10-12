@@ -27,16 +27,45 @@ def test_request_rejects_invalid_page_size() -> None:
         SediaSearchRequest(page_size=101)
 
 
-def test_client_sends_validated_request() -> None:
+def test_client_sends_live_multipart_contract() -> None:
     async def scenario() -> None:
         def handler(
             request: httpx.Request,
         ) -> httpx.Response:
             assert request.method == "POST"
-            assert request.url.params["apiKey"] == (
-                "SEDIA"
+
+            params = request.url.params
+
+            assert params["apiKey"] == "SEDIA"
+            assert params["text"] == "digital"
+            assert params["pageSize"] == "10"
+            assert params["pageNumber"] == "2"
+            assert params["sortBy"] == "deadline"
+            assert params["orderBy"] == "ASC"
+
+            assert request.headers["Origin"] == (
+                "https://ec.europa.eu"
             )
-            assert b"query=" in request.content
+            assert request.headers["Referer"].startswith(
+                "https://ec.europa.eu/"
+            )
+            assert request.headers[
+                "Content-Type"
+            ].startswith("multipart/form-data; boundary=")
+
+            body = request.content
+
+            assert b'name="query"' in body
+            assert b'name="languages"' in body
+            assert b'name="displayLanguage"' in body
+            assert b"application/json" in body
+            assert b"text/plain" in body
+            assert b'["en"]' in body
+            assert b"\r\n\r\nen\r\n" in body
+            assert b"frameworkProgramme" in body
+            assert b"43108390" in body
+            assert b"31094501" in body
+            assert b"31094502" in body
 
             return httpx.Response(
                 200,
@@ -57,8 +86,29 @@ def test_client_sends_validated_request() -> None:
             response = await client.search(
                 SediaSearchRequest(
                     text="digital",
-                    page_number=1,
+                    page_number=2,
                     page_size=10,
+                    filters={
+                        "bool": {
+                            "must": [
+                                {
+                                    "terms": {
+                                        "frameworkProgramme": [
+                                            "43108390",
+                                        ],
+                                    },
+                                },
+                                {
+                                    "terms": {
+                                        "status": [
+                                            "31094501",
+                                            "31094502",
+                                        ],
+                                    },
+                                },
+                            ],
+                        },
+                    },
                 )
             )
 
@@ -67,6 +117,28 @@ def test_client_sends_validated_request() -> None:
         ] == "TEST-001"
 
     asyncio.run(scenario())
+
+
+def test_request_builds_default_live_contract() -> None:
+    request = SediaSearchRequest()
+
+    assert request.to_url_params(
+        api_key="SEDIA"
+    ) == {
+        "apiKey": "SEDIA",
+        "text": "",
+        "pageSize": "10",
+        "pageNumber": "1",
+        "sortBy": "deadline",
+        "orderBy": "ASC",
+    }
+    assert request.to_query_payload() == {
+        "bool": {
+            "must": [],
+        },
+    }
+    assert request.languages == ("en",)
+    assert request.display_language == "en"
 
 
 def test_client_rejects_non_json() -> None:

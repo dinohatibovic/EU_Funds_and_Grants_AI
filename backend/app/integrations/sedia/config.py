@@ -20,6 +20,11 @@ class SediaSettings:
     api_key: str = "SEDIA"
     timeout_seconds: float = 30.0
     user_agent: str = "FinAssistBH-SEDIA/1.0"
+    origin: str = "https://ec.europa.eu"
+    referer: str = (
+        "https://ec.europa.eu/info/"
+        "funding-tenders/opportunities/portal/"
+    )
 
     def __post_init__(self) -> None:
         if not self.search_url.startswith("https://"):
@@ -45,4 +50,14 @@ class SediaSettings:
         if not self.user_agent.strip():
             raise ValueError(
                 "SEDIA user agent cannot be empty"
+            )
+
+        if not self.origin.startswith("https://"):
+            raise ValueError(
+                "SEDIA origin must use HTTPS"
+            )
+
+        if not self.referer.startswith("https://"):
+            raise ValueError(
+                "SEDIA referer must use HTTPS"
             )
