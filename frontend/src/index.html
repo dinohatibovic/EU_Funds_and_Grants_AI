@@ -67,14 +67,13 @@
             min-height: 560px;
         }
         .hero-bg {
-            position: absolute; inset: 0;
-            background:
-                linear-gradient(90deg, rgba(7,15,28,0.92) 0%, rgba(7,15,28,0.75) 42%, rgba(7,15,28,0.35) 70%, rgba(7,15,28,0.55) 100%),
-                linear-gradient(180deg, rgba(7,15,28,0.25) 0%, rgba(7,15,28,0.15) 45%, rgba(7,15,28,0.85) 100%),
-                radial-gradient(ellipse 70% 50% at 75% 35%, rgba(34,197,94,0.10), transparent 55%),
-                radial-gradient(ellipse 50% 40% at 20% 20%, rgba(45,111,212,0.18), transparent 50%),
-                linear-gradient(160deg, #0b1a33 0%, #0a1730 35%, #07101f 70%, #050b14 100%);
-        }
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(7,15,28,0.92) 0%, rgba(7,15,28,0.72) 38%, rgba(7,15,28,0.28) 68%, rgba(7,15,28,0.55) 100%),
+        linear-gradient(180deg, rgba(7,15,28,0.20) 0%, rgba(7,15,28,0.10) 40%, rgba(7,15,28,0.88) 100%),
+        url('hero-bih.jpg') center center / cover no-repeat;
+}
         /* soft “city lights” suggestion */
         .hero-bg::after {
             content: "";
