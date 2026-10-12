@@ -1,102 +1,55 @@
-name: Production Health Check
+name: Production Health
 
 on:
-  workflow_run:
-    workflows:
-      - CI/CD Pipeline
-    types:
-      - completed
-    branches:
-      - main
-
   workflow_dispatch:
-    inputs:
-      expected_sha:
-        description: Expected production Git commit
-        required: false
-        type: string
+  schedule:
+    - cron: "*/15 * * * *"
+  repository_dispatch:
+    types: [render_deploy]
 
 permissions:
   contents: read
 
-concurrency:
-  group: production-health-main
-  cancel-in-progress: true
-
 jobs:
-  verify-production:
-    name: Verify Render production health
-    if: >-
-      ${{
-        github.event_name == 'workflow_dispatch' ||
-        github.event.workflow_run.conclusion == 'success'
-      }}
+  health-check:
+    name: Validate production health contract
     runs-on: ubuntu-latest
-    timeout-minutes: 8
-
-    env:
-      HEALTH_URL: >-
-        https://eu-funds-and-grants-ai.onrender.com/health
-      EXPECTED_VERSION: 2.2.1
-      EXPECTED_COLLECTION: eu_grants
-      EXPECTED_DOCUMENTS: "30"
-
     steps:
-      - name: Resolve expected commit
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Fetch release metadata
         id: release
         shell: bash
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
-          MANUAL_SHA: ${{ inputs.expected_sha }}
-          DEFAULT_SHA: ${{ github.sha }}
+          HEALTH_URL: https://eu-funds-and-grants-ai.onrender.com/health
         run: |
           set -euo pipefail
 
-          if [ "$EVENT_NAME" = "workflow_run" ]; then
-            expected_sha="$WORKFLOW_SHA"
-          elif [ -n "${MANUAL_SHA:-}" ]; then
-            expected_sha="$MANUAL_SHA"
-          else
-            expected_sha="$DEFAULT_SHA"
-          fi
-
-          if [ -z "$expected_sha" ]; then
-            echo "[FAIL] Expected SHA is empty."
-            exit 1
-          fi
-
-          echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"
-          echo "[INFO] expected_sha=$expected_sha"
-
-      - name: Wait for matching Render deployment
-        shell: bash
-        env:
-          EXPECTED_SHA: ${{ steps.release.outputs.expected_sha }}
-        run: |
-          set -euo pipefail
-
-          output="$RUNNER_TEMP/production-health.json"
+          output="health.json"
+          status_code=""
           max_attempts=30
-          sleep_seconds=10
           attempt=1
+          sleep_seconds=10
 
           while [ "$attempt" -le "$max_attempts" ]; do
-            echo
-            echo "[INFO] attempt=$attempt/$max_attempts"
+            echo "[WAIT] Attempt $attempt/$max_attempts -> $HEALTH_URL"
 
-            if curl \
-              --silent \
-              --show-error \
-              --fail \
-              --max-time 60 \
-              "$HEALTH_URL" \
-              -o "$output"
-            then
-              cat "$output"
-              echo
+            if status_code=$(curl -sS -o "$output" -w "%{http_code}" "$HEALTH_URL"); then
+              echo "HTTP status: $status_code"
+            else
+              echo "[WAIT] curl failed; retrying."
+            fi
 
-              if python - "$output" <<'PY'
+            if [ "$status_code" = "200" ] && [ -s "$output" ]; then
+              echo "[PASS] Health endpoint responded successfully."
+
+              python - "$output" <<'PY'
           from pathlib import Path
           import json
           import os
