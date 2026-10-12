@@ -122,3 +122,112 @@ def test_fixture_is_valid_json() -> None:
     assert payload["results"][0]["reference"] == (
         "TEST-TOPIC-001"
     )
+
+
+@pytest.mark.parametrize(
+    ("status_code", "retryable"),
+    [
+        (400, False),
+        (401, False),
+        (403, False),
+        (404, False),
+        (429, True),
+        (500, True),
+        (503, True),
+        (599, True),
+    ],
+)
+def test_client_classifies_http_status(
+    status_code: int,
+    retryable: bool,
+) -> None:
+    async def scenario() -> None:
+        transport = httpx.MockTransport(
+            lambda request: httpx.Response(
+                status_code,
+            )
+        )
+
+        async with SediaClient(
+            transport=transport
+        ) as client:
+            with pytest.raises(
+                SediaHTTPError
+            ) as captured:
+                await client.search(
+                    SediaSearchRequest()
+                )
+
+        error = captured.value
+
+        assert error.status_code == status_code
+        assert error.retryable is retryable
+        assert f"HTTP {status_code}" in str(error)
+
+    asyncio.run(scenario())
+
+
+def test_client_marks_timeout_as_retryable() -> None:
+    async def scenario() -> None:
+        def handler(
+            request: httpx.Request,
+        ) -> httpx.Response:
+            raise httpx.ReadTimeout(
+                "timed out",
+                request=request,
+            )
+
+        transport = httpx.MockTransport(
+            handler
+        )
+
+        async with SediaClient(
+            transport=transport
+        ) as client:
+            with pytest.raises(
+                SediaHTTPError
+            ) as captured:
+                await client.search(
+                    SediaSearchRequest()
+                )
+
+        error = captured.value
+
+        assert error.status_code is None
+        assert error.retryable is True
+        assert "ReadTimeout" in str(error)
+
+    asyncio.run(scenario())
+
+
+def test_client_marks_connection_error_as_retryable() -> None:
+    async def scenario() -> None:
+        def handler(
+            request: httpx.Request,
+        ) -> httpx.Response:
+            raise httpx.ConnectError(
+                "connection failed",
+                request=request,
+            )
+
+        transport = httpx.MockTransport(
+            handler
+        )
+
+        async with SediaClient(
+            transport=transport
+        ) as client:
+            with pytest.raises(
+                SediaHTTPError
+            ) as captured:
+                await client.search(
+                    SediaSearchRequest()
+                )
+
+        error = captured.value
+
+        assert error.status_code is None
+        assert error.retryable is True
+        assert "ConnectError" in str(error)
+
+    asyncio.run(scenario())
