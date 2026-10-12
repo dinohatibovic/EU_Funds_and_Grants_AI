@@ -55,6 +55,32 @@ class SediaFetchResult:
     payload: dict[str, Any]
     pages_fetched: int
     records_fetched: int
+    reported_total: int | None
+    unique_records: int
+    termination_reason: str
+
+
+def _reported_total(
+    response: SediaSearchResponse,
+) -> int | None:
+    """Validate one optional totalResults value."""
+
+    if "totalResults" not in response.raw:
+        return None
+
+    value = response.raw["totalResults"]
+
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or value < 0
+    ):
+        raise SediaFetchError(
+            "SEDIA totalResults must be a "
+            "non-negative integer"
+        )
+
+    return value
 
 
 def _page_results(
@@ -162,8 +188,9 @@ async def fetch_sedia_pages(
 ) -> SediaFetchResult:
     """Fetch consecutive SEDIA pages without writing data.
 
-    Pagination stops after the first short page. ``max_pages``
-    prevents an unbounded loop when every response page is full.
+    Pagination prefers a stable ``totalResults`` contract and
+    falls back to short-page termination when no total is reported.
+    ``max_pages`` prevents an unbounded fetch cycle.
     """
 
     if page_size < 1 or page_size > 100:
@@ -198,6 +225,8 @@ async def fetch_sedia_pages(
     )
     aggregated: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
+    reported_total: int | None = None
+    total_contract_initialized = False
 
     for page_number in range(
         1,
@@ -219,6 +248,19 @@ async def fetch_sedia_pages(
             sleep=sleep,
         )
 
+        page_total = _reported_total(
+            response
+        )
+
+        if not total_contract_initialized:
+            reported_total = page_total
+            total_contract_initialized = True
+        elif page_total != reported_total:
+            raise SediaFetchError(
+                "SEDIA totalResults changed "
+                "between pages"
+            )
+
         page_records = _page_results(
             response
         )
@@ -231,17 +273,87 @@ async def fetch_sedia_pages(
         aggregated.extend(
             page_records
         )
+        records_fetched = len(aggregated)
 
-        if len(page_records) < page_size:
+        if (
+            reported_total is not None
+            and records_fetched > reported_total
+        ):
+            raise SediaFetchError(
+                "fetched SEDIA records exceed "
+                "totalResults"
+            )
+
+        if not page_records:
+            if page_number == 1 and (
+                reported_total in (None, 0)
+            ):
+                return SediaFetchResult(
+                    payload={
+                        "results": aggregated,
+                    },
+                    pages_fetched=page_number,
+                    records_fetched=records_fetched,
+                    reported_total=reported_total,
+                    unique_records=records_fetched,
+                    termination_reason=(
+                        "empty_first_page"
+                    ),
+                )
+
+            if reported_total is None:
+                return SediaFetchResult(
+                    payload={
+                        "results": aggregated,
+                    },
+                    pages_fetched=page_number,
+                    records_fetched=records_fetched,
+                    reported_total=None,
+                    unique_records=records_fetched,
+                    termination_reason="short_page",
+                )
+
+            raise SediaFetchError(
+                "empty SEDIA page before "
+                "pagination completion"
+            )
+
+        if (
+            reported_total is not None
+            and records_fetched == reported_total
+        ):
             return SediaFetchResult(
                 payload={
                     "results": aggregated,
                 },
                 pages_fetched=page_number,
-                records_fetched=len(aggregated),
+                records_fetched=records_fetched,
+                reported_total=reported_total,
+                unique_records=records_fetched,
+                termination_reason=(
+                    "reported_total_reached"
+                ),
+            )
+
+        if len(page_records) < page_size:
+            if reported_total is not None:
+                raise SediaFetchError(
+                    "short SEDIA page before "
+                    "totalResults was reached"
+                )
+
+            return SediaFetchResult(
+                payload={
+                    "results": aggregated,
+                },
+                pages_fetched=page_number,
+                records_fetched=records_fetched,
+                reported_total=None,
+                unique_records=records_fetched,
+                termination_reason="short_page",
             )
 
     raise SediaFetchError(
         "SEDIA pagination reached max_pages "
-        "without a short final page"
+        "before deterministic completion"
     )

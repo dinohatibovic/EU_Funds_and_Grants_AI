@@ -43,6 +43,24 @@ class SediaDryRunResult:
 
         return self.fetch.records_fetched
 
+    @property
+    def reported_total(self) -> int | None:
+        """Return the stable reported total."""
+
+        return self.fetch.reported_total
+
+    @property
+    def unique_records(self) -> int:
+        """Return the number of unique records."""
+
+        return self.fetch.unique_records
+
+    @property
+    def termination_reason(self) -> str:
+        """Return the deterministic stop reason."""
+
+        return self.fetch.termination_reason
+
 
 async def run_sedia_fetch_dry_run(
     *,
