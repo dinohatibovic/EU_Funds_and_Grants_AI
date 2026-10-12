@@ -31,6 +31,40 @@ class SediaApplyReceiptError(
     """Raised when a writer receipt violates the apply contract."""
 
 
+SediaMutationAction = Literal[
+    "insert",
+    "update",
+]
+
+
+@dataclass(frozen=True)
+class SediaApplyMutation:
+    """One ordered INSERT or UPDATE mutation."""
+
+    grant_id: str
+    action: SediaMutationAction
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.grant_id, str)
+            or not self.grant_id.strip()
+            or self.grant_id != self.grant_id.strip()
+        ):
+            raise ValueError(
+                "mutation grant_id must be a "
+                "non-empty normalized string"
+            )
+
+        if self.action not in {
+            "insert",
+            "update",
+        }:
+            raise ValueError(
+                "mutation action must be "
+                "'insert' or 'update'"
+            )
+
+
 @dataclass(frozen=True)
 class SediaApplyContext:
     """Deterministic identity and expectations for one apply run."""
@@ -42,6 +76,7 @@ class SediaApplyContext:
     expected_insert_count: int
     expected_update_count: int
     changed_grant_ids: tuple[str, ...]
+    mutations: tuple[SediaApplyMutation, ...] = ()
 
     @property
     def expected_changed_count(self) -> int:
@@ -167,6 +202,9 @@ def build_apply_run_id(
     expected_insert_count: int,
     expected_update_count: int,
     changed_grant_ids: Sequence[str],
+    mutations: Sequence[
+        SediaApplyMutation
+    ] = (),
 ) -> str:
     """Return a deterministic content-derived apply run identifier."""
 
@@ -228,6 +266,43 @@ def build_apply_run_id(
             "expected mutations"
         )
 
+    normalized_mutations = tuple(
+        mutations
+    )
+
+    if normalized_mutations:
+        mutation_ids = tuple(
+            mutation.grant_id
+            for mutation in normalized_mutations
+        )
+
+        if mutation_ids != normalized_ids:
+            raise ValueError(
+                "mutation IDs must match changed "
+                "grant IDs in the same order"
+            )
+
+        insert_count = sum(
+            mutation.action == "insert"
+            for mutation in normalized_mutations
+        )
+        update_count = sum(
+            mutation.action == "update"
+            for mutation in normalized_mutations
+        )
+
+        if insert_count != expected_insert_count:
+            raise ValueError(
+                "insert mutation count must match "
+                "expected_insert_count"
+            )
+
+        if update_count != expected_update_count:
+            raise ValueError(
+                "update mutation count must match "
+                "expected_update_count"
+            )
+
     payload = {
         "source_id": normalized_source_id,
         "previous_snapshot_fingerprint": (
@@ -246,6 +321,15 @@ def build_apply_run_id(
             normalized_ids
         ),
     }
+
+    if normalized_mutations:
+        payload["mutations"] = [
+            {
+                "grant_id": mutation.grant_id,
+                "action": mutation.action,
+            }
+            for mutation in normalized_mutations
+        ]
 
     serialized = json.dumps(
         payload,
@@ -274,6 +358,9 @@ def build_apply_context(
     expected_insert_count: int,
     expected_update_count: int,
     changed_grant_ids: Sequence[str],
+    mutations: Sequence[
+        SediaApplyMutation
+    ] = (),
 ) -> SediaApplyContext:
     """Build one deterministic controlled-apply context."""
 
@@ -285,6 +372,9 @@ def build_apply_context(
     )
     normalized_ids = tuple(
         changed_grant_ids
+    )
+    normalized_mutations = tuple(
+        mutations
     )
 
     run_id = build_apply_run_id(
@@ -302,6 +392,7 @@ def build_apply_context(
             expected_update_count
         ),
         changed_grant_ids=normalized_ids,
+        mutations=normalized_mutations,
     )
 
     return SediaApplyContext(
@@ -320,6 +411,7 @@ def build_apply_context(
             expected_update_count
         ),
         changed_grant_ids=normalized_ids,
+        mutations=normalized_mutations,
     )
 
 

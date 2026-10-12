@@ -16,6 +16,7 @@ from ai_core.rag_pipeline.ingestion.sedia_adapter import (
 )
 from ai_core.rag_pipeline.ingestion.sedia_controlled_apply import (
     SediaApplyContext,
+    SediaApplyMutation,
     SediaApplyReceipt,
     SediaControlledApplyError,
     SediaControlledWriter,
@@ -132,6 +133,23 @@ def _build_controlled_context(
         changed_grant_ids=tuple(
             grant.id
             for grant in changed_grants
+        ),
+        mutations=tuple(
+            SediaApplyMutation(
+                grant_id=item.grant.id,
+                action=(
+                    "insert"
+                    if item.action
+                    is SyncAction.INSERT
+                    else "update"
+                ),
+            )
+            for item in plan.items
+            if item.action
+            in {
+                SyncAction.INSERT,
+                SyncAction.UPDATE,
+            }
         ),
     )
 

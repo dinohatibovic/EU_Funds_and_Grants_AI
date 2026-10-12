@@ -211,6 +211,20 @@ def test_controlled_apply_commits_and_saves_snapshot(
     assert len(writer.commit_calls) == 1
     assert writer.rollback_calls == []
 
+    assert writer.context is not None
+    assert tuple(
+        (
+            mutation.grant_id,
+            mutation.action,
+        )
+        for mutation in writer.context.mutations
+    ) == (
+        (
+            "TEST-TOPIC-001",
+            "insert",
+        ),
+    )
+
     assert set(store.load("eu_sedia")) == {
         "TEST-TOPIC-001",
     }
