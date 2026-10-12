@@ -2,8 +2,10 @@
 backend/app/api/search.py — Vektorska pretraga, AI odgovori i manualni ingest.
 """
 
+import json
 import logging
 import time
+import unicodedata
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -16,15 +18,395 @@ from backend.app.api.schemas import (
     SearchRequest,
     SearchResponse,
 )
-from backend.app.core.security import get_current_user
 from backend.app.core.rate_limit import (
     consume_guest_quota,
     derive_guest_client_key,
     inspect_guest_quota,
 )
+from backend.app.core.security import get_current_user
 from backend.app.services import ai as ai_services
 
 logger = logging.getLogger("eu_grants_api")
+
+
+def _normalize_intent_text(value):
+    """Normalize bounded query and candidate intent text."""
+    lowered = str(value or "").lower()
+
+    normalized = "".join(
+        character
+        for character in unicodedata.normalize(
+            "NFKD",
+            lowered,
+        )
+        if not unicodedata.combining(character)
+    )
+
+    replacements = {
+        "start-up": "startup",
+        "startupe": "startup",
+        "startupa": "startup",
+        "startupima": "startup",
+        "tesnju": "tesanj",
+        "tesnja": "tesanj",
+    }
+
+    for source, target in replacements.items():
+        normalized = normalized.replace(
+            source,
+            target,
+        )
+
+    return normalized
+
+
+def _metadata_values(metadata, key):
+    """Decode list-shaped Chroma metadata safely."""
+    value = metadata.get(key)
+
+    if isinstance(value, list):
+        return [
+            str(item)
+            for item in value
+            if str(item).strip()
+        ]
+
+    if not isinstance(value, str):
+        return []
+
+    stripped = value.strip()
+
+    if not stripped:
+        return []
+
+    try:
+        decoded = json.loads(stripped)
+    except json.JSONDecodeError:
+        return [stripped]
+
+    if not isinstance(decoded, list):
+        return [stripped]
+
+    return [
+        str(item)
+        for item in decoded
+        if str(item).strip()
+    ]
+
+
+def _contains_any(text, terms):
+    return any(
+        term in text
+        for term in terms
+    )
+
+
+def _parse_query_intent(query):
+    """Return bounded beneficiary, location and sector intent."""
+    normalized = _normalize_intent_text(query)
+
+    beneficiaries = set()
+    locations = set()
+    sectors = set()
+
+    if _contains_any(
+        normalized,
+        {"startup", "novo poduzetnistvo"},
+    ):
+        beneficiaries.add("startup")
+
+    if _contains_any(
+        normalized,
+        {"msp", "sme", "firm", "preduzec"},
+    ):
+        beneficiaries.add("sme")
+
+    if "obrt" in normalized:
+        beneficiaries.add("obrt")
+
+    if _contains_any(
+        normalized,
+        {"bih", "bosna", "hercegovina"},
+    ):
+        locations.add("bih")
+
+    if _contains_any(
+        normalized,
+        {"fbih", "federacij"},
+    ):
+        locations.update({"fbih", "bih"})
+
+    if _contains_any(
+        normalized,
+        {
+            "zdk",
+            "zenicko-doboj",
+            "zenicko doboj",
+        },
+    ):
+        locations.update({"zdk", "bih"})
+
+    if "tesanj" in normalized:
+        locations.update(
+            {"tesanj", "zdk", "bih"}
+        )
+
+    sector_terms = {
+        "digital": {
+            "digital",
+            "digitaliz",
+            "softver",
+            "erp",
+            "vjestacka inteligencija",
+            "artificial intelligence",
+        },
+        "agriculture": {
+            "poljoprivred",
+            "rural",
+            "farma",
+            "pcel",
+            "vocar",
+            "stocar",
+        },
+        "health": {
+            "zdrav",
+            "medicin",
+        },
+        "environment": {
+            "okol",
+            "klim",
+        },
+        "energy": {
+            "energ",
+            "efikasnost",
+        },
+        "education": {
+            "obraz",
+            "edukac",
+        },
+    }
+
+    for sector, terms in sector_terms.items():
+        if _contains_any(normalized, terms):
+            sectors.add(sector)
+
+    return {
+        "beneficiaries": beneficiaries,
+        "locations": locations,
+        "sectors": sectors,
+    }
+
+
+def _candidate_intent(metadata, document):
+    """Extract candidate intent from structured metadata."""
+    title = str(
+        metadata.get("title", "") or ""
+    )
+    category = str(
+        metadata.get("category", "") or ""
+    )
+
+    beneficiary_text = _normalize_intent_text(
+        " ".join(
+            _metadata_values(
+                metadata,
+                "beneficiary_types",
+            )
+        )
+        + " "
+        + title
+        + " "
+        + str(document or "")
+    )
+
+    location_text = _normalize_intent_text(
+        " ".join(
+            _metadata_values(
+                metadata,
+                "regions",
+            )
+        )
+        + " "
+        + title
+        + " "
+        + category
+    )
+
+    sector_text = _normalize_intent_text(
+        " ".join(
+            _metadata_values(
+                metadata,
+                "sectors",
+            )
+        )
+        + " "
+        + title
+        + " "
+        + category
+        + " "
+        + str(document or "")
+    )
+
+    beneficiaries = set()
+    locations = set()
+    sectors = set()
+
+    if _contains_any(
+        beneficiary_text,
+        {"startup", "novo poduzetnistvo"},
+    ):
+        beneficiaries.add("startup")
+
+    if _contains_any(
+        beneficiary_text,
+        {"msp", "sme", "mala i srednja"},
+    ):
+        beneficiaries.add("sme")
+
+    if "obrt" in beneficiary_text:
+        beneficiaries.add("obrt")
+
+    if _contains_any(
+        location_text,
+        {"bih", "bosna", "hercegovina"},
+    ):
+        locations.add("bih")
+
+    if _contains_any(
+        location_text,
+        {"fbih", "federacij"},
+    ):
+        locations.update({"fbih", "bih"})
+
+    if _contains_any(
+        location_text,
+        {
+            "zdk",
+            "zenicko-doboj",
+            "zenicko doboj",
+        },
+    ):
+        locations.update({"zdk", "bih"})
+
+    if "tesanj" in location_text:
+        locations.update(
+            {"tesanj", "zdk", "bih"}
+        )
+
+    sector_terms = {
+        "digital": {
+            "digital",
+            "softver",
+            "erp",
+            "it sektor",
+        },
+        "agriculture": {
+            "poljoprivred",
+            "rural",
+            "eu4agri",
+            "fmpvs",
+        },
+        "health": {
+            "zdrav",
+            "medicin",
+        },
+        "environment": {
+            "okol",
+            "klim",
+            "life programme",
+        },
+        "energy": {
+            "energ",
+            "efikasnost",
+            "eu4caet",
+        },
+        "education": {
+            "obraz",
+            "edukac",
+            "erasmus",
+        },
+    }
+
+    for sector, terms in sector_terms.items():
+        if _contains_any(sector_text, terms):
+            sectors.add(sector)
+
+    return {
+        "beneficiaries": beneficiaries,
+        "locations": locations,
+        "sectors": sectors,
+    }
+
+
+def _intent_match_score(
+    query,
+    metadata,
+    document,
+):
+    """Score independent intent dimensions."""
+    query_intent = _parse_query_intent(query)
+
+    if not any(query_intent.values()):
+        return 0
+
+    candidate = _candidate_intent(
+        metadata,
+        document,
+    )
+
+    beneficiary_matches = (
+        query_intent["beneficiaries"]
+        & candidate["beneficiaries"]
+    )
+    location_matches = (
+        query_intent["locations"]
+        & candidate["locations"]
+    )
+    sector_matches = (
+        query_intent["sectors"]
+        & candidate["sectors"]
+    )
+
+    score = 0
+
+    score += 60 * len(beneficiary_matches)
+    score += 25 * len(location_matches)
+    score += 40 * len(sector_matches)
+
+    if (
+        query_intent["beneficiaries"]
+        and not beneficiary_matches
+    ):
+        score -= 35
+
+    if (
+        query_intent["locations"]
+        and not location_matches
+    ):
+        score -= 20
+
+    if (
+        query_intent["sectors"]
+        and not sector_matches
+        and candidate["sectors"]
+    ):
+        score -= 45
+
+    matched_dimensions = sum(
+        (
+            bool(beneficiary_matches),
+            bool(location_matches),
+            bool(sector_matches),
+        )
+    )
+
+    if matched_dimensions >= 2:
+        score += 25
+
+    if matched_dimensions >= 3:
+        score += 20
+
+    return score
 
 router = APIRouter()
 
@@ -150,9 +532,17 @@ def _grant_quality_score(query: str, metadata: dict, document: str) -> int:
         if "it sektor" in combined or "fipa" in combined:
             score -= 45
 
-    if any(term in query_l for term in digital_query_terms):
-        if any(term in combined for term in digital_doc_terms):
-            score += 30
+    if (
+        any(
+            term in query_l
+            for term in digital_query_terms
+        )
+        and any(
+            term in combined
+            for term in digital_doc_terms
+        )
+    ):
+        score += 30
 
     # Additional trust / quality tuning
     if "neprovjereno" in doc_l:
@@ -175,6 +565,12 @@ def _grant_quality_score(query: str, metadata: dict, document: str) -> int:
 
     if "fmrpo" in combined:
         score += 15
+
+    score += _intent_match_score(
+        query,
+        metadata,
+        document,
+    )
 
     return score
 
@@ -442,7 +838,7 @@ async def _execute_ai_answer(
             raise HTTPException(status_code=500, detail="Greška pri generisanju AI vektora.")
 
         doc_count = ai_services.chroma_client.collection.count()
-        candidate_n = min(12, max(doc_count, 1))
+        candidate_n = max(doc_count, 1)
         search_results = ai_services.chroma_client.query_hybrid(
             query_text=request.query,
             query_embeddings=query_vectors,
