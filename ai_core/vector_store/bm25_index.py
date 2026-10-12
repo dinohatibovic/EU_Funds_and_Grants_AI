@@ -4,23 +4,98 @@ from __future__ import annotations
 
 import math
 import re
+import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 
-_TOKEN_RE = re.compile(r"[a-zA-ZšđčćžŠĐČĆŽ0-9]+", re.UNICODE)
+_TOKEN_RE = re.compile(
+    r"[a-zA-ZšđčćžŠĐČĆŽ0-9]+",
+    re.UNICODE,
+)
+
 _STOPWORDS = frozenset({
-    "i", "u", "na", "za", "od", "do", "je", "su", "se", "da", "a", "o",
-    "the", "and", "or", "for", "of", "in", "to", "an", "with",
-    "grant", "grants", "fond", "fondovi", "program", "poziv",
+    "i",
+    "u",
+    "na",
+    "za",
+    "od",
+    "do",
+    "je",
+    "su",
+    "se",
+    "da",
+    "a",
+    "o",
+    "koji",
+    "koje",
+    "kakav",
+    "kakvi",
+    "postoje",
+    "the",
+    "and",
+    "or",
+    "for",
+    "of",
+    "in",
+    "to",
+    "an",
+    "with",
+    "grant",
+    "grants",
+    "grantovi",
+    "grantova",
+    "fond",
+    "fondovi",
+    "program",
+    "programi",
+    "poziv",
+    "pozivi",
 })
 
+_TOKEN_ALIASES = {
+    "startupe": "startup",
+    "startupa": "startup",
+    "startupima": "startup",
+    "tesnju": "tesanj",
+    "tesnja": "tesanj",
+}
 
-def tokenize(text: str) -> list[str]:
+
+def normalize_search_token(token):
+    """Normalize selected Bosnian search forms."""
+    lowered = token.lower()
+
+    ascii_token = "".join(
+        character
+        for character in unicodedata.normalize(
+            "NFKD",
+            lowered,
+        )
+        if not unicodedata.combining(character)
+    )
+
+    return _TOKEN_ALIASES.get(
+        ascii_token,
+        ascii_token,
+    )
+
+
+def tokenize(text):
+    """Tokenize normalized lexical search text."""
     if not text:
         return []
-    tokens = [t.lower() for t in _TOKEN_RE.findall(text)]
-    return [t for t in tokens if len(t) > 1 and t not in _STOPWORDS]
 
+    normalized = [
+        normalize_search_token(token)
+        for token in _TOKEN_RE.findall(text)
+    ]
+
+    return [
+        token
+        for token in normalized
+        if len(token) > 1
+        and token not in _STOPWORDS
+    ]
 
 @dataclass
 class BM25Index:

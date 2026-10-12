@@ -177,3 +177,257 @@ def test_reranker_respects_limit():
 
     assert len(ranked_documents) == 2
     assert len(ranked_metadata) == 2
+
+
+def test_bm25_normalizes_startup_inflections():
+    from ai_core.vector_store.bm25_index import (
+        tokenize,
+    )
+
+    assert tokenize("startup") == ["startup"]
+    assert tokenize("startupe") == ["startup"]
+    assert tokenize("startupa") == ["startup"]
+    assert tokenize("startupima") == ["startup"]
+
+
+def test_bm25_normalizes_tesanj_inflections():
+    from ai_core.vector_store.bm25_index import (
+        tokenize,
+    )
+
+    assert tokenize("Tešanj") == ["tesanj"]
+    assert tokenize("Tešnju") == ["tesanj"]
+    assert tokenize("Tesanj") == ["tesanj"]
+    assert tokenize("Tesnju") == ["tesanj"]
+
+
+def test_bm25_removes_generic_bosnian_search_words():
+    from ai_core.vector_store.bm25_index import (
+        tokenize,
+    )
+
+    assert tokenize(
+        "Koji grantovi postoje za startupe u BiH?"
+    ) == [
+        "startup",
+        "bih",
+    ]
+
+    assert tokenize(
+        "grantovi za obrt u Tešnju"
+    ) == [
+        "obrt",
+        "tesanj",
+    ]
+
+def test_query_intent_normalizes_startup_and_tesanj():
+    from backend.app.api.search import (
+        _parse_query_intent,
+    )
+
+    startup = _parse_query_intent(
+        "Koji grantovi postoje za startupe u BiH?"
+    )
+    tesanj = _parse_query_intent(
+        "grantovi za obrt u Tešnju"
+    )
+    tesnju = _parse_query_intent(
+        "grantovi za obrt u Tesnju"
+    )
+
+    assert startup == {
+        "beneficiaries": {"startup"},
+        "locations": {"bih"},
+        "sectors": set(),
+    }
+
+    assert tesanj == {
+        "beneficiaries": {"obrt"},
+        "locations": {
+            "tesanj",
+            "zdk",
+            "bih",
+        },
+        "sectors": set(),
+    }
+
+    assert tesnju == tesanj
+
+
+def test_query_intent_treats_firm_forms_as_sme():
+    from backend.app.api.search import (
+        _parse_query_intent,
+    )
+
+    queries = (
+        "digitalizacija firme u ZDK",
+        "grant za firmu u ZDK",
+        "podrška firmi iz BiH",
+        "grantovi za firme u BiH",
+        "podrška firmama u ZDK",
+    )
+
+    for query in queries:
+        intent = _parse_query_intent(query)
+
+        assert "sme" in intent["beneficiaries"]
+
+
+def test_startup_bih_intent_outranks_health():
+    query = "Koji grantovi postoje za startupe u BiH?"
+
+    startup_metadata = _metadata(
+        title="EIC Accelerator",
+        category="Startup",
+        regions='["BiH"]',
+        beneficiary_types='["SME", "startup"]',
+        sectors='["digitalization"]',
+        verified_score=95,
+    )
+    health_metadata = _metadata(
+        title="Horizont Evropa - Zdravstvo",
+        category="Istraživanje",
+        regions='["BiH"]',
+        beneficiary_types='["SME"]',
+        sectors='["health"]',
+        verified_score=95,
+    )
+
+    startup_score = _grant_quality_score(
+        query,
+        startup_metadata,
+        "EU finansiranje inovativnih startupa.",
+    )
+    health_score = _grant_quality_score(
+        query,
+        health_metadata,
+        "Zdravstvena istraživanja za SME.",
+    )
+
+    assert startup_score > health_score
+
+
+def test_obrt_tesanj_intent_outranks_life():
+    query = "grantovi za obrt u Tešnju"
+
+    local_metadata = _metadata(
+        title="ZEDA pozivi za obrte",
+        category="ZDK",
+        regions='["Tešanj", "ZDK", "BiH"]',
+        beneficiary_types='["obrt", "SME"]',
+        sectors='["digitalization"]',
+        status="rolling",
+    )
+    life_metadata = _metadata(
+        title="LIFE Programme",
+        category="Okoliš",
+        regions='["BiH"]',
+        beneficiary_types='["SME"]',
+        sectors='["environment"]',
+        verified_score=95,
+    )
+
+    local_score = _grant_quality_score(
+        query,
+        local_metadata,
+        "Podrška obrtima i MSP u Tešnju.",
+    )
+    life_score = _grant_quality_score(
+        query,
+        life_metadata,
+        "Okolišni i klimatski program za SME.",
+    )
+
+    assert local_score > life_score
+
+
+def test_agriculture_intent_outranks_digital():
+    query = "poticaji za poljoprivredu u BiH"
+
+    agriculture_metadata = _metadata(
+        title="FMPVS poljoprivredne podrške",
+        category="Poljoprivreda",
+        regions='["FBiH", "BiH"]',
+        beneficiary_types='["SME"]',
+        sectors='["agriculture"]',
+    )
+    digital_metadata = _metadata(
+        title="Digitalizacija MSP",
+        category="Digital",
+        regions='["BiH"]',
+        beneficiary_types='["SME"]',
+        sectors='["digitalization"]',
+    )
+
+    agriculture_score = _grant_quality_score(
+        query,
+        agriculture_metadata,
+        "Poljoprivreda i ruralni razvoj.",
+    )
+    digital_score = _grant_quality_score(
+        query,
+        digital_metadata,
+        "Digitalizacija i softver za MSP.",
+    )
+
+    assert agriculture_score > digital_score
+
+
+def test_reranker_places_startup_above_generic_programs():
+    query = "Koji grantovi postoje za startupe u BiH?"
+
+    documents = [
+        "Zdravstvena istraživanja za SME.",
+        "Okolišni i klimatski program za SME.",
+        "EU finansiranje inovativnih startupa.",
+    ]
+    metadatas = [
+        _metadata(
+            title="Horizont Evropa - Zdravstvo",
+            category="Istraživanje",
+            regions='["BiH"]',
+            beneficiary_types='["SME"]',
+            sectors='["health"]',
+            verified_score=95,
+        ),
+        _metadata(
+            title="LIFE Programme",
+            category="Okoliš",
+            regions='["BiH"]',
+            beneficiary_types='["SME"]',
+            sectors='["environment"]',
+            verified_score=95,
+        ),
+        _metadata(
+            title="EIC Accelerator",
+            category="Startup",
+            regions='["BiH"]',
+            beneficiary_types='["SME", "startup"]',
+            sectors='["digitalization"]',
+            verified_score=95,
+        ),
+    ]
+
+    _, ranked_metadata = _rerank_search_results(
+        query,
+        documents,
+        metadatas,
+        limit=3,
+    )
+
+    titles = [
+        metadata["title"]
+        for metadata in ranked_metadata
+    ]
+
+    assert titles[0] == "EIC Accelerator"
+    assert titles.index(
+        "EIC Accelerator"
+    ) < titles.index(
+        "Horizont Evropa - Zdravstvo"
+    )
+    assert titles.index(
+        "EIC Accelerator"
+    ) < titles.index(
+        "LIFE Programme"
+    )
