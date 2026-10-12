@@ -3,10 +3,29 @@
   "results": [
     {
       "reference": "TEST-TOPIC-001",
-      "summary": "Synthetic SEDIA fixture",
+      "summary": "Synthetic SEDIA fixture description",
+      "url": "https://example.invalid/topics/TEST-TOPIC-001",
       "metadata": {
+        "title": [
+          "Synthetic structured grant title"
+        ],
+        "callTitle": [
+          "Synthetic structured call"
+        ],
+        "identifier": [
+          "TEST-CALL-001"
+        ],
+        "frameworkProgramme": [
+          "TEST-PROGRAMME"
+        ],
         "status": [
           "OPEN"
+        ],
+        "deadlineDate": [
+          "2030-12-31T17:00:00Z"
+        ],
+        "budget": [
+          "1000000"
         ]
       }
     }

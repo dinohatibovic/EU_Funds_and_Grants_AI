@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 
 from ai_core.rag_pipeline.ingestion.sedia_adapter import (
+    SediaAdapterError,
     sedia_response_to_grant_metadata,
 )
 from ai_core.rag_pipeline.ingestion.sync_planner import (
@@ -27,10 +28,24 @@ def grant_record(
     *,
     summary: str | None = None,
 ) -> dict[str, Any]:
+    title = summary or f"Grant {reference}"
+
     return {
         "reference": reference,
-        "summary": summary or f"Grant {reference}",
+        "summary": title,
         "metadata": {
+            "title": [
+                title,
+            ],
+            "callTitle": [
+                f"Call {reference}",
+            ],
+            "identifier": [
+                f"CALL-{reference}",
+            ],
+            "frameworkProgramme": [
+                "TEST-PROGRAMME",
+            ],
             "status": [
                 "OPEN",
             ],
@@ -65,7 +80,7 @@ class FakeSediaClient:
             raise outcome
 
         if not isinstance(outcome, dict):
-            raise AssertionError(
+            raise TypeError(
                 "outcome must be a response object or exception"
             )
 
@@ -346,7 +361,7 @@ def test_adapter_failure_never_saves_snapshot() -> None:
         )
         store = ReadOnlySnapshotStore()
 
-        with pytest.raises(Exception):
+        with pytest.raises(SediaAdapterError):
             await run_sedia_fetch_dry_run(
                 client=client,
                 snapshot_store=store,  # type: ignore[arg-type]
