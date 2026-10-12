@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinAssistBH — AI asistent za EU grantove u BiH</title>
-    <meta name="description" content="Pronađi pravi EU grant i javni poziv za firmu, obrt ili projekat u Bosni i Hercegovini. Na bosanskom, s izvorom, bez izmišljenih rokova.">
+    <title>FinAssistBH — AI asistent za grantove u BiH</title>
+    <meta name="description" content="Pronađite odgovarajući grant uz provjerljive izvore. AI asistent za domaće i EU javne pozive u Bosni i Hercegovini.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1a4b8c;
-            --primary-light: #2d6fd4;
-            --primary-soft: #e8f0fe;
-            --accent: #d4a843;
-            --bg: #f7f8fa;
-            --surface: #ffffff;
-            --text: #1e293b;
-            --text-soft: #64748b;
-            --border: #e2e8f0;
-            --radius: 16px;
+            --bg: #070f1c;
+            --bg-soft: #0c1628;
+            --card: #111c31;
+            --border: rgba(255,255,255,0.08);
+            --text: #f3f6fb;
+            --muted: #9aa8bf;
+            --green: #22c55e;
+            --green-dark: #16a34a;
+            --green-soft: rgba(34, 197, 94, 0.12);
             --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: var(--font);
             background: var(--bg);
@@ -30,182 +31,377 @@
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
-        .wrap {
-            max-width: 720px;
+        a { text-decoration: none; color: inherit; }
+
+        /* HEADER */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(12px);
+            background: rgba(7, 15, 28, 0.85);
+            border-bottom: 1px solid var(--border);
+        }
+        .header-inner {
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 32px 20px 48px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
         }
         .brand {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 36px;
+            align-items: baseline;
+            gap: 2px;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.4px;
         }
-        .logo {
-            width: 44px; height: 44px;
-            background: var(--primary);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--accent); font-weight: 700; font-size: 15px;
-        }
-        .brand h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-        .brand p { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
-
-        .hero {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 28px 24px;
-            margin-bottom: 20px;
-        }
-        .hero h2 {
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            line-height: 1.25;
-            margin-bottom: 12px;
-        }
-        .hero .lead {
-            font-size: 15px;
-            color: var(--text-soft);
-            line-height: 1.65;
-            margin-bottom: 24px;
-        }
-        .actions {
+        .brand span { color: var(--green); }
+        .nav {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            align-items: center;
+            gap: 14px;
         }
+        .nav-link {
+            font-size: 14px;
+            color: var(--muted);
+            padding: 8px 10px;
+        }
+        .nav-link:hover { color: var(--text); }
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 12px 18px;
+            gap: 8px;
             border-radius: 12px;
+            font-weight: 700;
             font-size: 14px;
-            font-weight: 600;
             font-family: var(--font);
-            text-decoration: none;
             border: none;
             cursor: pointer;
             transition: 0.15s ease;
         }
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
+        .btn-green {
+            background: var(--green);
+            color: #04110a;
+            padding: 11px 16px;
         }
-        .btn-primary:hover { background: var(--primary-light); }
-        .btn-secondary {
-            background: var(--primary-soft);
-            color: var(--primary);
-        }
-        .btn-secondary:hover { background: #dbe7fc; }
-        .btn-ghost {
+        .btn-green:hover { background: #2ee26d; }
+        .btn-outline {
             background: transparent;
-            color: var(--text-soft);
-            border: 1px solid var(--border);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.18);
+            padding: 11px 16px;
         }
-        .btn-ghost:hover { border-color: var(--primary-light); color: var(--primary); }
+        .btn-outline:hover {
+            border-color: rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.04);
+        }
 
-        .section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 22px 24px;
+        /* HERO */
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 70% 40%, rgba(34,197,94,0.12), transparent 55%),
+                radial-gradient(ellipse 50% 40% at 20% 20%, rgba(45,111,212,0.18), transparent 50%),
+                linear-gradient(180deg, #0a1528 0%, #070f1c 100%);
+        }
+        .hero-inner {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 56px 20px 64px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 32px;
+            align-items: center;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(34,197,94,0.35);
+            background: var(--green-soft);
+            color: #86efac;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            line-height: 1.12;
+            letter-spacing: -1px;
+            font-weight: 800;
             margin-bottom: 16px;
         }
-        .section h3 {
+        .hero h1 em {
+            font-style: normal;
+            color: var(--green);
+        }
+        .hero-lead {
             font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .section p, .section li {
-            font-size: 14px;
-            color: var(--text-soft);
             line-height: 1.65;
+            color: var(--muted);
+            max-width: 520px;
+            margin-bottom: 28px;
         }
-        .section ul {
-            padding-left: 18px;
-            margin-top: 8px;
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .section li { margin-bottom: 6px; }
-        .note {
+
+        /* MAP CARD */
+        .map-card {
+            background: linear-gradient(160deg, rgba(17,28,49,0.95), rgba(10,20,36,0.98));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 22px;
+            min-height: 280px;
+            position: relative;
+            overflow: hidden;
+        }
+        .map-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 70% 30%, rgba(34,197,94,0.15), transparent 40%),
+                radial-gradient(circle at 30% 70%, rgba(45,111,212,0.12), transparent 35%);
+        }
+        .map-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+        }
+        .eu-stars {
+            align-self: flex-end;
+            width: 72px;
+            height: 72px;
+            border: 2px solid rgba(255, 204, 0, 0.75);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #ffcc00;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            box-shadow: 0 0 24px rgba(255,204,0,0.15);
+        }
+        .map-title {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.4;
+            max-width: 180px;
+        }
+        .map-title span { color: var(--green); }
+        .map-points {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             font-size: 13px;
-            color: var(--text-soft);
-            background: var(--primary-soft);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-top: 8px;
+            color: var(--muted);
         }
-        footer {
+        .map-points strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* FEATURES */
+        .features {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 64px 20px 72px;
+        }
+        .features-head {
             text-align: center;
-            font-size: 12px;
-            color: var(--text-soft);
-            margin-top: 28px;
+            max-width: 640px;
+            margin: 0 auto 36px;
         }
-        footer a { color: var(--primary); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
+        .features-head h2 {
+            font-size: clamp(24px, 3.5vw, 34px);
+            letter-spacing: -0.6px;
+            margin-bottom: 12px;
+        }
+        .features-head p {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .feature {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+        }
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--green-soft);
+            color: var(--green);
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+        .feature h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .feature p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        /* FOOTER */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 22px 20px;
+        }
+        .footer-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .footer .brand { font-size: 16px; }
+        .footer-sub { margin-top: 4px; font-size: 12px; color: #7b879c; }
+
+        @media (max-width: 860px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+                padding-top: 40px;
+                padding-bottom: 48px;
+            }
+            .feature-grid { grid-template-columns: 1fr; }
+            .nav-link { display: none; }
+            .map-card { min-height: 220px; }
+        }
     </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="brand">
-            <div class="logo">EU</div>
-            <div>
-                <h1>FinAssistBH</h1>
-                <p>AI asistent za EU i domaće grantove u BiH</p>
+
+<header class="header">
+    <div class="header-inner">
+        <div class="brand">FinAssist<span>BH</span></div>
+        <div class="nav">
+            <a class="nav-link" href="#o-platformi">O platformi</a>
+            <a class="btn btn-green" href="app.html?mode=demo">Otvori aplikaciju</a>
+        </div>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-inner">
+        <div>
+            <div class="badge">AI asistent za grantove u Bosni i Hercegovini</div>
+            <h1>Pronađite odgovarajući grant uz <em>provjerljive izvore</em>.</h1>
+            <p class="hero-lead">
+                FinAssistBH pomaže firmama, obrtima, startupima, konsultantima i razvojnim organizacijama
+                da pronađu i analiziraju domaće i evropske javne pozive.
+            </p>
+            <div class="hero-actions">
+                <a class="btn btn-green" href="app.html?mode=demo">Pokreni FinAssistBH →</a>
+                <a class="btn btn-outline" href="#o-platformi">Saznaj više</a>
             </div>
         </div>
 
-        <section class="hero">
-            <h2>Pronađi pravi grant za svoj projekat</h2>
-            <p class="lead">
-                FinAssistBH pomaže firmama, obrtnicima i konsultantima u Bosni i Hercegovini
-                da brže pronađu javne pozive i EU fondove — na bosanskom, s izvorom,
-                bez izmišljenih rokova i budžeta.
-            </p>
-            <div class="actions">
-                <a class="btn btn-primary" href="app.html?mode=demo">Isprobaj demo</a>
-                <a class="btn btn-secondary" href="auth.html">Prijavi se / Registruj se</a>
-                <a class="btn btn-ghost" href="pitch.html">Cijene</a>
+        <aside class="map-card" aria-label="Bosna i Hercegovina">
+            <div class="map-content">
+                <div class="eu-stars">EU</div>
+                <div>
+                    <div class="map-title">Više mogućnosti za <span>snažniju</span> Bosnu i Hercegovinu</div>
+                    <div class="map-points" style="margin-top:14px;">
+                        <div><strong>•</strong> Domaći i EU pozivi</div>
+                        <div><strong>•</strong> AI odgovori na bosanskom</div>
+                        <div><strong>•</strong> Bez izmišljenih rokova</div>
+                    </div>
+                </div>
             </div>
-        </section>
-
-        <section class="section">
-            <h3>Šta radi platforma</h3>
-            <ul>
-                <li>Upišeš šta ti treba (npr. poticaj za poljoprivredu, digitalizaciju, solar…)</li>
-                <li>Sistem pretraži bazu grantova (hybrid pretraga + AI)</li>
-                <li>Dobiješ rangirane rezultate i odgovor zasnovan samo na stvarnim podacima</li>
-            </ul>
-        </section>
-
-        <section class="section">
-            <h3>Za koga je</h3>
-            <ul>
-                <li>Male i srednje firme, obrti i startupi</li>
-                <li>Konsultanti koji traže pozive za klijente</li>
-                <li>Općine i razvojne agencije</li>
-            </ul>
-        </section>
-
-        <section class="section">
-            <h3>Zašto je drugačije</h3>
-            <p>
-                AI ne smije izmišljati rok, budžet, uslove ni link.
-                Ako podatak nije potvrđen u bazi, kaže da nije potvrđen.
-            </p>
-            <div class="note">
-                Demo: 3 besplatna AI upita bez registracije.
-                Puna pretraga i AI odgovori dostupni su nakon prijave.
-            </div>
-        </section>
-
-        <footer>
-            © 2026 Dino Hatibović — FinAssistBH
-            · <a href="pitch.html">Cijene</a>
-            · <a href="auth.html">Prijava</a>
-        </footer>
+        </aside>
     </div>
+</section>
+
+<section class="features" id="o-platformi">
+    <div class="features-head">
+        <h2>Grant informacije bez nagađanja</h2>
+        <p>
+            Platforma kombinuje hibridnu pretragu, strukturirane podatke
+            i AI odgovore zasnovane na provjerenim izvorima.
+        </p>
+    </div>
+
+    <div class="feature-grid">
+        <article class="feature">
+            <div class="feature-icon">⌕</div>
+            <h3>Hibridna pretraga</h3>
+            <p>
+                Kombinacija leksičke i semantičke pretrage pronalazi relevantne grantove
+                na osnovu korisničkog upita.
+            </p>
+        </article>
+
+        <article class="feature">
+            <div class="feature-icon">☰</div>
+            <h3>Provjerljivi izvori</h3>
+            <p>
+                Rezultati sadrže strukturirane informacije i poveznice prema
+                izvornim objavama javnih poziva.
+            </p>
+        </article>
+
+        <article class="feature">
+            <div class="feature-icon">◎</div>
+            <h3>AI odgovori na bosanskom</h3>
+            <p>
+                AI odgovara na osnovu dostupnih podataka i ne treba izmišljati
+                nepoznate rokove, budžete ili uslove.
+            </p>
+        </article>
+    </div>
+
+    <div style="text-align:center; margin-top: 36px;">
+        <a class="btn btn-green" href="app.html?mode=demo">Isprobaj demo</a>
+        <a class="btn btn-outline" href="auth.html" style="margin-left:10px;">Prijavi se</a>
+        <a class="btn btn-outline" href="pitch.html" style="margin-left:10px;">Cijene</a>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div>
+            <div class="brand">FinAssist<span>BH</span></div>
+            <div class="footer-sub">AI asistent za grantove u Bosni i Hercegovini</div>
+        </div>
+        <div>FinAssistBH © 2026. Sva prava zadržana.</div>
+    </div>
+</footer>
+
 </body>
 </html>
