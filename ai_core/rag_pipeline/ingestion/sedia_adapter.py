@@ -138,7 +138,7 @@ def _validate_grant_metadata(
 
 
 def _parse_deadline(value: object) -> date | None:
-    """Parse one optional ISO date without inventing a value."""
+    """Parse one optional ISO deadline value."""
 
     if value in (None, ""):
         return None
@@ -161,10 +161,67 @@ def _parse_deadline(value: object) -> date | None:
     except ValueError:
         try:
             return date.fromisoformat(text[:10])
-        except ValueError as exc:
-            raise SediaAdapterError(
-                f"Invalid SEDIA deadline: {text}"
-            ) from exc
+        except ValueError:
+            return None
+
+
+def _deadline_values(
+    metadata: Mapping[str, Any],
+) -> list:
+    """Return the first present deadline field as a list."""
+
+    for key in (
+        "deadlineDate",
+        "deadline",
+        "submissionDeadlineDate",
+        "callDeadlineDate",
+    ):
+        if key not in metadata:
+            continue
+
+        value = metadata.get(key)
+
+        if value in (None, ""):
+            return []
+
+        if isinstance(value, list):
+            return list(value)
+
+        return [value]
+
+    return []
+
+
+def _normalize_deadlines(
+    metadata: Mapping[str, Any],
+) -> tuple[list[date], str]:
+    """Normalize every valid deadline deterministically."""
+
+    raw_values = _deadline_values(metadata)
+
+    if not raw_values:
+        return [], "no_deadline"
+
+    parsed = [
+        value
+        for raw_value in raw_values
+        if (value := _parse_deadline(raw_value))
+        is not None
+    ]
+
+    deadlines = sorted(set(parsed))
+    invalid_count = len(raw_values) - len(parsed)
+
+    if not deadlines:
+        return [], "fully_invalid"
+
+    if invalid_count:
+        return deadlines, "partially_valid"
+
+    if len(deadlines) == 1:
+        return deadlines, "single_valid"
+
+    return deadlines, "multiple_valid"
 
 
 def _normalize_status(
@@ -250,12 +307,8 @@ def sedia_record_to_grant_metadata(
         "totalBudget",
     )
 
-    deadline_value = _metadata_first(
-        raw_metadata,
-        "deadlineDate",
-        "deadline",
-        "submissionDeadlineDate",
-        "callDeadlineDate",
+    deadlines, deadline_validation_status = (
+        _normalize_deadlines(raw_metadata)
     )
 
     return GrantMetadata(
@@ -265,7 +318,15 @@ def sedia_record_to_grant_metadata(
         category=category,
         budget=budget,
         note="",
-        deadline=_parse_deadline(deadline_value),
+        deadline=(
+            deadlines[0]
+            if deadlines
+            else None
+        ),
+        deadlines=deadlines,
+        deadline_validation_status=(
+            deadline_validation_status
+        ),
         url=_first_non_empty(record, "url"),
         relevance="high",
         status=_normalize_status(raw_metadata),
