@@ -1,4 +1,4 @@
-"""Normalize SEDIA search records into the GrantMetadata contract."""
+"""Normalize validated SEDIA grant records into GrantMetadata."""
 
 from __future__ import annotations
 
@@ -21,6 +21,21 @@ _STATUS_MAP = {
     "OPEN": "open",
     "CLOSED": "closed",
 }
+
+_FAQ_MARKERS = frozenset(
+    {
+        "esST_question",
+        "esST_answer",
+        "esST_qaCategory",
+        "esST_shortAnswer",
+    }
+)
+
+_REQUIRED_GRANT_METADATA = (
+    "identifier",
+    "frameworkProgramme",
+    "status",
+)
 
 
 def _clean_string(value: object) -> str:
@@ -51,7 +66,7 @@ def _metadata_first(
     metadata: Mapping[str, Any],
     *keys: str,
 ) -> str:
-    """Return the first non-empty SEDIA metadata value."""
+    """Return the first non-empty scalar or list item."""
 
     for key in keys:
         value = metadata.get(key)
@@ -73,8 +88,57 @@ def _metadata_first(
     return ""
 
 
+def _reject_faq_record(
+    metadata: Mapping[str, Any],
+) -> None:
+    """Reject SEDIA FAQ/search-support records."""
+
+    present = sorted(
+        marker
+        for marker in _FAQ_MARKERS
+        if marker in metadata
+    )
+
+    if present:
+        raise SediaAdapterError(
+            "SEDIA record contains FAQ metadata: "
+            + ", ".join(present)
+        )
+
+
+def _validate_grant_metadata(
+    *,
+    record_id: str,
+    metadata: Mapping[str, Any],
+) -> None:
+    """Require the structured fields of a SEDIA grant topic."""
+
+    missing = [
+        key
+        for key in _REQUIRED_GRANT_METADATA
+        if not _metadata_first(metadata, key)
+    ]
+
+    if missing:
+        raise SediaAdapterError(
+            f"SEDIA record {record_id} is missing "
+            "required grant metadata: "
+            + ", ".join(missing)
+        )
+
+    if not _metadata_first(
+        metadata,
+        "title",
+        "callTitle",
+    ):
+        raise SediaAdapterError(
+            f"SEDIA record {record_id} is missing "
+            "structured grant title metadata"
+        )
+
+
 def _parse_deadline(value: object) -> date | None:
-    """Parse an optional ISO date without inventing missing values."""
+    """Parse one optional ISO date without inventing a value."""
 
     if value in (None, ""):
         return None
@@ -104,27 +168,14 @@ def _parse_deadline(value: object) -> date | None:
 
 
 def _normalize_status(
-    record: Mapping[str, Any],
     metadata: Mapping[str, Any],
 ) -> str:
-    """Normalize known SEDIA status values."""
+    """Normalize a required SEDIA grant status."""
 
-    raw_status = (
-        _metadata_first(
-            metadata,
-            "status",
-            "statusCode",
-            "topicStatus",
-        )
-        or _first_non_empty(
-            record,
-            "status",
-            "statusCode",
-        )
+    raw_status = _metadata_first(
+        metadata,
+        "status",
     )
-
-    if not raw_status:
-        return "needs_review"
 
     return _STATUS_MAP.get(
         raw_status.upper(),
@@ -135,22 +186,21 @@ def _normalize_status(
 def sedia_record_to_grant_metadata(
     record: Mapping[str, Any],
 ) -> GrantMetadata:
-    """Map one SEDIA search result to GrantMetadata."""
+    """Map one validated SEDIA grant topic to GrantMetadata."""
 
     if not isinstance(record, Mapping):
         raise SediaAdapterError(
             "SEDIA record must be a mapping"
         )
 
-    raw_metadata = record.get("metadata", {})
-
-    if raw_metadata is None:
-        raw_metadata = {}
+    raw_metadata = record.get("metadata")
 
     if not isinstance(raw_metadata, Mapping):
         raise SediaAdapterError(
             "SEDIA metadata must be a mapping"
         )
+
+    _reject_faq_record(raw_metadata)
 
     record_id = _first_non_empty(
         record,
@@ -166,18 +216,16 @@ def sedia_record_to_grant_metadata(
             "SEDIA record is missing a stable reference"
         )
 
-    title = _first_non_empty(
-        record,
-        "title",
-        "summary",
-        "content",
-        "name",
+    _validate_grant_metadata(
+        record_id=record_id,
+        metadata=raw_metadata,
     )
 
-    if not title:
-        raise SediaAdapterError(
-            f"SEDIA record {record_id} is missing a title"
-        )
+    title = _metadata_first(
+        raw_metadata,
+        "title",
+        "callTitle",
+    )
 
     description = _first_non_empty(
         record,
@@ -187,13 +235,7 @@ def sedia_record_to_grant_metadata(
     )
 
     category = (
-        _first_non_empty(
-            record,
-            "programme",
-            "programmeName",
-            "category",
-        )
-        or _metadata_first(
+        _metadata_first(
             raw_metadata,
             "programmeTitle",
             "programme",
@@ -202,28 +244,18 @@ def sedia_record_to_grant_metadata(
         or "EU Funding and Tenders"
     )
 
-    budget = (
-        _first_non_empty(
-            record,
-            "budget",
-            "totalBudget",
-        )
-        or _metadata_first(
-            raw_metadata,
-            "budget",
-            "totalBudget",
-        )
+    budget = _metadata_first(
+        raw_metadata,
+        "budget",
+        "totalBudget",
     )
 
-    deadline_value: object = (
-        record.get("deadline")
-        or _metadata_first(
-            raw_metadata,
-            "deadline",
-            "deadlineDate",
-            "submissionDeadlineDate",
-            "callDeadlineDate",
-        )
+    deadline_value = _metadata_first(
+        raw_metadata,
+        "deadlineDate",
+        "deadline",
+        "submissionDeadlineDate",
+        "callDeadlineDate",
     )
 
     return GrantMetadata(
@@ -236,10 +268,7 @@ def sedia_record_to_grant_metadata(
         deadline=_parse_deadline(deadline_value),
         url=_first_non_empty(record, "url"),
         relevance="high",
-        status=_normalize_status(
-            record,
-            raw_metadata,
-        ),
+        status=_normalize_status(raw_metadata),
         verified_score=100,
         source_priority=100,
         regions=["EU"],
@@ -252,7 +281,7 @@ def sedia_record_to_grant_metadata(
 def sedia_records_to_grant_metadata(
     records: Iterable[Mapping[str, Any]],
 ) -> list:
-    """Normalize multiple SEDIA records while preserving order."""
+    """Normalize grant records while preserving order."""
 
     return [
         sedia_record_to_grant_metadata(record)

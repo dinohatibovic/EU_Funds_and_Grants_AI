@@ -19,7 +19,6 @@ from ai_core.rag_pipeline.ingestion.sync_planner import (
     SyncPlannerError,
 )
 
-
 FIXTURE_PATH = Path(
     "backend/app/integrations/sedia/fixtures/"
     "search_response_minimal.json"
@@ -62,12 +61,24 @@ def load_fixture() -> dict:
 
 
 def second_record() -> dict:
-    """Return another valid synthetic SEDIA record."""
+    """Return another valid synthetic SEDIA grant record."""
 
     return {
         "reference": "TEST-TOPIC-002",
         "summary": "Second synthetic SEDIA fixture",
         "metadata": {
+            "title": [
+                "Second structured grant title",
+            ],
+            "callTitle": [
+                "Second structured call",
+            ],
+            "identifier": [
+                "TEST-CALL-002",
+            ],
+            "frameworkProgramme": [
+                "TEST-PROGRAMME",
+            ],
             "status": [
                 "OPEN",
             ],
@@ -178,9 +189,9 @@ def test_changed_record_is_update(
     apply_fixture(store)
 
     changed = load_fixture()
-    changed["results"][0]["summary"] = (
-        "Updated synthetic SEDIA fixture"
-    )
+    changed["results"][0]["metadata"]["title"] = [
+        "Updated structured grant title",
+    ]
 
     report, writer = apply_fixture(
         store,
@@ -200,7 +211,7 @@ def test_changed_record_is_update(
     )
 
     assert writer.calls[0][0].title == (
-        "Updated synthetic SEDIA fixture"
+        "Updated structured grant title"
     )
 
 
@@ -249,9 +260,9 @@ def test_writer_failure_preserves_snapshot(
     )
 
     changed = load_fixture()
-    changed["results"][0]["summary"] = (
-        "Writer failure update"
-    )
+    changed["results"][0]["metadata"]["title"] = [
+        "Writer failure structured update",
+    ]
 
     failing_writer = FakeWriter(
         fail=True
@@ -304,13 +315,24 @@ def test_invalid_fixture_is_rejected_before_write(
         "results": [
             {
                 "reference": "missing-title",
+                "metadata": {
+                    "identifier": [
+                        "TEST-CALL-INVALID",
+                    ],
+                    "frameworkProgramme": [
+                        "TEST-PROGRAMME",
+                    ],
+                    "status": [
+                        "OPEN",
+                    ],
+                },
             },
         ],
     }
 
     with pytest.raises(
         ValueError,
-        match="missing a title",
+        match="structured grant title",
     ):
         run_sedia_incremental_sync(
             payload=invalid_payload,
