@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinAssistBH — AI asistent za EU grantove u BiH</title>
+    <meta name="description" content="Pronađi pravi EU grant i javni poziv za firmu, obrt ili projekat u Bosni i Hercegovini. Na bosanskom, s izvorom, bez izmišljenih rokova.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a4b8c;
+            --primary-light: #2d6fd4;
+            --primary-soft: #e8f0fe;
+            --accent: #d4a843;
+            --bg: #f7f8fa;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-soft: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 36px;
+        }
+        .logo {
+            width: 44px; height: 44px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-weight: 700; font-size: 15px;
+        }
+        .brand h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+        .brand p { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+
+        .hero {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            margin-bottom: 20px;
+        }
+        .hero h2 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+        .hero .lead {
+            font-size: 15px;
+            color: var(--text-soft);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: var(--font);
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.15s ease;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-secondary {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+        .btn-secondary:hover { background: #dbe7fc; }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-soft);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { border-color: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            margin-bottom: 16px;
+        }
+        .section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .section p, .section li {
+            font-size: 14px;
+            color: var(--text-soft);
+            line-height: 1.65;
+        }
+        .section ul {
+            padding-left: 18px;
+            margin-top: 8px;
+        }
+        .section li { margin-bottom: 6px; }
+        .note {
+            font-size: 13px;
+            color: var(--text-soft);
+            background: var(--primary-soft);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 8px;
+        }
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-soft);
+            margin-top: 28px;
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="brand">
+            <div class="logo">EU</div>
+            <div>
+                <h1>FinAssistBH</h1>
+                <p>AI asistent za EU i domaće grantove u BiH</p>
+            </div>
+        </div>
+
+        <section class="hero">
+            <h2>Pronađi pravi grant za svoj projekat</h2>
+            <p class="lead">
+                FinAssistBH pomaže firmama, obrtnicima i konsultantima u Bosni i Hercegovini
+                da brže pronađu javne pozive i EU fondove — na bosanskom, s izvorom,
+                bez izmišljenih rokova i budžeta.
+            </p>
+            <div class="actions">
+                <a class="btn btn-primary" href="app.html?mode=demo">Isprobaj demo</a>
+                <a class="btn btn-secondary" href="auth.html">Prijavi se / Registruj se</a>
+                <a class="btn btn-ghost" href="pitch.html">Cijene</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <h3>Šta radi platforma</h3>
+            <ul>
+                <li>Upišeš šta ti treba (npr. poticaj za poljoprivredu, digitalizaciju, solar…)</li>
+                <li>Sistem pretraži bazu grantova (hybrid pretraga + AI)</li>
+                <li>Dobiješ rangirane rezultate i odgovor zasnovan samo na stvarnim podacima</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h3>Za koga je</h3>
+            <ul>
+                <li>Male i srednje firme, obrti i startupi</li>
+                <li>Konsultanti koji traže pozive za klijente</li>
+                <li>Općine i razvojne agencije</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h3>Zašto je drugačije</h3>
+            <p>
+                AI ne smije izmišljati rok, budžet, uslove ni link.
+                Ako podatak nije potvrđen u bazi, kaže da nije potvrđen.
+            </p>
+            <div class="note">
+                Demo: 3 besplatna AI upita bez registracije.
+                Puna pretraga i AI odgovori dostupni su nakon prijave.
+            </div>
+        </section>
+
+        <footer>
+            © 2026 Dino Hatibović — FinAssistBH
+            · <a href="pitch.html">Cijene</a>
+            · <a href="auth.html">Prijava</a>
+        </footer>
+    </div>
+</body>
+</html>
