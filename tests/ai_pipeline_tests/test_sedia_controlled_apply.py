@@ -7,6 +7,7 @@ import pytest
 
 from ai_core.rag_pipeline.ingestion.sedia_controlled_apply import (
     SediaApplyContext,
+    SediaApplyMutation,
     SediaApplyReceipt,
     SediaApplyReceiptError,
     SediaControlledApplyError,
@@ -677,3 +678,168 @@ def test_contract_module_has_no_external_write_imports():
 
     for marker in forbidden:
         assert marker not in source
+
+def test_apply_mutation_is_immutable_and_validated():
+    mutation = SediaApplyMutation(
+        grant_id="grant-1",
+        action="insert",
+    )
+
+    assert mutation.grant_id == "grant-1"
+    assert mutation.action == "insert"
+
+    with pytest.raises(
+        AttributeError,
+    ):
+        mutation.action = "update"
+
+    with pytest.raises(
+        ValueError,
+        match="grant_id",
+    ):
+        SediaApplyMutation(
+            grant_id=" grant-1 ",
+            action="insert",
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="action",
+    ):
+        SediaApplyMutation(
+            grant_id="grant-1",
+            action="delete",
+        )
+
+
+def test_apply_run_id_changes_when_mutation_actions_change():
+    common = {
+        "source_id": "eu_sedia",
+        "previous_snapshot_fingerprint": "a" * 64,
+        "target_snapshot_fingerprint": "b" * 64,
+        "expected_insert_count": 1,
+        "expected_update_count": 1,
+        "changed_grant_ids": (
+            "grant-1",
+            "grant-2",
+        ),
+    }
+
+    first = build_apply_run_id(
+        **common,
+        mutations=(
+            SediaApplyMutation(
+                grant_id="grant-1",
+                action="insert",
+            ),
+            SediaApplyMutation(
+                grant_id="grant-2",
+                action="update",
+            ),
+        ),
+    )
+    second = build_apply_run_id(
+        **common,
+        mutations=(
+            SediaApplyMutation(
+                grant_id="grant-1",
+                action="update",
+            ),
+            SediaApplyMutation(
+                grant_id="grant-2",
+                action="insert",
+            ),
+        ),
+    )
+
+    assert first != second
+
+
+def test_apply_context_preserves_ordered_mutations():
+    mutations = (
+        SediaApplyMutation(
+            grant_id="grant-1",
+            action="insert",
+        ),
+        SediaApplyMutation(
+            grant_id="grant-2",
+            action="update",
+        ),
+    )
+
+    context = build_apply_context(
+        source_id="eu_sedia",
+        previous_hashes={
+            "grant-2": "a" * 64,
+        },
+        target_hashes={
+            "grant-1": "b" * 64,
+            "grant-2": "c" * 64,
+        },
+        expected_insert_count=1,
+        expected_update_count=1,
+        changed_grant_ids=(
+            "grant-1",
+            "grant-2",
+        ),
+        mutations=mutations,
+    )
+
+    assert context.mutations == mutations
+    assert tuple(
+        mutation.grant_id
+        for mutation in context.mutations
+    ) == context.changed_grant_ids
+
+
+@pytest.mark.parametrize(
+    "mutations, message",
+    [
+        (
+            (
+                SediaApplyMutation(
+                    grant_id="grant-2",
+                    action="update",
+                ),
+                SediaApplyMutation(
+                    grant_id="grant-1",
+                    action="insert",
+                ),
+            ),
+            "same order",
+        ),
+        (
+            (
+                SediaApplyMutation(
+                    grant_id="grant-1",
+                    action="update",
+                ),
+                SediaApplyMutation(
+                    grant_id="grant-2",
+                    action="update",
+                ),
+            ),
+            "insert mutation count",
+        ),
+    ],
+)
+def test_apply_run_id_rejects_invalid_mutation_contract(
+    mutations,
+    message,
+):
+    with pytest.raises(
+        ValueError,
+        match=message,
+    ):
+        build_apply_run_id(
+            source_id="eu_sedia",
+            previous_snapshot_fingerprint="a" * 64,
+            target_snapshot_fingerprint="b" * 64,
+            expected_insert_count=1,
+            expected_update_count=1,
+            changed_grant_ids=(
+                "grant-1",
+                "grant-2",
+            ),
+            mutations=mutations,
+        )
