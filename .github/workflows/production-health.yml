@@ -14,6 +14,14 @@ jobs:
   health-check:
     name: Validate production health contract
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      HEALTH_URL: https://eu-funds-and-grants-ai.onrender.com/health
+      EXPECTED_VERSION: "2.2.1"
+      EXPECTED_COLLECTION: "eu_grants"
+      EXPECTED_DOCUMENTS: "30"
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v7.0.1
@@ -23,11 +31,27 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Fetch release metadata
+      - name: Resolve expected commit
         id: release
         shell: bash
+        run: |
+          set -euo pipefail
+
+          # Prefer the SHA that triggered the run (main / dispatch), fallback to current
+          expected_sha="${{ github.event.client_payload.sha || github.sha }}"
+
+          if [ -z "$expected_sha" ]; then
+            echo "[FAIL] Expected SHA is empty."
+            exit 1
+          fi
+
+          echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"
+          echo "[INFO] expected_sha=$expected_sha"
+
+      - name: Wait for matching Render deployment
+        shell: bash
         env:
-          HEALTH_URL: https://eu-funds-and-grants-ai.onrender.com/health
+          EXPECTED_SHA: ${{ steps.release.outputs.expected_sha }}
         run: |
           set -euo pipefail
 
@@ -40,79 +64,64 @@ jobs:
           while [ "$attempt" -le "$max_attempts" ]; do
             echo "[WAIT] Attempt $attempt/$max_attempts -> $HEALTH_URL"
 
-            if status_code=$(curl -sS -o "$output" -w "%{http_code}" "$HEALTH_URL"); then
+            if status_code=$(curl -sS -o "$output" -w "%{http_code}" --max-time 60 "$HEALTH_URL"); then
               echo "HTTP status: $status_code"
             else
               echo "[WAIT] curl failed; retrying."
+              status_code=""
             fi
 
             if [ "$status_code" = "200" ] && [ -s "$output" ]; then
               echo "[PASS] Health endpoint responded successfully."
 
-              python - "$output" <<'PY'
-          from pathlib import Path
-          import json
-          import os
-          import sys
+              if python - "$output" <<'PY'
+from pathlib import Path
+import json
+import os
+import sys
 
-          path = Path(sys.argv[1])
+path = Path(sys.argv[1])
 
-          try:
-              payload = json.loads(
-                  path.read_text(encoding="utf-8")
-              )
-          except Exception as exc:
-              print(f"[WAIT] Invalid health JSON: {exc}")
-              raise SystemExit(1)
+try:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+except Exception as exc:
+    print(f"[WAIT] Invalid health JSON: {exc}")
+    raise SystemExit(1)
 
-          expected_sha = os.environ["EXPECTED_SHA"]
-          expected_version = os.environ["EXPECTED_VERSION"]
-          expected_collection = os.environ[
-              "EXPECTED_COLLECTION"
-          ]
-          expected_documents = int(
-              os.environ["EXPECTED_DOCUMENTS"]
-          )
+expected_sha = os.environ["EXPECTED_SHA"]
+expected_version = os.environ["EXPECTED_VERSION"]
+expected_collection = os.environ["EXPECTED_COLLECTION"]
+expected_documents = int(os.environ["EXPECTED_DOCUMENTS"])
 
-          expected = {
-              "status": "healthy",
-              "version": expected_version,
-              "git_commit": expected_sha,
-              "chroma_collection": expected_collection,
-              "chroma_documents": expected_documents,
-              "database": "connected",
-              "ai_engine": "ready",
-              "grants_total": 30,
-              "grants_in_vector_db": 30,
-          }
+expected = {
+    "status": "healthy",
+    "version": expected_version,
+    "git_commit": expected_sha,
+    "chroma_collection": expected_collection,
+    "chroma_documents": expected_documents,
+    "database": "connected",
+    "ai_engine": "ready",
+    "grants_total": 30,
+    "grants_in_vector_db": 30,
+}
 
-          failures = []
+failures = []
 
-          for key, value in expected.items():
-              actual = payload.get(key)
-              passed = actual == value
+for key, value in expected.items():
+    actual = payload.get(key)
+    passed = actual == value
+    print(f"{key}={'PASS' if passed else 'WAIT'}")
+    if not passed:
+        failures.append(f"{key}: expected={value!r}, actual={actual!r}")
 
-              print(
-                  f"{key}="
-                  f"{'PASS' if passed else 'WAIT'}"
-              )
+if failures:
+    print("[WAIT] Production is not current:")
+    for failure in failures:
+        print(f"  {failure}")
+    raise SystemExit(1)
 
-              if not passed:
-                  failures.append(
-                      f"{key}: expected={value!r}, "
-                      f"actual={actual!r}"
-                  )
-
-          if failures:
-              print("[WAIT] Production is not current:")
-
-              for failure in failures:
-                  print(f"  {failure}")
-
-              raise SystemExit(1)
-
-          print("[PASS] production health contract")
-          PY
+print("[PASS] production health contract")
+PY
               then
                 cp "$output" production-health.json
                 break
@@ -138,43 +147,26 @@ jobs:
           set -euo pipefail
 
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
-          from pathlib import Path
-          import json
-          import os
+from pathlib import Path
+import json
+import os
 
-          payload = json.loads(
-              Path("production-health.json").read_text(
-                  encoding="utf-8"
-              )
-          )
+payload = json.loads(
+    Path("production-health.json").read_text(encoding="utf-8")
+)
 
-          print("# Production health")
-          print()
-          print(f"- Status: `{payload['status']}`")
-          print(f"- Version: `{payload['version']}`")
-          print(f"- Git commit: `{payload['git_commit']}`")
-          print(
-              "- Chroma collection: "
-              f"`{payload['chroma_collection']}`"
-          )
-          print(
-              "- Chroma documents: "
-              f"`{payload['chroma_documents']}`"
-          )
-          print(
-              "- Grants loaded: "
-              f"`{payload['grants_total']}`"
-          )
-          print(
-              "- AI engine: "
-              f"`{payload['ai_engine']}`"
-          )
-          print()
-          print(
-              "Expected commit: "
-              f"`{os.environ['EXPECTED_SHA']}`"
-          )
-          PY
+print("# Production health")
+print()
+print(f"- Status: `{payload['status']}`")
+print(f"- Version: `{payload['version']}`")
+print(f"- Git commit: `{payload['git_commit']}`")
+print(f"- Chroma collection: `{payload['chroma_collection']}`")
+print(f"- Chroma documents: `{payload['chroma_documents']}`")
+print(f"- Grants loaded: `{payload['grants_total']}`")
+print(f"- AI engine: `{payload['ai_engine']}`")
+print()
+print(f"Expected commit: `{os.environ['EXPECTED_SHA']}`")
+PY
 
       - name: Upload health response
         uses: actions/upload-artifact@v7
